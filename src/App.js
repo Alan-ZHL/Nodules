@@ -1,13 +1,17 @@
 import React, { useState } from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import { LinkContainer } from "react-router-bootstrap";
-import Navbar from "react-bootstrap/Navbar";
-import Nav from "react-bootstrap/Nav";
-import Dropdown from 'react-bootstrap/Dropdown';
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { Layout, Menu } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 import { PublicPostsGeneral, CoursePostsGeneral } from "./theme_posts";
 import Courses from "./theme_courses";
 import { Users, Register, Login } from "./theme_users";
 import "./App.css";
+const {
+  SubMenu
+} = Menu;
+const {
+  Header
+} = Layout;
 export default function App() {
   const [logined, setLogin] = useState(0); //test function to simulate login
 
@@ -32,7 +36,9 @@ export default function App() {
     path: "/courses"
   }, /*#__PURE__*/React.createElement(Courses, null)), /*#__PURE__*/React.createElement(Route, {
     path: "/posts/public"
-  }, /*#__PURE__*/React.createElement(PublicPostsGeneral, null)), /*#__PURE__*/React.createElement(Route, {
+  }, /*#__PURE__*/React.createElement(PublicPostsGeneral, {
+    logined: logined
+  })), /*#__PURE__*/React.createElement(Route, {
     path: "/posts/courses"
   }, /*#__PURE__*/React.createElement(CoursePostsGeneral, null)), /*#__PURE__*/React.createElement(Route, {
     path: "/register"
@@ -42,40 +48,49 @@ export default function App() {
 }
 
 function Toolbar(props) {
-  const options = props.logined ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(LinkContainer, {
+  const options = props.logined ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Menu.Item, {
+    key: "1"
+  }, /*#__PURE__*/React.createElement(Link, {
     to: "/users"
-  }, /*#__PURE__*/React.createElement(Dropdown.Item, null, "Manage user Info")), /*#__PURE__*/React.createElement(Dropdown.Divider, null), /*#__PURE__*/React.createElement(LinkContainer, {
-    to: "logout"
-  }, /*#__PURE__*/React.createElement(Dropdown.Item, {
+  }, "Manage User Info")), /*#__PURE__*/React.createElement(Menu.Divider, null), /*#__PURE__*/React.createElement(Menu.Item, {
+    key: "2",
     onClick: props.logoutHelper
-  }, "Logout"))) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(LinkContainer, {
+  }, /*#__PURE__*/React.createElement(Link, {
+    to: "/logout"
+  }, "Log Out"))) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Menu.Item, {
+    key: "1"
+  }, /*#__PURE__*/React.createElement(Link, {
     to: "/register"
-  }, /*#__PURE__*/React.createElement(Dropdown.Item, null, "Register")), /*#__PURE__*/React.createElement(LinkContainer, {
-    to: "/login"
-  }, /*#__PURE__*/React.createElement(Dropdown.Item, {
+  }, "Register")), /*#__PURE__*/React.createElement(Menu.Item, {
+    key: "2",
     onClick: props.loginHelper
-  }, "Login")));
-  return /*#__PURE__*/React.createElement(Navbar, {
-    bg: "light",
-    expand: "lg",
-    className: "homepage-navbar"
-  }, /*#__PURE__*/React.createElement(LinkContainer, {
-    to: "/"
-  }, /*#__PURE__*/React.createElement(Navbar.Brand, {
-    className: "navbar-brand"
-  }, /*#__PURE__*/React.createElement("strong", null, "NodUleS"))), /*#__PURE__*/React.createElement(Navbar.Toggle, {
-    "aria-controls": "homepage-nav"
-  }), /*#__PURE__*/React.createElement(Navbar.Collapse, {
-    id: "homepage-nav"
-  }, /*#__PURE__*/React.createElement(Nav, {
-    variant: "tabs",
-    className: "d-flex justify-content-center"
-  }, /*#__PURE__*/React.createElement(LinkContainer, {
+  }, /*#__PURE__*/React.createElement(Link, {
+    to: "/login"
+  }, "Log In")));
+  return /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(Header, {
+    className: "header"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "logo"
+  }, "NodUleS"), /*#__PURE__*/React.createElement(Menu, {
+    theme: "dark",
+    mode: "horizontal",
+    defaultSelectedKeys: ['1']
+  }, /*#__PURE__*/React.createElement(Menu.Item, {
+    key: "1",
+    className: "navbar-item"
+  }, /*#__PURE__*/React.createElement(Link, {
     to: "/posts/public"
-  }, /*#__PURE__*/React.createElement(Nav.Link, null, "Public Chats")), /*#__PURE__*/React.createElement(LinkContainer, {
+  }, "Public Chats")), /*#__PURE__*/React.createElement(Menu.Item, {
+    key: "2",
+    className: "navbar-item",
+    disabled: !props.logined
+  }, /*#__PURE__*/React.createElement(Link, {
     to: "/posts/courses"
-  }, /*#__PURE__*/React.createElement(Nav.Link, null, "Course Discussion")))), /*#__PURE__*/React.createElement(Dropdown, null, /*#__PURE__*/React.createElement(Dropdown.Toggle, {
-    variant: "light",
-    id: "user_dropdown"
-  }, "Welcome, tourist!"), /*#__PURE__*/React.createElement(Dropdown.Menu, null, options)));
+  }, "Course Discussion")), /*#__PURE__*/React.createElement(SubMenu, {
+    key: "sub1",
+    icon: /*#__PURE__*/React.createElement(UserOutlined, null),
+    title: "Welcome, tourist!",
+    className: "navbar-user",
+    defaultSelectedKeys: ['1']
+  }, options))));
 }

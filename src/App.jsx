@@ -1,17 +1,19 @@
 import React, {useState} from "react";
 import {
     BrowserRouter as Router,
-    Switch, Route
+    Switch, Route, Link
 } from "react-router-dom";
-import {LinkContainer} from "react-router-bootstrap";
-import Navbar from "react-bootstrap/Navbar";
-import Nav from "react-bootstrap/Nav";
-import Dropdown from 'react-bootstrap/Dropdown';
+import { Layout, Menu } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 
 import {PublicPostsGeneral, CoursePostsGeneral} from "./theme_posts";
 import Courses from "./theme_courses";
 import {Users, Register, Login} from "./theme_users";
 import "./App.css";
+
+
+const { SubMenu } = Menu;
+const { Header } = Layout;
 
 
 export default function App() {
@@ -44,7 +46,7 @@ export default function App() {
                         <Courses />
                     </Route>
                     <Route path="/posts/public">
-                        <PublicPostsGeneral />
+                        <PublicPostsGeneral logined={logined}/>
                     </Route>
                     <Route path="/posts/courses">
                         <CoursePostsGeneral />
@@ -65,50 +67,43 @@ export default function App() {
 function Toolbar(props) {
     const options = (props.logined) ? (
         <>
-            <LinkContainer to="/users">
-                <Dropdown.Item>Manage user Info</Dropdown.Item>
-            </LinkContainer>
-            <Dropdown.Divider />
-            <LinkContainer to="logout">
-                <Dropdown.Item onClick={props.logoutHelper}>Logout</Dropdown.Item>
-            </LinkContainer>
+            <Menu.Item key="1">
+                <Link to="/users">Manage User Info</Link>
+            </Menu.Item>
+            <Menu.Divider />
+            <Menu.Item key="2" onClick={props.logoutHelper}>
+                <Link to="/logout">Log Out</Link>
+            </Menu.Item>
         </>
     ) : (
         <>
-        <LinkContainer to="/register">
-            <Dropdown.Item>Register</Dropdown.Item>
-        </LinkContainer>
-        <LinkContainer to="/login">
-            <Dropdown.Item onClick={props.loginHelper}>Login</Dropdown.Item>
-        </LinkContainer>
+            <Menu.Item key="1">
+                <Link to="/register">Register</Link>
+            </Menu.Item>
+            <Menu.Item key="2" onClick={props.loginHelper}>
+                <Link to="/login">Log In</Link>
+            </Menu.Item>
         </>
     );
 
     return (
-        <Navbar bg="light" expand="lg" className="homepage-navbar">
-            <LinkContainer to="/">
-                <Navbar.Brand className="navbar-brand"><strong>NodUleS</strong></Navbar.Brand>
-            </LinkContainer>
-            <Navbar.Toggle aria-controls="homepage-nav" />
-            <Navbar.Collapse id="homepage-nav">
-                <Nav variant="tabs" className="d-flex justify-content-center">
-                    <LinkContainer to="/posts/public">
-                        <Nav.Link>Public Chats</Nav.Link>
-                    </LinkContainer>
-                    <LinkContainer to="/posts/courses">
-                        <Nav.Link>Course Discussion</Nav.Link>
-                    </LinkContainer>
-                    
-                </Nav>
-            </Navbar.Collapse>
-            <Dropdown>
-                <Dropdown.Toggle variant="light" id="user_dropdown">
-                    Welcome, tourist!
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                    {options}
-                </Dropdown.Menu>
-            </Dropdown>
-        </Navbar>
+        <Layout>
+            <Header className="header">
+                <div className="logo">NodUleS</div>
+                <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
+                    <Menu.Item key="1" className="navbar-item">
+                        <Link to="/posts/public">Public Chats</Link>
+                    </Menu.Item>
+                    <Menu.Item key="2" className="navbar-item" disabled={!props.logined}>
+                        <Link to="/posts/courses">Course Discussion</Link>
+                    </Menu.Item>
+                    <SubMenu key="sub1" icon={<UserOutlined />} 
+                        title="Welcome, tourist!" className="navbar-user"
+                        defaultSelectedKeys={['1']}>
+                        {options}
+                    </SubMenu>
+                </Menu>
+            </Header>
+        </Layout>
     );
 }

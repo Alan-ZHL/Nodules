@@ -1,37 +1,50 @@
 import React from "react";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Nav from "react-bootstrap/Nav";
+import { Layout, Menu, Breadcrumb } from 'antd';
 
 import "./theme_posts.css";
 
 
-function PublicPostsGeneral() {
+const { SubMenu } = Menu;
+const { Sider } = Layout;
+
+
+function PublicPostsGeneral(props) {
     return (
-        <Nav className="col-md-3 col-lg-2 d-none d-md-block bg-light sidebar collapse">
-            <div className="sidebar-sticky pt-3">
-                <h6 className="sidebar-heading px-4 mt-4 mb-2 text-muted">
-                    Filter by
-                </h6>
-                <ul className="flex-column">
-                    <li>
-                        Favored courses
-                    </li>
-                    <li>
-                        Hotest Posts
-                    </li>
-                    <li>
-                        Latest Posts
-                    </li>
-                </ul>
-            </div>
-        </Nav>
+        <PostSider logined={props.logined}/>
     );
 }
+
 
 function CoursePostsGeneral() {
     return (
         <h2> Display the <strong>course</strong> posts and related components. </h2>
+    );
+}
+
+
+function PostSider(props) {
+    return (
+        <Sider width={220}>
+            <Menu
+                mode="inline"
+                defaultOpenKeys={['sub1', 'sub2']}
+                className="sider-post"
+            >
+                {props.logined && (
+                    <SubMenu key="sub1" title="My courses">
+                        <Menu.Item key="1">IT5007</Menu.Item>
+                        <Menu.Item key="2">IT5002</Menu.Item>
+                        <Menu.Item key="3">CS4226</Menu.Item>
+                        <Menu.Item key="4">CS5424</Menu.Item>
+                    </SubMenu>
+                )}
+                <SubMenu key="sub2" title="Filter by">
+                    <Menu.Item key="1">Favored courses</Menu.Item>
+                    <Menu.Item key="2">Hotest posts</Menu.Item>
+                    <Menu.Item key="3">Latest posts</Menu.Item>
+                </SubMenu>
+            </Menu>
+        </Sider>
     );
 }
 
