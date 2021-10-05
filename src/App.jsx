@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, {useState} from "react";
 import {
     BrowserRouter as Router,
-    Switch, Route, 
-    Link
+    Switch, Route
 } from "react-router-dom";
+import {LinkContainer} from "react-router-bootstrap";
+import Navbar from "react-bootstrap/Navbar";
+import Nav from "react-bootstrap/Nav";
+import NavDropdown from "react-bootstrap/NavDropdown";
 
 import Posts from "./theme_posts";
 import Courses from "./theme_courses";
@@ -11,10 +14,26 @@ import {Users, Register, Login} from "./theme_users";
 
 
 export default function App() {
+    const [logined, setLogin] = useState(0);
+
+    //test function to simulate login
+    function loginHelper() {
+        setLogin(1);
+        alert("Log in (simulate) successfully!");
+    }
+
+    //test function to simulate logout
+    function logoutHelper() {
+        setLogin(0);
+        alert("Log out (simulate) successfully!");
+    }
+
     return (
         <Router>
             <div>
-                <Toolbar />
+                <Toolbar logined={logined} 
+                        loginHelper={loginHelper} 
+                        logoutHelper={logoutHelper}/>
 
                 <Switch>
                     <Route path="/users">
@@ -38,22 +57,46 @@ export default function App() {
     );
 }
 
-function Toolbar() {
+
+function Toolbar(props) {
+    const options = (props.logined) ? (
+        <LinkContainer to="logout">
+            <NavDropdown.Item onClick={props.logoutHelper}>Logout</NavDropdown.Item>
+        </LinkContainer>
+    ) : (
+        <>
+        <LinkContainer to="/register">
+            <NavDropdown.Item>Register</NavDropdown.Item>
+        </LinkContainer>
+        <LinkContainer to="/login">
+            <NavDropdown.Item onClick={props.loginHelper}>Login</NavDropdown.Item>
+        </LinkContainer>
+        </>
+    );
+
     return (
-        <ul>
-            <li>
-                <Link to="/posts">Posts</Link>
-            </li>
-            <li>
-                <Link to="/courses">Courses</Link>
-            </li>
-            <li>
-                <Link to="/users">Users</Link>
-                <ul>
-                    <li> <Link to="/register">Register</Link> </li>
-                    <li> <Link to="/login">Login</Link> </li>
-                </ul>
-            </li>
-        </ul>
+        <Navbar bg="light" expand="lg">
+            <LinkContainer to="/">
+                <Navbar.Brand><strong>NodUleS</strong></Navbar.Brand>
+            </LinkContainer>
+            <Navbar.Toggle aria-controls="homepage-nav" />
+            <Navbar.Collapse id="homepage-nav">
+                <Nav variant="tabs" className="mr-auto">
+                    <LinkContainer to="/posts/public">
+                        <Nav.Link>Public Chats</Nav.Link>
+                    </LinkContainer>
+                    <LinkContainer to="/posts/course">
+                        <Nav.Link>Course Discussion</Nav.Link>
+                    </LinkContainer>
+                    <NavDropdown title="Welcome, tourist!" id="user-dropdown">
+                        <LinkContainer to="/users">
+                            <NavDropdown.Item>Manage user Info</NavDropdown.Item>
+                        </LinkContainer>
+                        <NavDropdown.Divider />
+                        {options}
+                    </NavDropdown>
+                </Nav>
+            </Navbar.Collapse>
+        </Navbar>
     );
 }
