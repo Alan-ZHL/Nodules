@@ -6,11 +6,12 @@ import {
 import {LinkContainer} from "react-router-bootstrap";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
-import NavDropdown from "react-bootstrap/NavDropdown";
+import Dropdown from 'react-bootstrap/Dropdown';
 
-import Posts from "./theme_posts";
+import {PublicPostsGeneral, CoursePostsGeneral} from "./theme_posts";
 import Courses from "./theme_courses";
 import {Users, Register, Login} from "./theme_users";
+import "./App.css";
 
 
 export default function App() {
@@ -30,7 +31,7 @@ export default function App() {
 
     return (
         <Router>
-            <div>
+            <>
                 <Toolbar logined={logined} 
                         loginHelper={loginHelper} 
                         logoutHelper={logoutHelper}/>
@@ -42,8 +43,11 @@ export default function App() {
                     <Route path="/courses">
                         <Courses />
                     </Route>
-                    <Route path="/posts">
-                        <Posts />
+                    <Route path="/posts/public">
+                        <PublicPostsGeneral />
+                    </Route>
+                    <Route path="/posts/courses">
+                        <CoursePostsGeneral />
                     </Route>
                     <Route path="/register">
                         <Register />
@@ -52,7 +56,7 @@ export default function App() {
                         <Login />
                     </Route>
                 </Switch>
-            </div>
+            </>
         </Router>
     );
 }
@@ -60,43 +64,51 @@ export default function App() {
 
 function Toolbar(props) {
     const options = (props.logined) ? (
-        <LinkContainer to="logout">
-            <NavDropdown.Item onClick={props.logoutHelper}>Logout</NavDropdown.Item>
-        </LinkContainer>
+        <>
+            <LinkContainer to="/users">
+                <Dropdown.Item>Manage user Info</Dropdown.Item>
+            </LinkContainer>
+            <Dropdown.Divider />
+            <LinkContainer to="logout">
+                <Dropdown.Item onClick={props.logoutHelper}>Logout</Dropdown.Item>
+            </LinkContainer>
+        </>
     ) : (
         <>
         <LinkContainer to="/register">
-            <NavDropdown.Item>Register</NavDropdown.Item>
+            <Dropdown.Item>Register</Dropdown.Item>
         </LinkContainer>
         <LinkContainer to="/login">
-            <NavDropdown.Item onClick={props.loginHelper}>Login</NavDropdown.Item>
+            <Dropdown.Item onClick={props.loginHelper}>Login</Dropdown.Item>
         </LinkContainer>
         </>
     );
 
     return (
-        <Navbar bg="light" expand="lg">
+        <Navbar bg="light" expand="lg" className="homepage-navbar">
             <LinkContainer to="/">
-                <Navbar.Brand><strong>NodUleS</strong></Navbar.Brand>
+                <Navbar.Brand className="navbar-brand"><strong>NodUleS</strong></Navbar.Brand>
             </LinkContainer>
             <Navbar.Toggle aria-controls="homepage-nav" />
             <Navbar.Collapse id="homepage-nav">
-                <Nav variant="tabs" className="mr-auto">
+                <Nav variant="tabs" className="d-flex justify-content-center">
                     <LinkContainer to="/posts/public">
                         <Nav.Link>Public Chats</Nav.Link>
                     </LinkContainer>
-                    <LinkContainer to="/posts/course">
+                    <LinkContainer to="/posts/courses">
                         <Nav.Link>Course Discussion</Nav.Link>
                     </LinkContainer>
-                    <NavDropdown title="Welcome, tourist!" id="user-dropdown">
-                        <LinkContainer to="/users">
-                            <NavDropdown.Item>Manage user Info</NavDropdown.Item>
-                        </LinkContainer>
-                        <NavDropdown.Divider />
-                        {options}
-                    </NavDropdown>
+                    
                 </Nav>
             </Navbar.Collapse>
+            <Dropdown>
+                <Dropdown.Toggle variant="light" id="user_dropdown">
+                    Welcome, tourist!
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                    {options}
+                </Dropdown.Menu>
+            </Dropdown>
         </Navbar>
     );
 }

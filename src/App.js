@@ -3,10 +3,11 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { LinkContainer } from "react-router-bootstrap";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
-import NavDropdown from "react-bootstrap/NavDropdown";
-import Posts from "./theme_posts";
+import Dropdown from 'react-bootstrap/Dropdown';
+import { PublicPostsGeneral, CoursePostsGeneral } from "./theme_posts";
 import Courses from "./theme_courses";
 import { Users, Register, Login } from "./theme_users";
+import "./App.css";
 export default function App() {
   const [logined, setLogin] = useState(0); //test function to simulate login
 
@@ -21,7 +22,7 @@ export default function App() {
     alert("Log out (simulate) successfully!");
   }
 
-  return /*#__PURE__*/React.createElement(Router, null, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Toolbar, {
+  return /*#__PURE__*/React.createElement(Router, null, /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Toolbar, {
     logined: logined,
     loginHelper: loginHelper,
     logoutHelper: logoutHelper
@@ -30,8 +31,10 @@ export default function App() {
   }, /*#__PURE__*/React.createElement(Users, null)), /*#__PURE__*/React.createElement(Route, {
     path: "/courses"
   }, /*#__PURE__*/React.createElement(Courses, null)), /*#__PURE__*/React.createElement(Route, {
-    path: "/posts"
-  }, /*#__PURE__*/React.createElement(Posts, null)), /*#__PURE__*/React.createElement(Route, {
+    path: "/posts/public"
+  }, /*#__PURE__*/React.createElement(PublicPostsGeneral, null)), /*#__PURE__*/React.createElement(Route, {
+    path: "/posts/courses"
+  }, /*#__PURE__*/React.createElement(CoursePostsGeneral, null)), /*#__PURE__*/React.createElement(Route, {
     path: "/register"
   }, /*#__PURE__*/React.createElement(Register, null)), /*#__PURE__*/React.createElement(Route, {
     path: "/login"
@@ -39,37 +42,40 @@ export default function App() {
 }
 
 function Toolbar(props) {
-  const options = props.logined ? /*#__PURE__*/React.createElement(LinkContainer, {
+  const options = props.logined ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(LinkContainer, {
+    to: "/users"
+  }, /*#__PURE__*/React.createElement(Dropdown.Item, null, "Manage user Info")), /*#__PURE__*/React.createElement(Dropdown.Divider, null), /*#__PURE__*/React.createElement(LinkContainer, {
     to: "logout"
-  }, /*#__PURE__*/React.createElement(NavDropdown.Item, {
+  }, /*#__PURE__*/React.createElement(Dropdown.Item, {
     onClick: props.logoutHelper
-  }, "Logout")) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(LinkContainer, {
+  }, "Logout"))) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(LinkContainer, {
     to: "/register"
-  }, /*#__PURE__*/React.createElement(NavDropdown.Item, null, "Register")), /*#__PURE__*/React.createElement(LinkContainer, {
+  }, /*#__PURE__*/React.createElement(Dropdown.Item, null, "Register")), /*#__PURE__*/React.createElement(LinkContainer, {
     to: "/login"
-  }, /*#__PURE__*/React.createElement(NavDropdown.Item, {
+  }, /*#__PURE__*/React.createElement(Dropdown.Item, {
     onClick: props.loginHelper
   }, "Login")));
   return /*#__PURE__*/React.createElement(Navbar, {
     bg: "light",
-    expand: "lg"
+    expand: "lg",
+    className: "homepage-navbar"
   }, /*#__PURE__*/React.createElement(LinkContainer, {
     to: "/"
-  }, /*#__PURE__*/React.createElement(Navbar.Brand, null, /*#__PURE__*/React.createElement("strong", null, "NodUleS"))), /*#__PURE__*/React.createElement(Navbar.Toggle, {
+  }, /*#__PURE__*/React.createElement(Navbar.Brand, {
+    className: "navbar-brand"
+  }, /*#__PURE__*/React.createElement("strong", null, "NodUleS"))), /*#__PURE__*/React.createElement(Navbar.Toggle, {
     "aria-controls": "homepage-nav"
   }), /*#__PURE__*/React.createElement(Navbar.Collapse, {
     id: "homepage-nav"
   }, /*#__PURE__*/React.createElement(Nav, {
     variant: "tabs",
-    className: "mr-auto"
+    className: "d-flex justify-content-center"
   }, /*#__PURE__*/React.createElement(LinkContainer, {
     to: "/posts/public"
   }, /*#__PURE__*/React.createElement(Nav.Link, null, "Public Chats")), /*#__PURE__*/React.createElement(LinkContainer, {
-    to: "/posts/course"
-  }, /*#__PURE__*/React.createElement(Nav.Link, null, "Course Discussion")), /*#__PURE__*/React.createElement(NavDropdown, {
-    title: "Welcome, tourist!",
-    id: "user-dropdown"
-  }, /*#__PURE__*/React.createElement(LinkContainer, {
-    to: "/users"
-  }, /*#__PURE__*/React.createElement(NavDropdown.Item, null, "Manage user Info")), /*#__PURE__*/React.createElement(NavDropdown.Divider, null), options))));
+    to: "/posts/courses"
+  }, /*#__PURE__*/React.createElement(Nav.Link, null, "Course Discussion")))), /*#__PURE__*/React.createElement(Dropdown, null, /*#__PURE__*/React.createElement(Dropdown.Toggle, {
+    variant: "light",
+    id: "user_dropdown"
+  }, "Welcome, tourist!"), /*#__PURE__*/React.createElement(Dropdown.Menu, null, options)));
 }
