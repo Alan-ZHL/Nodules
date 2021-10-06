@@ -2,7 +2,7 @@
   float: left;
   width: 120px;
   height: 31px;
-  margin: 16px 48px 16px 0;
+  margin: 16px 50px 16px 0;
   background: rgba(255, 255, 255, 0.3);
   line-height: 31px;
   text-align: center;
@@ -12,14 +12,14 @@
 }
 
 .app-header {
-  position: 'fixed'; 
+  position: fixed; 
   z-index: 1; 
   width: 100%
 }
 
 .navbar-user {
   float: right;
-  margin-left: 50%;
+  margin-left: 53%;
   width: 100px;
 }
 

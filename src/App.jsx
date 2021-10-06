@@ -1,7 +1,8 @@
 import React, {useState} from "react";
 import {
     BrowserRouter as Router,
-    Switch, Route, Link
+    Switch, Route, Link,
+    Redirect
 } from "react-router-dom";
 import { Layout, Menu } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
@@ -18,6 +19,7 @@ const { Header } = Layout;
 
 export default function App() {
     const [logined, setLogin] = useState(0);
+    const [ispublic, setIspublic] = useState(1);
 
     //test function to simulate login
     function loginHelper() {
@@ -31,14 +33,28 @@ export default function App() {
         alert("Log out (simulate) successfully!");
     }
 
+    function setPublic() {
+        setIspublic(1);
+    }
+
+    function setPrivate() {
+        setIspublic(0);
+    }
+
     return (
         <Router>
             <Layout>
                 <Toolbar logined={logined} 
                         loginHelper={loginHelper} 
-                        logoutHelper={logoutHelper}/>
+                        logoutHelper={logoutHelper}
+                        setPublic={setPublic}
+                        setPrivate={setPrivate}/>
 
                 <Switch>
+                    <Route path="/">
+                        <Redirect to="/posts/public" />
+                        <PublicPostsGeneral logined={logined} ispublic={ispublic}/>
+                    </Route>
                     <Route path="/users">
                         <Users />
                     </Route>
@@ -46,10 +62,10 @@ export default function App() {
                         <Courses />
                     </Route>
                     <Route path="/posts/public">
-                        <PublicPostsGeneral logined={logined}/>
+                        <PublicPostsGeneral logined={logined} ispublic={ispublic}/>
                     </Route>
                     <Route path="/posts/courses">
-                        <CoursePostsGeneral />
+                        <CoursePostsGeneral logined={logined} ispublic={ispublic}/>
                     </Route>
                     <Route path="/register">
                         <Register />
@@ -88,12 +104,14 @@ function Toolbar(props) {
 
     return (
         <Header className="app-header">
-            <div className="logo">NodUleS</div>
+            <Link to="/posts/public">
+                <div className="logo">NodUleS</div>
+            </Link>
             <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
-                <Menu.Item key="1" className="navbar-item">
+                <Menu.Item key="1" className="navbar-item" onClick={props.setPublic}>
                     <Link to="/posts/public">Public Chats</Link>
                 </Menu.Item>
-                <Menu.Item key="2" className="navbar-item" disabled={!props.logined}>
+                <Menu.Item key="2" className="navbar-item" onClick={props.setPrivate} disabled={!props.logined}>
                     <Link to="/posts/courses">Course Discussion</Link>
                 </Menu.Item>
                 <SubMenu key="sub" icon={<UserOutlined />} 

@@ -2,11 +2,49 @@
   overflow:auto;
   height: 100vh;
   position:fixed;
+  margin-top: 5%;
   left: 0;
+  background: #fafafa;
 }
 
 .sider-post-menu {
   background: #eafce7;
   box-shadow: inset -2px 0 0 rgba(0, 0, 0, .1);
-  height: '100%';
+}
+
+.header-notif {
+  background: #eafce7;
+  text-align: center;
+  font-size: large;
+  font-weight: 400;
+}
+
+.sider-notif {
+  overflow: auto;
+  position:fixed;
+  right:0%;
+  margin-top: 5%;
+  background: #fafafa;
+  height: 100vh;
+  border-left:3px solid rgba(59, 59, 59, 0.1);
+}
+
+.sider-notif-list {
+  margin-left: 10px;
+}
+
+.notlogined-notif {
+  text-align: center;
+  color:lightslategray;
+}
+
+.content-post {
+  position: relative;
+  margin-left: 25%;
+  margin-top: 5%;
+}
+
+.content-post-item {
+  background: #fafafa;
+  width: 62%;
 }
