@@ -9,9 +9,9 @@ const {
 } = Layout;
 
 function PublicPostsGeneral(props) {
-  return /*#__PURE__*/React.createElement(PostSider, {
+  return /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(PostSider, {
     logined: props.logined
-  });
+  }));
 }
 
 function CoursePostsGeneral() {
@@ -19,13 +19,7 @@ function CoursePostsGeneral() {
 }
 
 function PostSider(props) {
-  return /*#__PURE__*/React.createElement(Sider, {
-    width: 220
-  }, /*#__PURE__*/React.createElement(Menu, {
-    mode: "inline",
-    defaultOpenKeys: ['sub1', 'sub2'],
-    className: "sider-post"
-  }, props.logined && /*#__PURE__*/React.createElement(SubMenu, {
+  const course_selector = props.logined ? /*#__PURE__*/React.createElement(SubMenu, {
     key: "sub1",
     title: "My courses"
   }, /*#__PURE__*/React.createElement(Menu.Item, {
@@ -36,7 +30,15 @@ function PostSider(props) {
     key: "3"
   }, "CS4226"), /*#__PURE__*/React.createElement(Menu.Item, {
     key: "4"
-  }, "CS5424")), /*#__PURE__*/React.createElement(SubMenu, {
+  }, "CS5424")) : null;
+  return /*#__PURE__*/React.createElement(Sider, {
+    width: 220,
+    className: "sider-post"
+  }, /*#__PURE__*/React.createElement(Menu, {
+    mode: "inline",
+    defaultOpenKeys: ['sub1', 'sub2'],
+    className: "sider-post-menu"
+  }, course_selector, /*#__PURE__*/React.createElement(SubMenu, {
     key: "sub2",
     title: "Filter by"
   }, /*#__PURE__*/React.createElement(Menu.Item, {

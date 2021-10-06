@@ -11,6 +11,12 @@
   color: #eafce7;
 }
 
+.app-header {
+  position: 'fixed'; 
+  z-index: 1; 
+  width: 100%
+}
+
 .navbar-user {
   float: right;
   margin-left: 50%;

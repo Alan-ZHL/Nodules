@@ -10,7 +10,9 @@ const { Sider } = Layout;
 
 function PublicPostsGeneral(props) {
     return (
-        <PostSider logined={props.logined}/>
+        <Layout>
+            <PostSider logined={props.logined}/>
+        </Layout>
     );
 }
 
@@ -23,21 +25,25 @@ function CoursePostsGeneral() {
 
 
 function PostSider(props) {
+    const course_selector = (props.logined) ? (
+        <SubMenu key="sub1" title="My courses">
+            <Menu.Item key="1">IT5007</Menu.Item>
+            <Menu.Item key="2">IT5002</Menu.Item>
+            <Menu.Item key="3">CS4226</Menu.Item>
+            <Menu.Item key="4">CS5424</Menu.Item>
+        </SubMenu>
+    ) : (
+        null
+    );
+
     return (
-        <Sider width={220}>
+        <Sider width={220} className="sider-post">
             <Menu
                 mode="inline"
                 defaultOpenKeys={['sub1', 'sub2']}
-                className="sider-post"
+                className="sider-post-menu"
             >
-                {props.logined && (
-                    <SubMenu key="sub1" title="My courses">
-                        <Menu.Item key="1">IT5007</Menu.Item>
-                        <Menu.Item key="2">IT5002</Menu.Item>
-                        <Menu.Item key="3">CS4226</Menu.Item>
-                        <Menu.Item key="4">CS5424</Menu.Item>
-                    </SubMenu>
-                )}
+                {course_selector}
                 <SubMenu key="sub2" title="Filter by">
                     <Menu.Item key="1">Favored courses</Menu.Item>
                     <Menu.Item key="2">Hotest posts</Menu.Item>

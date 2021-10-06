@@ -33,7 +33,7 @@ export default function App() {
 
     return (
         <Router>
-            <>
+            <Layout>
                 <Toolbar logined={logined} 
                         loginHelper={loginHelper} 
                         logoutHelper={logoutHelper}/>
@@ -58,7 +58,7 @@ export default function App() {
                         <Login />
                     </Route>
                 </Switch>
-            </>
+            </Layout>
         </Router>
     );
 }
@@ -67,43 +67,40 @@ export default function App() {
 function Toolbar(props) {
     const options = (props.logined) ? (
         <>
-            <Menu.Item key="1">
+            <Menu.Item key="sub_1">
                 <Link to="/users">Manage User Info</Link>
             </Menu.Item>
             <Menu.Divider />
-            <Menu.Item key="2" onClick={props.logoutHelper}>
+            <Menu.Item key="sub_2" onClick={props.logoutHelper}>
                 <Link to="/logout">Log Out</Link>
             </Menu.Item>
         </>
     ) : (
         <>
-            <Menu.Item key="1">
+            <Menu.Item key="sub_1">
                 <Link to="/register">Register</Link>
             </Menu.Item>
-            <Menu.Item key="2" onClick={props.loginHelper}>
+            <Menu.Item key="sub_2" onClick={props.loginHelper}>
                 <Link to="/login">Log In</Link>
             </Menu.Item>
         </>
     );
 
     return (
-        <Layout>
-            <Header className="header">
-                <div className="logo">NodUleS</div>
-                <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
-                    <Menu.Item key="1" className="navbar-item">
-                        <Link to="/posts/public">Public Chats</Link>
-                    </Menu.Item>
-                    <Menu.Item key="2" className="navbar-item" disabled={!props.logined}>
-                        <Link to="/posts/courses">Course Discussion</Link>
-                    </Menu.Item>
-                    <SubMenu key="sub1" icon={<UserOutlined />} 
-                        title="Welcome, tourist!" className="navbar-user"
-                        defaultSelectedKeys={['1']}>
-                        {options}
-                    </SubMenu>
-                </Menu>
-            </Header>
-        </Layout>
+        <Header className="app-header">
+            <div className="logo">NodUleS</div>
+            <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
+                <Menu.Item key="1" className="navbar-item">
+                    <Link to="/posts/public">Public Chats</Link>
+                </Menu.Item>
+                <Menu.Item key="2" className="navbar-item" disabled={!props.logined}>
+                    <Link to="/posts/courses">Course Discussion</Link>
+                </Menu.Item>
+                <SubMenu key="sub" icon={<UserOutlined />} 
+                    title="Welcome, tourist!" className="navbar-user">
+                    {options}
+                </SubMenu>
+            </Menu>
+        </Header>
     );
 }

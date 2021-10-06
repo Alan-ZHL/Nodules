@@ -26,7 +26,7 @@ export default function App() {
     alert("Log out (simulate) successfully!");
   }
 
-  return /*#__PURE__*/React.createElement(Router, null, /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Toolbar, {
+  return /*#__PURE__*/React.createElement(Router, null, /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(Toolbar, {
     logined: logined,
     loginHelper: loginHelper,
     logoutHelper: logoutHelper
@@ -49,26 +49,26 @@ export default function App() {
 
 function Toolbar(props) {
   const options = props.logined ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Menu.Item, {
-    key: "1"
+    key: "sub_1"
   }, /*#__PURE__*/React.createElement(Link, {
     to: "/users"
   }, "Manage User Info")), /*#__PURE__*/React.createElement(Menu.Divider, null), /*#__PURE__*/React.createElement(Menu.Item, {
-    key: "2",
+    key: "sub_2",
     onClick: props.logoutHelper
   }, /*#__PURE__*/React.createElement(Link, {
     to: "/logout"
   }, "Log Out"))) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Menu.Item, {
-    key: "1"
+    key: "sub_1"
   }, /*#__PURE__*/React.createElement(Link, {
     to: "/register"
   }, "Register")), /*#__PURE__*/React.createElement(Menu.Item, {
-    key: "2",
+    key: "sub_2",
     onClick: props.loginHelper
   }, /*#__PURE__*/React.createElement(Link, {
     to: "/login"
   }, "Log In")));
-  return /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(Header, {
-    className: "header"
+  return /*#__PURE__*/React.createElement(Header, {
+    className: "app-header"
   }, /*#__PURE__*/React.createElement("div", {
     className: "logo"
   }, "NodUleS"), /*#__PURE__*/React.createElement(Menu, {
@@ -87,10 +87,9 @@ function Toolbar(props) {
   }, /*#__PURE__*/React.createElement(Link, {
     to: "/posts/courses"
   }, "Course Discussion")), /*#__PURE__*/React.createElement(SubMenu, {
-    key: "sub1",
+    key: "sub",
     icon: /*#__PURE__*/React.createElement(UserOutlined, null),
     title: "Welcome, tourist!",
-    className: "navbar-user",
-    defaultSelectedKeys: ['1']
-  }, options))));
+    className: "navbar-user"
+  }, options)));
 }

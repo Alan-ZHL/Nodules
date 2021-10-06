@@ -1,5 +1,12 @@
 .sider-post {
+  overflow:auto;
+  height: 100vh;
+  position:fixed;
+  left: 0;
+}
+
+.sider-post-menu {
   background: #eafce7;
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+  box-shadow: inset -2px 0 0 rgba(0, 0, 0, .1);
   height: '100%';
 }
