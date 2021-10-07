@@ -1,7 +1,11 @@
 from flask import Blueprint, jsonify
+from api.views import users
+from api import login_manager # (put your import here)
 
 
-users = Blueprint("users", __name__)
+# print(__name__)
+# users = Blueprint("users", __name__)
+# print(login_manager)
 
 
 @users.route("/register", methods=["POST"])

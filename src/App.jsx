@@ -7,7 +7,7 @@ import {
 import { Layout, Menu } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 
-import {PublicPostsGeneral, CoursePostsGeneral} from "./theme_posts";
+import {PublicPostsGeneral, CoursePostsGeneral, PostDetail} from "./theme_posts";
 import Courses from "./theme_courses";
 import {Users, Register, Login} from "./theme_users";
 import "./App.css";
@@ -51,9 +51,14 @@ export default function App() {
                         setPrivate={setPrivate}/>
 
                 <Switch>
-                    <Route path="/">
-                        <Redirect to="/posts/public" />
+                    <Route exact path="/posts/public">
                         <PublicPostsGeneral logined={logined} ispublic={ispublic}/>
+                    </Route>
+                    <Route exact path="/posts/courses">
+                        <CoursePostsGeneral logined={logined} ispublic={ispublic}/>
+                    </Route>
+                    <Route path="/posts/:postid">
+                        <PostDetail />
                     </Route>
                     <Route path="/users">
                         <Users />
@@ -61,17 +66,15 @@ export default function App() {
                     <Route path="/courses">
                         <Courses />
                     </Route>
-                    <Route path="/posts/public">
-                        <PublicPostsGeneral logined={logined} ispublic={ispublic}/>
-                    </Route>
-                    <Route path="/posts/courses">
-                        <CoursePostsGeneral logined={logined} ispublic={ispublic}/>
-                    </Route>
                     <Route path="/register">
                         <Register />
                     </Route>
                     <Route path="/login">
                         <Login />
+                    </Route>
+                    <Route exact path="/">
+                        <Redirect to="/posts/public" />
+                        <PublicPostsGeneral logined={logined} ispublic={ispublic}/>
                     </Route>
                 </Switch>
             </Layout>

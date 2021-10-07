@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { BrowserRouter as Router, Switch, Route, Link, Redirect } from "react-router-dom";
 import { Layout, Menu } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
-import { PublicPostsGeneral, CoursePostsGeneral } from "./theme_posts";
+import { PublicPostsGeneral, CoursePostsGeneral, PostDetail } from "./theme_posts";
 import Courses from "./theme_courses";
 import { Users, Register, Login } from "./theme_users";
 import "./App.css";
@@ -42,31 +42,36 @@ export default function App() {
     setPublic: setPublic,
     setPrivate: setPrivate
   }), /*#__PURE__*/React.createElement(Switch, null, /*#__PURE__*/React.createElement(Route, {
+    exact: true,
+    path: "/posts/public"
+  }, /*#__PURE__*/React.createElement(PublicPostsGeneral, {
+    logined: logined,
+    ispublic: ispublic
+  })), /*#__PURE__*/React.createElement(Route, {
+    exact: true,
+    path: "/posts/courses"
+  }, /*#__PURE__*/React.createElement(CoursePostsGeneral, {
+    logined: logined,
+    ispublic: ispublic
+  })), /*#__PURE__*/React.createElement(Route, {
+    path: "/posts/:postid"
+  }, /*#__PURE__*/React.createElement(PostDetail, null)), /*#__PURE__*/React.createElement(Route, {
+    path: "/users"
+  }, /*#__PURE__*/React.createElement(Users, null)), /*#__PURE__*/React.createElement(Route, {
+    path: "/courses"
+  }, /*#__PURE__*/React.createElement(Courses, null)), /*#__PURE__*/React.createElement(Route, {
+    path: "/register"
+  }, /*#__PURE__*/React.createElement(Register, null)), /*#__PURE__*/React.createElement(Route, {
+    path: "/login"
+  }, /*#__PURE__*/React.createElement(Login, null)), /*#__PURE__*/React.createElement(Route, {
+    exact: true,
     path: "/"
   }, /*#__PURE__*/React.createElement(Redirect, {
     to: "/posts/public"
   }), /*#__PURE__*/React.createElement(PublicPostsGeneral, {
     logined: logined,
     ispublic: ispublic
-  })), /*#__PURE__*/React.createElement(Route, {
-    path: "/users"
-  }, /*#__PURE__*/React.createElement(Users, null)), /*#__PURE__*/React.createElement(Route, {
-    path: "/courses"
-  }, /*#__PURE__*/React.createElement(Courses, null)), /*#__PURE__*/React.createElement(Route, {
-    path: "/posts/public"
-  }, /*#__PURE__*/React.createElement(PublicPostsGeneral, {
-    logined: logined,
-    ispublic: ispublic
-  })), /*#__PURE__*/React.createElement(Route, {
-    path: "/posts/courses"
-  }, /*#__PURE__*/React.createElement(CoursePostsGeneral, {
-    logined: logined,
-    ispublic: ispublic
-  })), /*#__PURE__*/React.createElement(Route, {
-    path: "/register"
-  }, /*#__PURE__*/React.createElement(Register, null)), /*#__PURE__*/React.createElement(Route, {
-    path: "/login"
-  }, /*#__PURE__*/React.createElement(Login, null)))));
+  })))));
 }
 
 function Toolbar(props) {

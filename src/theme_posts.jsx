@@ -1,6 +1,6 @@
-import React, {useState} from "react";
-import {Link} from "react-router-dom";
-import { Layout, Menu, List, Drawer, Button, Space } from 'antd';
+import React, { useState } from "react";
+import { Link, useParams, useHistory } from "react-router-dom";
+import { Layout, Menu, List, Drawer, Button, Space, Card, Comment, Tooltip } from 'antd';
 import { LikeFilled, DislikeFilled, MessageOutlined } from '@ant-design/icons';
 
 import "./theme_posts.css";
@@ -11,26 +11,37 @@ const { Sider, Header, Content } = Layout;
 
 // hard-coded notifications
 const notifs_sample = [
-    {title: "Remember to submit tutorial 4", course: "IT5007", author: "Prasanna Karthik Vairam", date:"2021-09-30",
+    {title: "Remember to submit tutorial 4", course_id: "IT5007", author: "Prasanna Karthik Vairam", date:"2021-09-30",
     content: "remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd!"},
-    {title: "Exam date determined", course: "IT5002", author: "Colin Tan", date: "2021-09-03", 
+    {title: "Exam date determined", course_id: "IT5002", author: "Colin Tan", date: "2021-09-03", 
     content: "Midterm exam is set on Oct 5th. Please be prepared."}, 
-    {title: "Welcome to CS4226!", course: "CS4226", author: "Richard Ma", date: "2021-08-26", 
+    {title: "Welcome to CS4226!", course_id: "CS4226", author: "Richard Ma", date: "2021-08-26", 
     content: "Welcome to CS4226. I will be the lecturer of this course. Looking forward to meeting all of you!"}
 ];
 
 // hard-coded posts info
 const listData = [];
+const listComment = [];
 for (let i = 0; i < 16; i++) {
-listData.push({
-    postid: 1056 + i,
-    topic: `Sample post ${i}`,
-    starter: "Donald Trump ex",
-    course: "IT5007",
-    date: "2 days ago",
-    snippet: 'We supply a series of design principles, practical patterns and high quality design resources...',
-    likes: 156, dislikes: 18, comments: 6
-});
+    listData.push({
+        postid: 1056 + i,
+        topic: `Sample post ${i}`,
+        starter: "Donald Trump ex",
+        course_id: "IT5007", course_name: "Software Engineering on Application Architecture",
+        date: "2 days ago",
+        snippet: "We supply a series of design principles, practical patterns and high quality design resources...",
+        content: "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.",
+        likes: 156, dislikes: 18, comments: [i, i+1, i+2]
+    });
+}
+for (let i = 0; i < 18; i++) {
+    listComment.push({
+        commentid: i,
+        participant: "Biden III",
+        date: "2 days ago",
+        content: `Good job! ${i}`,
+        likes: 10, dislikes: 2
+    });
 }
 
 
@@ -138,12 +149,12 @@ function DraweredListItem(props) {
                 actions={[<a onClick={showDrawer}>more</a>]}
             >
                 <List.Item.Meta
-                    title={<>{item.course}<br/>{item.title}</>}
+                    title={<>{item.course_id}<br/>{item.title}</>}
                     description={<>Created on {item.date}, <br/>by {item.author}</>}
                 />
             </List.Item>
             <hr/>
-            <Drawer title={<>{item.course}<br/>{item.title}</>} placement="right" 
+            <Drawer title={<>{item.course_id}<br/>{item.title}</>} placement="right" 
                     onClose={onClose} visible={visible} width={360}>
                 {item.content}
             </Drawer>
@@ -153,6 +164,7 @@ function DraweredListItem(props) {
 
 
 function PostContent() {
+
     return (
         <Content className="content-post">
             <List
@@ -178,34 +190,37 @@ function PostContent() {
 
 function CardListItem(props) {
     let item = props.item;
+    const history = useHistory();
+
+    function showDetail() {
+        history.push(`/posts/${item.postid}`);
+    }
 
     return (
         <>
         <br/>
-        <Link to={`/posts/${item.postid}`}>
-            <List.Item
+        <List.Item
                 key={item.postid}
                 actions={[
                     <IconText icon={LikeFilled} text={item.likes} key="list-vertical-like" />,
                     <IconText icon={DislikeFilled} text={item.dislikes} key="list-vertical-dislike" />,
-                    <IconText icon={MessageOutlined} text={item.comments} key="list-vertical-message" />
+                    <IconText icon={MessageOutlined} text={item.comments.length} key="list-vertical-message" />
                 ]}
                 className="content-post-item"
             >
                 <List.Item.Meta
                 title={
                     <>
-                        <Link to={`/courses/${item.course}`}>
-                            <Button type="text"> {item.course} </Button>
+                        <Link to={`/courses/${item.course_id}`}>
+                            <Button type="text"> {item.course_id} </Button>
                         </Link>
-                        {item.topic}
+                        <span className="link-post-detail" onClick={showDetail}>{item.topic}</span>
                     </>
                 }
-                description={`Posted by ${item.author}, ${item.date}`}
+                description={`Posted by ${item.starter}, ${item.date}`}
                 />
-                {item.snippet}
+                <span className="link-post-detail" onClick={showDetail}>{item.snippet}</span>
             </List.Item>
-        </Link>
         </>
     );
 }
@@ -220,4 +235,103 @@ const IconText = ({ icon, text }) => (
 
 
 
-export {PublicPostsGeneral, CoursePostsGeneral};
+function PostDetail() {
+    const { postid } = useParams();
+    const history = useHistory();
+    // pass these functions to backend later
+    const post = findPost(parseInt(postid));
+    const comments = findComments(parseInt(postid) - 1056);
+
+    const post_content = post === null ? (
+        <h2> Sorry, post {postid} does not exist.. </h2>
+    ) : (
+        <>
+        <Card
+            className="post-detail"
+            actions={[
+                <IconText icon={LikeFilled} text={post.likes} key="post-like" />,
+                <IconText icon={DislikeFilled} text={post.dislikes} key="post-dislike" />,
+            ]}
+        >
+            <Card.Meta
+                title={<span className="post-detail-title">{post.topic}</span>}
+                description={
+                    <>
+                    Course: 
+                    <Link to={`/course/${post.course_id}`}>
+                        <Button type="text">{post.course_id}: {post.course_name}</Button>
+                    </Link>
+                    <br/>
+                    <span>Posted by {post.starter}, {post.date}</span>
+                    </>
+                }
+            />
+            <div className="post-detail-content">
+                <span className="post-detail-content-head">Content</span>
+                <br/>
+                {post.content}
+            </div>
+        </Card>
+        <List
+            className="post-comment"
+            header={`${comments.length} Replies`}
+            itemLayout="horizontal"
+            dataSource={comments}
+            renderItem={item => (
+                <li>
+                    <Comment
+                        actions={[
+                            <Tooltip key={`comment-${item.commentid}-like`} title="Like">
+                                <LikeFilled/>
+                                <span className="comment-action">{item.likes}</span>
+                            </Tooltip>,
+                            <Tooltip key={`comment-${item.commentid}-dislike`} title="Dislike">
+                                <DislikeFilled/>
+                                <span className="comment-action">{item.dislikes}</span>
+                            </Tooltip>,
+                        ]}
+                        author={item.participant}
+                        content={item.content}
+                        datetime={item.date}
+                    />
+                </li>
+            )}
+        />
+        </>
+    );
+
+    return (
+        <Layout>
+            <Content className="content-detail">
+                <Button className="button-back" onClick={() => history.goBack()}>Back to the Forum</Button>
+                {post_content}
+            </Content>
+        </Layout>
+    );
+}
+
+
+// TODO: should be implemented on the backend
+function findPost(postid) {
+    const length = listData.length;
+    for (let i = 0; i < length; i++) {
+        if (listData[i].postid === postid) {
+            return listData[i];
+        }
+    }
+    return null;
+}
+
+
+// TODO: should be implemented on the backend, and the logic should change accordingly
+function findComments(idx) {
+    if (idx < 0 || idx >= listComment.length - 3) {
+        return null;
+    } else {
+        return listComment.slice(idx, idx + 3);
+    }
+}
+
+
+
+export {PublicPostsGeneral, CoursePostsGeneral, PostDetail};

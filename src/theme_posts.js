@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Layout, Menu, List, Drawer, Button, Space } from 'antd';
+import { Link, useParams, useHistory } from "react-router-dom";
+import { Layout, Menu, List, Drawer, Button, Space, Card, Comment, Tooltip } from 'antd';
 import { LikeFilled, DislikeFilled, MessageOutlined } from '@ant-design/icons';
 import "./theme_posts.css";
 const {
@@ -14,37 +14,51 @@ const {
 
 const notifs_sample = [{
   title: "Remember to submit tutorial 4",
-  course: "IT5007",
+  course_id: "IT5007",
   author: "Prasanna Karthik Vairam",
   date: "2021-09-30",
   content: "remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd!"
 }, {
   title: "Exam date determined",
-  course: "IT5002",
+  course_id: "IT5002",
   author: "Colin Tan",
   date: "2021-09-03",
   content: "Midterm exam is set on Oct 5th. Please be prepared."
 }, {
   title: "Welcome to CS4226!",
-  course: "CS4226",
+  course_id: "CS4226",
   author: "Richard Ma",
   date: "2021-08-26",
   content: "Welcome to CS4226. I will be the lecturer of this course. Looking forward to meeting all of you!"
 }]; // hard-coded posts info
 
 const listData = [];
+const listComment = [];
 
 for (let i = 0; i < 16; i++) {
   listData.push({
     postid: 1056 + i,
     topic: `Sample post ${i}`,
     starter: "Donald Trump ex",
-    course: "IT5007",
+    course_id: "IT5007",
+    course_name: "Software Engineering on Application Architecture",
     date: "2 days ago",
-    snippet: 'We supply a series of design principles, practical patterns and high quality design resources...',
+    snippet: "We supply a series of design principles, practical patterns and high quality design resources...",
+    content: "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.",
     likes: 156,
     dislikes: 18,
-    comments: 6
+    comments: [i, i + 1, i + 2]
+  });
+}
+
+for (let i = 0; i < 18; i++) {
+  listComment.push({
+    commentid: i,
+    participant: "Biden III",
+    date: "2 days ago",
+    content: `Good job! ${i}`,
+    likes: 10,
+    dislikes: 2
   });
 } // Top-level component: display public posts with a complete layout
 
@@ -140,10 +154,10 @@ function DraweredListItem(props) {
       onClick: showDrawer
     }, "more")]
   }, /*#__PURE__*/React.createElement(List.Item.Meta, {
-    title: /*#__PURE__*/React.createElement(React.Fragment, null, item.course, /*#__PURE__*/React.createElement("br", null), item.title),
+    title: /*#__PURE__*/React.createElement(React.Fragment, null, item.course_id, /*#__PURE__*/React.createElement("br", null), item.title),
     description: /*#__PURE__*/React.createElement(React.Fragment, null, "Created on ", item.date, ", ", /*#__PURE__*/React.createElement("br", null), "by ", item.author)
   })), /*#__PURE__*/React.createElement("hr", null), /*#__PURE__*/React.createElement(Drawer, {
-    title: /*#__PURE__*/React.createElement(React.Fragment, null, item.course, /*#__PURE__*/React.createElement("br", null), item.title),
+    title: /*#__PURE__*/React.createElement(React.Fragment, null, item.course_id, /*#__PURE__*/React.createElement("br", null), item.title),
     placement: "right",
     onClose: onClose,
     visible: visible,
@@ -176,9 +190,13 @@ function PostContent() {
 
 function CardListItem(props) {
   let item = props.item;
-  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement(Link, {
-    to: `/posts/${item.postid}`
-  }, /*#__PURE__*/React.createElement(List.Item, {
+  const history = useHistory();
+
+  function showDetail() {
+    history.push(`/posts/${item.postid}`);
+  }
+
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement(List.Item, {
     key: item.postid,
     actions: [/*#__PURE__*/React.createElement(IconText, {
       icon: LikeFilled,
@@ -190,18 +208,24 @@ function CardListItem(props) {
       key: "list-vertical-dislike"
     }), /*#__PURE__*/React.createElement(IconText, {
       icon: MessageOutlined,
-      text: item.comments,
+      text: item.comments.length,
       key: "list-vertical-message"
     })],
     className: "content-post-item"
   }, /*#__PURE__*/React.createElement(List.Item.Meta, {
     title: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Link, {
-      to: `/courses/${item.course}`
+      to: `/courses/${item.course_id}`
     }, /*#__PURE__*/React.createElement(Button, {
       type: "text"
-    }, " ", item.course, " ")), item.topic),
-    description: `Posted by ${item.author}, ${item.date}`
-  }), item.snippet)));
+    }, " ", item.course_id, " ")), /*#__PURE__*/React.createElement("span", {
+      className: "link-post-detail",
+      onClick: showDetail
+    }, item.topic)),
+    description: `Posted by ${item.starter}, ${item.date}`
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "link-post-detail",
+    onClick: showDetail
+  }, item.snippet)));
 }
 
 const IconText = ({
@@ -209,4 +233,88 @@ const IconText = ({
   text
 }) => /*#__PURE__*/React.createElement(Space, null, /*#__PURE__*/React.createElement(icon), text);
 
-export { PublicPostsGeneral, CoursePostsGeneral };
+function PostDetail() {
+  const {
+    postid
+  } = useParams();
+  const history = useHistory(); // pass these functions to backend later
+
+  const post = findPost(parseInt(postid));
+  const comments = findComments(parseInt(postid) - 1056);
+  const post_content = post === null ? /*#__PURE__*/React.createElement("h2", null, " Sorry, post ", postid, " does not exist.. ") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Card, {
+    className: "post-detail",
+    actions: [/*#__PURE__*/React.createElement(IconText, {
+      icon: LikeFilled,
+      text: post.likes,
+      key: "post-like"
+    }), /*#__PURE__*/React.createElement(IconText, {
+      icon: DislikeFilled,
+      text: post.dislikes,
+      key: "post-dislike"
+    })]
+  }, /*#__PURE__*/React.createElement(Card.Meta, {
+    title: /*#__PURE__*/React.createElement("span", {
+      className: "post-detail-title"
+    }, post.topic),
+    description: /*#__PURE__*/React.createElement(React.Fragment, null, "Course:", /*#__PURE__*/React.createElement(Link, {
+      to: `/course/${post.course_id}`
+    }, /*#__PURE__*/React.createElement(Button, {
+      type: "text"
+    }, post.course_id, ": ", post.course_name)), /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", null, "Posted by ", post.starter, ", ", post.date))
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "post-detail-content"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "post-detail-content-head"
+  }, "Content"), /*#__PURE__*/React.createElement("br", null), post.content)), /*#__PURE__*/React.createElement(List, {
+    className: "post-comment",
+    header: `${comments.length} Replies`,
+    itemLayout: "horizontal",
+    dataSource: comments,
+    renderItem: item => /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement(Comment, {
+      actions: [/*#__PURE__*/React.createElement(Tooltip, {
+        key: `comment-${item.commentid}-like`,
+        title: "Like"
+      }, /*#__PURE__*/React.createElement(LikeFilled, null), /*#__PURE__*/React.createElement("span", {
+        className: "comment-action"
+      }, item.likes)), /*#__PURE__*/React.createElement(Tooltip, {
+        key: `comment-${item.commentid}-dislike`,
+        title: "Dislike"
+      }, /*#__PURE__*/React.createElement(DislikeFilled, null), /*#__PURE__*/React.createElement("span", {
+        className: "comment-action"
+      }, item.dislikes))],
+      author: item.participant,
+      content: item.content,
+      datetime: item.date
+    }))
+  }));
+  return /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(Content, {
+    className: "content-detail"
+  }, /*#__PURE__*/React.createElement(Button, {
+    className: "button-back",
+    onClick: () => history.goBack()
+  }, "Back to the Forum"), post_content));
+} // TODO: should be implemented on the backend
+
+
+function findPost(postid) {
+  const length = listData.length;
+
+  for (let i = 0; i < length; i++) {
+    if (listData[i].postid === postid) {
+      return listData[i];
+    }
+  }
+
+  return null;
+} // TODO: should be implemented on the backend, and the logic should change accordingly
+
+
+function findComments(idx) {
+  if (idx < 0 || idx >= listComment.length - 3) {
+    return null;
+  } else {
+    return listComment.slice(idx, idx + 3);
+  }
+}
+
+export { PublicPostsGeneral, CoursePostsGeneral, PostDetail };

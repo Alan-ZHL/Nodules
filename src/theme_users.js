@@ -15,14 +15,24 @@ function Register() {
         }
       }).then(resp => resp.json().then(new_stat => {
         setStatus(new_stat);
-      }));
+      })).catch(e => {
+        console.log(e);
+      });
     }, 2000);
   });
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, " Display the registration form. "), /*#__PURE__*/React.createElement("p", null, " Test response from backend: ", status));
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: "60px"
+    }
+  }, /*#__PURE__*/React.createElement("h2", null, " Display the registration form. "), /*#__PURE__*/React.createElement("p", null, " Test response from backend: ", status));
 }
 
 function Login() {
-  return /*#__PURE__*/React.createElement("h2", null, " Display the login form. ");
+  return /*#__PURE__*/React.createElement("h2", {
+    style: {
+      marginTop: "5%"
+    }
+  }, " Display the login form. ");
 }
 
 export { Users, Register, Login };

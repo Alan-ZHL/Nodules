@@ -1,7 +1,9 @@
 from flask import Blueprint, jsonify
+from api.views import posts
 
 
-posts = Blueprint("posts", __name__)
+# print(__name__)
+# posts = Blueprint("posts", __name__)
 
 
 @posts.route("/add_post", methods=["POST"])

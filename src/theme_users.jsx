@@ -23,12 +23,15 @@ function Register() {
                 new_stat => {
                     setStatus(new_stat);
                 }
-            ));
+            ))
+            .catch(e => {
+                console.log(e);
+            });
         }, 2000);
     });
 
     return (
-        <div>
+        <div style={{marginTop: "60px"}}>
             <h2> Display the registration form. </h2>
             <p> Test response from backend: {status}</p>
         </div>
@@ -38,7 +41,7 @@ function Register() {
 
 function Login() {
     return (
-        <h2> Display the login form. </h2>
+        <h2 style={{marginTop: "5%"}}> Display the login form. </h2>
     );
 }
 
