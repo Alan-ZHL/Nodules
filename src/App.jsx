@@ -7,8 +7,8 @@ import {
 import { Layout, Menu } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 
-import {PublicPostsGeneral, CoursePostsGeneral, PostDetail} from "./theme_posts";
-import Courses from "./theme_courses";
+import {PublicForum, CourseForum, PostDetail} from "./theme_posts";
+import { CoursePage } from "./theme_courses";
 import {Users, Register, Login} from "./theme_users";
 import "./App.css";
 
@@ -52,19 +52,19 @@ export default function App() {
 
                 <Switch>
                     <Route exact path="/posts/public">
-                        <PublicPostsGeneral logined={logined} ispublic={ispublic}/>
+                        <PublicForum logined={logined} ispublic={ispublic}/>
                     </Route>
                     <Route exact path="/posts/courses">
-                        <CoursePostsGeneral logined={logined} ispublic={ispublic}/>
+                        <CourseForum logined={logined} ispublic={ispublic}/>
                     </Route>
                     <Route path="/posts/:postid">
                         <PostDetail />
                     </Route>
+                    <Route path="/courses/:courseid">
+                        <CoursePage />
+                    </Route>
                     <Route path="/users">
                         <Users />
-                    </Route>
-                    <Route path="/courses">
-                        <Courses />
                     </Route>
                     <Route path="/register">
                         <Register />
@@ -74,7 +74,7 @@ export default function App() {
                     </Route>
                     <Route exact path="/">
                         <Redirect to="/posts/public" />
-                        <PublicPostsGeneral logined={logined} ispublic={ispublic}/>
+                        <PublicForum logined={logined} ispublic={ispublic}/>
                     </Route>
                 </Switch>
             </Layout>

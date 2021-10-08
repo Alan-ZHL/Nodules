@@ -5,9 +5,9 @@ import { LikeFilled, DislikeFilled, MessageOutlined } from '@ant-design/icons';
 
 import "./theme_posts.css";
 
-
 const { SubMenu } = Menu;
 const { Sider, Header, Content } = Layout;
+
 
 // hard-coded notifications
 const notifs_sample = [
@@ -46,8 +46,7 @@ for (let i = 0; i < 18; i++) {
 
 
 // Top-level component: display public posts with a complete layout
-function PublicPostsGeneral(props) {
-    // TODO: add the logic of getting the post from public / user info
+function PublicForum(props) {
     return (
         <Layout>
             <PostSider logined={props.logined} ispublic={props.ispublic}/>
@@ -59,7 +58,7 @@ function PublicPostsGeneral(props) {
 
 
 // Top-level component: display course posts with a complete layout
-function CoursePostsGeneral(props) {
+function CourseForum(props) {
     return (
         <Layout>
             <PostSider logined={props.logined} ispublic={props.ispubic}/>
@@ -163,8 +162,8 @@ function DraweredListItem(props) {
 }
 
 
+// Showing a list of posts in the public or course forum
 function PostContent() {
-
     return (
         <Content className="content-post">
             <List
@@ -188,6 +187,7 @@ function PostContent() {
 }
 
 
+// Creating a brief info of a post in the forum
 function CardListItem(props) {
     let item = props.item;
     const history = useHistory();
@@ -235,6 +235,7 @@ const IconText = ({ icon, text }) => (
 
 
 
+// Displaying the post detail
 function PostDetail() {
     const { postid } = useParams();
     const history = useHistory();
@@ -258,7 +259,7 @@ function PostDetail() {
                 description={
                     <>
                     Course: 
-                    <Link to={`/course/${post.course_id}`}>
+                    <Link to={`/courses/${post.course_id}`}>
                         <Button type="text">{post.course_id}: {post.course_name}</Button>
                     </Link>
                     <br/>
@@ -334,4 +335,4 @@ function findComments(idx) {
 
 
 
-export {PublicPostsGeneral, CoursePostsGeneral, PostDetail};
+export {PublicForum, CourseForum, PostDetail};

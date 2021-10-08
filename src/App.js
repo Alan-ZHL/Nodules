@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { BrowserRouter as Router, Switch, Route, Link, Redirect } from "react-router-dom";
 import { Layout, Menu } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
-import { PublicPostsGeneral, CoursePostsGeneral, PostDetail } from "./theme_posts";
-import Courses from "./theme_courses";
+import { PublicForum, CourseForum, PostDetail } from "./theme_posts";
+import { CoursePage } from "./theme_courses";
 import { Users, Register, Login } from "./theme_users";
 import "./App.css";
 const {
@@ -44,22 +44,22 @@ export default function App() {
   }), /*#__PURE__*/React.createElement(Switch, null, /*#__PURE__*/React.createElement(Route, {
     exact: true,
     path: "/posts/public"
-  }, /*#__PURE__*/React.createElement(PublicPostsGeneral, {
+  }, /*#__PURE__*/React.createElement(PublicForum, {
     logined: logined,
     ispublic: ispublic
   })), /*#__PURE__*/React.createElement(Route, {
     exact: true,
     path: "/posts/courses"
-  }, /*#__PURE__*/React.createElement(CoursePostsGeneral, {
+  }, /*#__PURE__*/React.createElement(CourseForum, {
     logined: logined,
     ispublic: ispublic
   })), /*#__PURE__*/React.createElement(Route, {
     path: "/posts/:postid"
   }, /*#__PURE__*/React.createElement(PostDetail, null)), /*#__PURE__*/React.createElement(Route, {
+    path: "/courses/:courseid"
+  }, /*#__PURE__*/React.createElement(CoursePage, null)), /*#__PURE__*/React.createElement(Route, {
     path: "/users"
   }, /*#__PURE__*/React.createElement(Users, null)), /*#__PURE__*/React.createElement(Route, {
-    path: "/courses"
-  }, /*#__PURE__*/React.createElement(Courses, null)), /*#__PURE__*/React.createElement(Route, {
     path: "/register"
   }, /*#__PURE__*/React.createElement(Register, null)), /*#__PURE__*/React.createElement(Route, {
     path: "/login"
@@ -68,7 +68,7 @@ export default function App() {
     path: "/"
   }, /*#__PURE__*/React.createElement(Redirect, {
     to: "/posts/public"
-  }), /*#__PURE__*/React.createElement(PublicPostsGeneral, {
+  }), /*#__PURE__*/React.createElement(PublicForum, {
     logined: logined,
     ispublic: ispublic
   })))));

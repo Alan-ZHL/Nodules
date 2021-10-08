@@ -63,8 +63,7 @@ for (let i = 0; i < 18; i++) {
 } // Top-level component: display public posts with a complete layout
 
 
-function PublicPostsGeneral(props) {
-  // TODO: add the logic of getting the post from public / user info
+function PublicForum(props) {
   return /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(PostSider, {
     logined: props.logined,
     ispublic: props.ispublic
@@ -74,7 +73,7 @@ function PublicPostsGeneral(props) {
 } // Top-level component: display course posts with a complete layout
 
 
-function CoursePostsGeneral(props) {
+function CourseForum(props) {
   return /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(PostSider, {
     logined: props.logined,
     ispublic: props.ispubic
@@ -163,7 +162,8 @@ function DraweredListItem(props) {
     visible: visible,
     width: 360
   }, item.content));
-}
+} // Showing a list of posts in the public or course forum
+
 
 function PostContent() {
   return /*#__PURE__*/React.createElement(Content, {
@@ -186,7 +186,8 @@ function PostContent() {
       }
     }
   }));
-}
+} // Creating a brief info of a post in the forum
+
 
 function CardListItem(props) {
   let item = props.item;
@@ -231,7 +232,8 @@ function CardListItem(props) {
 const IconText = ({
   icon,
   text
-}) => /*#__PURE__*/React.createElement(Space, null, /*#__PURE__*/React.createElement(icon), text);
+}) => /*#__PURE__*/React.createElement(Space, null, /*#__PURE__*/React.createElement(icon), text); // Displaying the post detail
+
 
 function PostDetail() {
   const {
@@ -257,7 +259,7 @@ function PostDetail() {
       className: "post-detail-title"
     }, post.topic),
     description: /*#__PURE__*/React.createElement(React.Fragment, null, "Course:", /*#__PURE__*/React.createElement(Link, {
-      to: `/course/${post.course_id}`
+      to: `/courses/${post.course_id}`
     }, /*#__PURE__*/React.createElement(Button, {
       type: "text"
     }, post.course_id, ": ", post.course_name)), /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", null, "Posted by ", post.starter, ", ", post.date))
@@ -317,4 +319,4 @@ function findComments(idx) {
   }
 }
 
-export { PublicPostsGeneral, CoursePostsGeneral, PostDetail };
+export { PublicForum, CourseForum, PostDetail };
