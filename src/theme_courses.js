@@ -18,6 +18,15 @@ const course_sample = [{
   lecturer: "Prasanna Karthik Vairam",
   open_semesters: "Semester 1",
   description: "To meet changing business needs, this course focuses on flexible and agile software development on modern application architecture. Students learn to design and develop modern applications that support multiple clients across different platforms such as desktop, mobile devices and cloud. The course covers designing (1) website-based front-end software and (2) mobile app front-end that interacts with a common cloud-based backend. The final part involves engineering software for higher-level objectives such as security and performance. Tools and techniques for writing modern software, such as, HTML5, CSS3, React.js, Node.js, MySQL/MongoDB, and Git will be taught. "
+}, {
+  course_id: "IT5002",
+  course_name: "Computer Systems and Applications",
+  credit: 4,
+  workload: "2-1-2-3-2",
+  prerequisites: ["IT5001"],
+  lecturer: "Tan Keng Yan, Colin",
+  open_semesters: "Semester 1",
+  description: "This module aims to introduce non-computing students to (a) the common principles and concepts in computer systems: abstraction, layering, indirection, caching, hierarchical naming, prefetching, pipelining, locking, concurrency; (b) the inner workings of a computing device, including hardware (CPU, memory, disks), operating systems (kernels, processes and threads, virtual memory, files), and applications (Web, databases)."
 }]; // General layout of a coursepage
 
 function CoursePage() {
@@ -88,7 +97,8 @@ function CourseHeader(props) {
     extra: [/*#__PURE__*/React.createElement(Tooltip, {
       key: `${props.id}-favor`,
       title: "Favor this course"
-    }, /*#__PURE__*/React.createElement(StarOutlined, null))]
+    }, /*#__PURE__*/React.createElement(StarOutlined, null))],
+    className: "coursepage-header"
   });
 }
 
@@ -96,7 +106,14 @@ function CourseDesciptions(props) {
   const course = props.course;
   return /*#__PURE__*/React.createElement(Descriptions, {
     column: 2,
-    bordered: true
+    bordered: true,
+    labelStyle: {
+      background: "#ffffff",
+      fontSize: "16px"
+    },
+    contentStyle: {
+      background: "#fafafa"
+    }
   }, /*#__PURE__*/React.createElement(Descriptions.Item, {
     label: "Open Semester",
     span: 2
@@ -127,6 +144,7 @@ function CoursePostsAndNotifs(props) {
   const [display, setDisplay] = useState("notifs");
   const DropdownList = display === "notifs" ? /*#__PURE__*/React.createElement(List, {
     itemLayout: "vertical",
+    size: "large",
     dataSource: props.notifs,
     renderItem: item => /*#__PURE__*/React.createElement(NotifListItem, {
       item: item
@@ -145,9 +163,9 @@ function CoursePostsAndNotifs(props) {
   }) : /*#__PURE__*/React.createElement(List, {
     itemLayout: "vertical",
     dataSource: props.posts,
-    renderItem: item => /*#__PURE__*/React.createElement(CardListItem, {
+    renderItem: item => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement(CardListItem, {
       item: item
-    }),
+    })),
     pagination: {
       onchange: page => {
         console.log(page);
@@ -170,7 +188,9 @@ function CoursePostsAndNotifs(props) {
   }
 
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Menu, {
-    mode: "horizontal"
+    mode: "horizontal",
+    defaultSelectedKeys: ["notifs"],
+    className: "coursepage-options"
   }, /*#__PURE__*/React.createElement(Menu.Item, {
     key: "notifs",
     icon: /*#__PURE__*/React.createElement(NotificationOutlined, null),

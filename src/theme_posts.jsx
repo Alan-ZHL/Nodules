@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useParams, useHistory } from "react-router-dom";
-import { Layout, Menu, List, Drawer, Button, Space, Card, Comment, Tooltip } from 'antd';
+import { Layout, Menu, List, Drawer, Button, Space, Card, Comment, Tooltip, Divider } from 'antd';
 import { LikeFilled, DislikeFilled, MessageOutlined } from '@ant-design/icons';
 
 import "./theme_posts.css";
@@ -38,8 +38,8 @@ function CourseForum(props) {
 function PostSider(props) {
     const course_selector = props.ispublic === 0 ? (
         <SubMenu key="sub1" title="My courses">
-            <Menu.Item key="course_1">IT5007</Menu.Item>
-            <Menu.Item key="course_2">IT5002</Menu.Item>
+            <Menu.Item key="course_1"><Link to="/courses/IT5007">IT5007</Link></Menu.Item>
+            <Menu.Item key="course_2"><Link to="/courses/IT5002">IT5002</Link></Menu.Item>
             <Menu.Item key="course_3">CS4226</Menu.Item>
             <Menu.Item key="course_4">CS5424</Menu.Item>
         </SubMenu>
@@ -51,7 +51,7 @@ function PostSider(props) {
         <Sider width={220} className="sider-post">
             <Menu
                 mode="inline"
-                defaultOpenKeys={['sub1', 'sub2']}
+                defaultOpenKeys={["sub1", "sub2"]}
                 className="sider-post-menu"
             >
                 {course_selector}
@@ -136,7 +136,10 @@ function PostContent() {
                 size="large"
                 dataSource={posts_sample}
                 renderItem={item => (
-                    <CardListItem item={item}/>
+                    <>
+                        <br/>
+                        <CardListItem item={item}/>
+                    </>
                 )}
                 pagination={{
                     onchange: page => {
@@ -162,31 +165,28 @@ function CardListItem(props) {
     }
 
     return (
-        <>
-        <br/>
-            <List.Item
-                key={item.postid}
-                actions={[
-                    <IconText icon={LikeFilled} text={item.likes} key="list-vertical-like" />,
-                    <IconText icon={DislikeFilled} text={item.dislikes} key="list-vertical-dislike" />,
-                    <IconText icon={MessageOutlined} text={item.comments.length} key="list-vertical-message" />
-                ]}
-                className="content-post-item"
-            >
-                <List.Item.Meta
-                title={
-                    <>
-                        <Link to={`/courses/${item.course_id}`}>
-                            <Button type="text"> {item.course_id} </Button>
-                        </Link>
-                        <span className="link-post-detail" onClick={showDetail}>{item.topic}</span>
-                    </>
-                }
-                description={`Posted by ${item.starter}, ${item.date}`}
-                />
-                <span className="link-post-detail" onClick={showDetail}>{item.snippet}</span>
-            </List.Item>
-        </>
+        <List.Item
+            key={item.postid}
+            actions={[
+                <IconText icon={LikeFilled} text={item.likes} key="list-vertical-like" />,
+                <IconText icon={DislikeFilled} text={item.dislikes} key="list-vertical-dislike" />,
+                <IconText icon={MessageOutlined} text={item.comments.length} key="list-vertical-message" />
+            ]}
+            className="content-post-item"
+        >
+            <List.Item.Meta
+            title={
+                <>
+                    <Link to={`/courses/${item.course_id}`}>
+                        <Button type="text"> {item.course_id} </Button>
+                    </Link>
+                    <span className="link-post-detail" onClick={showDetail}>{item.topic}</span>
+                </>
+            }
+            description={`Posted by ${item.starter}, ${item.date}`}
+            />
+            <span className="link-post-detail" onClick={showDetail}>{item.snippet}</span>
+        </List.Item>
     );
 }
 
@@ -232,6 +232,7 @@ function PostDetail() {
                     </>
                 }
             />
+            <Divider />
             <div className="post-detail-content">
                 <span className="post-detail-content-head">Content</span>
                 <br/>

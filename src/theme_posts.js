@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useParams, useHistory } from "react-router-dom";
-import { Layout, Menu, List, Drawer, Button, Space, Card, Comment, Tooltip } from 'antd';
+import { Layout, Menu, List, Drawer, Button, Space, Card, Comment, Tooltip, Divider } from 'antd';
 import { LikeFilled, DislikeFilled, MessageOutlined } from '@ant-design/icons';
 import "./theme_posts.css";
 import { notifs_sample, posts_sample, comments_sample } from "./App";
@@ -39,9 +39,13 @@ function PostSider(props) {
     title: "My courses"
   }, /*#__PURE__*/React.createElement(Menu.Item, {
     key: "course_1"
-  }, "IT5007"), /*#__PURE__*/React.createElement(Menu.Item, {
+  }, /*#__PURE__*/React.createElement(Link, {
+    to: "/courses/IT5007"
+  }, "IT5007")), /*#__PURE__*/React.createElement(Menu.Item, {
     key: "course_2"
-  }, "IT5002"), /*#__PURE__*/React.createElement(Menu.Item, {
+  }, /*#__PURE__*/React.createElement(Link, {
+    to: "/courses/IT5002"
+  }, "IT5002")), /*#__PURE__*/React.createElement(Menu.Item, {
     key: "course_3"
   }, "CS4226"), /*#__PURE__*/React.createElement(Menu.Item, {
     key: "course_4"
@@ -51,7 +55,7 @@ function PostSider(props) {
     className: "sider-post"
   }, /*#__PURE__*/React.createElement(Menu, {
     mode: "inline",
-    defaultOpenKeys: ['sub1', 'sub2'],
+    defaultOpenKeys: ["sub1", "sub2"],
     className: "sider-post-menu"
   }, course_selector, /*#__PURE__*/React.createElement(SubMenu, {
     key: "sub2",
@@ -122,9 +126,9 @@ function PostContent() {
     itemLayout: "vertical",
     size: "large",
     dataSource: posts_sample,
-    renderItem: item => /*#__PURE__*/React.createElement(CardListItem, {
+    renderItem: item => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement(CardListItem, {
       item: item
-    }),
+    })),
     pagination: {
       onchange: page => {
         console.log(page);
@@ -147,7 +151,7 @@ function CardListItem(props) {
     history.push(`/posts/${item.postid}`);
   }
 
-  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement(List.Item, {
+  return /*#__PURE__*/React.createElement(List.Item, {
     key: item.postid,
     actions: [/*#__PURE__*/React.createElement(IconText, {
       icon: LikeFilled,
@@ -176,7 +180,7 @@ function CardListItem(props) {
   }), /*#__PURE__*/React.createElement("span", {
     className: "link-post-detail",
     onClick: showDetail
-  }, item.snippet)));
+  }, item.snippet));
 }
 
 const IconText = ({
@@ -213,7 +217,7 @@ function PostDetail() {
     }, /*#__PURE__*/React.createElement(Button, {
       type: "text"
     }, post.course_id, ": ", post.course_name)), /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", null, "Posted by ", post.starter, ", ", post.date))
-  }), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement(Divider, null), /*#__PURE__*/React.createElement("div", {
     className: "post-detail-content"
   }, /*#__PURE__*/React.createElement("span", {
     className: "post-detail-content-head"

@@ -40,13 +40,14 @@
 
 .content-post {
   position: relative;
-  margin-left: 25%;
   margin-top: 5%;
+  margin-left: 20%;
 }
 
 .content-post-item {
+  padding: 3%;
+  width: 70%;
   background: #fafafa;
-  width: 62%;
   box-shadow: 5px 5px 10px #525252;
 }
 
@@ -72,7 +73,6 @@
 }
 
 .post-detail-title {
-  text-align: center;
   font-size: x-large;
 }
 
