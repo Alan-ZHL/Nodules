@@ -7,9 +7,9 @@ import {
 import { Layout, Menu } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 
-import {PublicForum, CourseForum, PostDetail} from "./theme_posts";
+import { PublicForum, CourseForum, PostDetail } from "./theme_posts";
 import { CoursePage } from "./theme_courses";
-import {Users, Register, Login} from "./theme_users";
+import { Users, Register, Login } from "./theme_users";
 import "./App.css";
 
 

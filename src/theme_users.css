@@ -1,0 +1,25 @@
+.login-form {
+    margin-top:10%; 
+    margin-left: 30%;
+    height: 80vh;
+    width: 40%;
+}
+
+.login-form-forgot {
+    float: right;
+}
+
+.ant-col-rtl .login-form-forgot {
+    float: left;
+}
+
+.login-form-button {
+    width: 100%;
+}
+
+.regi-form {
+    margin-left:30%; 
+    margin-top:10%;
+    width: 40%;
+    height: 80vh;
+}

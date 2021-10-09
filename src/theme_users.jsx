@@ -1,4 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { Form, Input, Button, Checkbox } from 'antd';
+import { UserOutlined, LockOutlined } from '@ant-design/icons';
+// import 'antd/dist/antd.css';
+
+import "./theme_users.css"
 
 
 function Users() {
@@ -8,41 +13,240 @@ function Users() {
 }
 
 
-function Register() {
-    const [status, setStatus] = useState("pending response...");
-
-    useEffect(() => {
-        setTimeout(() => {
-            fetch("/register", {
-                method: "post",
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            })
-            .then(resp => resp.json().then(
-                new_stat => {
-                    setStatus(new_stat);
-                }
-            ))
-            .catch(e => {
-                console.log(e);
-            });
-        }, 2000);
-    });
-
-    return (
-        <div style={{marginTop: "60px"}}>
-            <h2> Display the registration form. </h2>
-            <p> Test response from backend: {status}</p>
-        </div>
-    );
-}
-
-
 function Login() {
+    const [message, setMessage] = useState("");
+    const [status, setStatus] = useState(0);
+    const [form] = Form.useForm();
+
+    const onFinish = (values) => {
+        console.log('Received values of form: ', values);
+    };
+
+    function getFormData() {
+        console.log(form.getFieldsValue(true));
+        return form.getFieldsValue(true);
+    }
+        
+    function postData(){
+        fetch("/login", {
+            method: "post",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(getFormData())
+        })
+        .then(resp => resp.json().then(
+            data => {
+                setMessage(data['message']);
+                setStatus(data['status']);
+            }
+        ));
+    }
+    
     return (
-        <h2 style={{marginTop: "5%"}}> Display the login form. </h2>
+        <Form
+            form={form}
+            name="normal_login"
+            className="login-form"
+            initialValues={{
+                remember: true,
+            }}
+            onFinish={onFinish}
+        >
+            <Form.Item
+                name="email"
+                rules={[
+                {
+                    required: true,
+                    message: 'Please input your Email!',
+                },
+                ]}
+            >
+                <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Email" />
+            </Form.Item>
+            <Form.Item
+                name="password"
+                rules={[
+                {
+                    required: true,
+                    message: 'Please input your Password!',
+                },
+                ]}
+            >
+                <Input
+                prefix={<LockOutlined className="site-form-item-icon" />}
+                type="password"
+                placeholder="Password"
+                />
+            </Form.Item>
+            <Form.Item>
+                <Form.Item name="remember" valuePropName="checked" noStyle>
+                <Checkbox>Remember me</Checkbox>
+                </Form.Item>
+
+                <a className="login-form-forgot" href="">
+                Forgot password
+                </a>
+            </Form.Item>
+
+            <Form.Item>
+                <Button type="primary" htmlType="submit" className="login-form-button" onClick={postData}>
+                Log in
+                </Button>
+            </Form.Item>
+            <div>{message}</div>
+        </Form>
+        
     );
 }
+
+
+function Register () {
+    const [message, setMessage] = useState("");
+    const [form] = Form.useForm();
+
+
+    const formItemLayout = {
+        labelCol: {
+        xs: {span: 24,},
+        sm: {span: 8,},
+        },
+        wrapperCol: {
+        xs: {span: 24,},
+        sm: {span: 16,},
+        },
+    };
+    const tailFormItemLayout = {
+        wrapperCol: {
+        xs: {span: 24,offset: 0,},
+        sm: {span: 16,offset: 8,},
+        },
+    };
+
+    function getFormData() {
+        console.log(form.getFieldsValue(true));
+        return form.getFieldsValue(true);
+    }
+        
+    function postData(){
+        fetch("/register", {
+            method: "post",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(getFormData())
+        })
+        .then(resp => resp.json().then(
+            message => {
+                setMessage(message);
+            }
+        ));
+    }
+
+    const onFinish = (values) => {
+        console.log('Received values of form: ', values);
+    };
+
+    return (
+        <Form className ="regi-form" 
+            labelCol={formItemLayout.labelCol} wrapperCol={formItemLayout.wrapperCol}
+            form={form} name="register" onFinish={onFinish} scrollToFirstError>
+            <Form.Item
+                name="email"
+                label="E-mail"
+                rules={[
+                {
+                    type: 'email',
+                    message: 'The input is not valid E-mail!',
+                },
+                {
+                    required: true,
+                    message: 'Please input your E-mail!',
+                },
+                ]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                name="password"
+                label="Password"
+                rules={[
+                {
+                    required: true,
+                    message: 'Please input your password!',
+                },
+                ]}
+                hasFeedback
+            >
+                <Input.Password />
+            </Form.Item>
+
+            <Form.Item
+                name="confirm"
+                label="Confirm Password"
+                dependencies={['password']}
+                hasFeedback
+                rules={[
+                {
+                    required: true,
+                    message: 'Please confirm your password!',
+                },
+                ({ getFieldValue }) => ({
+                    validator(_, value) {
+                    if (!value || getFieldValue('password') === value) {
+                        return Promise.resolve();
+                    }
+
+                    return Promise.reject(new Error('The two passwords that you entered do not match!'));
+                    },
+                }),
+                ]}
+            >
+                <Input.Password />
+            </Form.Item>
+
+            <Form.Item
+                name="username"
+                label="Username"
+                tooltip="What do you want others to call you?"
+                rules={[
+                {
+                    required: true,
+                    message: 'Please input your username!',
+                    whitespace: true,
+                },
+                ]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                name="agreement"
+                valuePropName="checked"
+                rules={[
+                {
+                    validator: (_, value) =>
+                    value ? Promise.resolve() : Promise.reject(new Error('Should accept agreement')),
+                },
+                ]}
+                wrapperCol={tailFormItemLayout.wrapperCol}
+            >
+                <Checkbox>
+                    I have read the <a href="">agreement</a>
+                </Checkbox>
+            </Form.Item>
+
+            <Form.Item wrapperCol={tailFormItemLayout.wrapperCol}>
+                <Button type="primary" htmlType="submit" onClick ={postData}>
+                    Register
+                </Button>
+            </Form.Item>
+            <div>{message}</div>
+        </Form>
+    );
+};
+
 
 export {Users, Register, Login};
