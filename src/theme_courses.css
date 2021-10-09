@@ -1,4 +1,21 @@
 .coursepage-layout {
     position: relative;
     margin-top: 5%;
+    margin-left: 10%;
+    width: 80%;
+}
+
+.coursepage-notifs, .coursepage-posts {
+    position: relative;
+    margin-left: 20%;
+}
+
+.coursepage-notifs {
+    width: 60%;
+}
+
+.coursepage-notifs-item {
+    padding: 3%;
+    background: #fafafa;
+    box-shadow: 5px 5px 10px #000000;
 }

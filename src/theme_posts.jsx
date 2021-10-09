@@ -4,45 +4,10 @@ import { Layout, Menu, List, Drawer, Button, Space, Card, Comment, Tooltip } fro
 import { LikeFilled, DislikeFilled, MessageOutlined } from '@ant-design/icons';
 
 import "./theme_posts.css";
+import { notifs_sample, posts_sample, comments_sample } from "./App";
 
 const { SubMenu } = Menu;
 const { Sider, Header, Content } = Layout;
-
-
-// hard-coded notifications
-const notifs_sample = [
-    {title: "Remember to submit tutorial 4", course_id: "IT5007", author: "Prasanna Karthik Vairam", date:"2021-09-30",
-    content: "remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd!"},
-    {title: "Exam date determined", course_id: "IT5002", author: "Colin Tan", date: "2021-09-03", 
-    content: "Midterm exam is set on Oct 5th. Please be prepared."}, 
-    {title: "Welcome to CS4226!", course_id: "CS4226", author: "Richard Ma", date: "2021-08-26", 
-    content: "Welcome to CS4226. I will be the lecturer of this course. Looking forward to meeting all of you!"}
-];
-
-// hard-coded posts info
-const listData = [];
-const listComment = [];
-for (let i = 0; i < 16; i++) {
-    listData.push({
-        postid: 1056 + i,
-        topic: `Sample post ${i}`,
-        starter: "Donald Trump ex",
-        course_id: "IT5007", course_name: "Software Engineering on Application Architecture",
-        date: "2 days ago",
-        snippet: "We supply a series of design principles, practical patterns and high quality design resources...",
-        content: "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.",
-        likes: 156, dislikes: 18, comments: [i, i+1, i+2]
-    });
-}
-for (let i = 0; i < 18; i++) {
-    listComment.push({
-        commentid: i,
-        participant: "Biden III",
-        date: "2 days ago",
-        content: `Good job! ${i}`,
-        likes: 10, dislikes: 2
-    });
-}
 
 
 // Top-level component: display public posts with a complete layout
@@ -61,7 +26,7 @@ function PublicForum(props) {
 function CourseForum(props) {
     return (
         <Layout>
-            <PostSider logined={props.logined} ispublic={props.ispubic}/>
+            <PostSider logined={props.logined} ispublic={props.ispublic}/>
             <PostContent />
             <NotifSider logined={props.logined}/>
         </Layout>
@@ -169,7 +134,7 @@ function PostContent() {
             <List
                 itemLayout="vertical"
                 size="large"
-                dataSource={listData}
+                dataSource={posts_sample}
                 renderItem={item => (
                     <CardListItem item={item}/>
                 )}
@@ -177,8 +142,8 @@ function PostContent() {
                     onchange: page => {
                         console.log(page);
                     },
-                    pageSize: 3,
-                    total: 18,
+                    pageSize: 5,
+                    total: posts_sample.length,
                     style: {textAlign: "center"}
                 }}
             />
@@ -199,7 +164,7 @@ function CardListItem(props) {
     return (
         <>
         <br/>
-        <List.Item
+            <List.Item
                 key={item.postid}
                 actions={[
                     <IconText icon={LikeFilled} text={item.likes} key="list-vertical-like" />,
@@ -314,10 +279,10 @@ function PostDetail() {
 
 // TODO: should be implemented on the backend
 function findPost(postid) {
-    const length = listData.length;
+    const length = posts_sample.length;
     for (let i = 0; i < length; i++) {
-        if (listData[i].postid === postid) {
-            return listData[i];
+        if (posts_sample[i].postid === postid) {
+            return posts_sample[i];
         }
     }
     return null;
@@ -326,13 +291,13 @@ function findPost(postid) {
 
 // TODO: should be implemented on the backend, and the logic should change accordingly
 function findComments(idx) {
-    if (idx < 0 || idx >= listComment.length - 3) {
+    if (idx < 0 || idx >= comments_sample.length - 3) {
         return null;
     } else {
-        return listComment.slice(idx, idx + 3);
+        return comments_sample.slice(idx, idx + 3);
     }
 }
 
 
 
-export {PublicForum, CourseForum, PostDetail};
+export {PublicForum, CourseForum, PostDetail, CardListItem};

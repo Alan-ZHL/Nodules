@@ -17,6 +17,40 @@ const { SubMenu } = Menu;
 const { Header } = Layout;
 
 
+// hard-coded data
+const notifs_sample = [
+    {notifid: 1, title: "Remember to submit tutorial 4", course_id: "IT5007", author: "Prasanna Karthik Vairam", date:"2021-09-30",
+    content: "remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd!"},
+    {notifid: 2, title: "Exam date determined", course_id: "IT5002", author: "Colin Tan", date: "2021-09-03", 
+    content: "Midterm exam is set on Oct 5th. Please be prepared."}, 
+    {notifid: 3, title: "Welcome to CS4226!", course_id: "CS4226", author: "Richard Ma", date: "2021-08-26", 
+    content: "Welcome to CS4226. I will be the lecturer of this course. Looking forward to meeting all of you!"}
+];
+const posts_sample = [];
+const comments_sample = [];
+for (let i = 0; i < 16; i++) {
+    posts_sample.push({
+        postid: 1056 + i,
+        topic: `Sample post ${i}`,
+        starter: "Donald Trump ex",
+        course_id: "IT5007", course_name: "Software Engineering on Application Architecture",
+        date: "2 days ago",
+        snippet: "We supply a series of design principles, practical patterns and high quality design resources...",
+        content: "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.",
+        likes: 156, dislikes: 18, comments: [i, i+1, i+2]
+    });
+}
+for (let i = 0; i < 18; i++) {
+    comments_sample.push({
+        commentid: i,
+        participant: "Biden III",
+        date: "2 days ago",
+        content: `Good job! ${i}`,
+        likes: 10, dislikes: 2
+    });
+}
+
+
 export default function App() {
     const [logined, setLogin] = useState(0);
     const [ispublic, setIspublic] = useState(1);
@@ -125,3 +159,5 @@ function Toolbar(props) {
         </Header>
     );
 }
+
+export {notifs_sample, posts_sample, comments_sample};
