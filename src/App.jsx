@@ -17,7 +17,7 @@ const { SubMenu } = Menu;
 const { Header } = Layout;
 
 
-// hard-coded data
+// hard-coded data notifications, posts and comments
 const notifs_sample = [
     {notifid: 1, title: "Remember to submit tutorial 4", course_id: "IT5007", author: "Prasanna Karthik Vairam", date:"2021-09-30",
     content: "remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd!"},
@@ -52,13 +52,11 @@ for (let i = 0; i < 18; i++) {
 
 
 export default function App() {
-    const [logined, setLogin] = useState(0);
-    const [ispublic, setIspublic] = useState(1);
-
-    //test function to simulate login
-    function loginHelper() {
-        setLogin(1);
-        alert("Log in (simulate) successfully!");
+    const [logined, setLogin] = useState(0);    // record the login status of a visit
+    const [ispublic, setIspublic] = useState(1);           // decide whether to show personal info or only the public ones
+    
+    function loginHelper(status) {
+        setLogin(status);
     }
 
     //test function to simulate logout
@@ -78,8 +76,7 @@ export default function App() {
     return (
         <Router>
             <Layout>
-                <Toolbar logined={logined} 
-                        loginHelper={loginHelper} 
+                <Toolbar logined={logined}
                         logoutHelper={logoutHelper}
                         setPublic={setPublic}
                         setPrivate={setPrivate}/>
@@ -104,7 +101,7 @@ export default function App() {
                         <Register />
                     </Route>
                     <Route path="/login">
-                        <Login />
+                        <Login logined={logined} loginHelper={loginHelper} />
                     </Route>
                     <Route exact path="/">
                         <Redirect to="/posts/public" />
@@ -118,6 +115,7 @@ export default function App() {
 
 
 function Toolbar(props) {
+    const username = "tourist";    // modify username / complete user info as a state of App
     const options = (props.logined) ? (
         <>
             <Menu.Item key="sub_1">
@@ -125,7 +123,7 @@ function Toolbar(props) {
             </Menu.Item>
             <Menu.Divider />
             <Menu.Item key="sub_2" onClick={props.logoutHelper}>
-                <Link to="/logout">Log Out</Link>
+                <Link to="/posts/public">Log Out</Link>
             </Menu.Item>
         </>
     ) : (
@@ -133,7 +131,7 @@ function Toolbar(props) {
             <Menu.Item key="sub_1">
                 <Link to="/register">Register</Link>
             </Menu.Item>
-            <Menu.Item key="sub_2" onClick={props.loginHelper}>
+            <Menu.Item key="sub_2">
                 <Link to="/login">Log In</Link>
             </Menu.Item>
         </>
@@ -152,7 +150,7 @@ function Toolbar(props) {
                     <Link to="/posts/courses">Course Discussion</Link>
                 </Menu.Item>
                 <SubMenu key="sub" icon={<UserOutlined />} 
-                    title="Welcome, tourist!" className="navbar-user">
+                    title={`Welcome, ${username}!`} className="navbar-user">
                     {options}
                 </SubMenu>
             </Menu>

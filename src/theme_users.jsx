@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Redirect } from "react-router-dom";
 import { Form, Input, Button, Checkbox } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 // import 'antd/dist/antd.css';
@@ -13,9 +14,8 @@ function Users() {
 }
 
 
-function Login() {
+function Login(props) {
     const [message, setMessage] = useState("");
-    const [status, setStatus] = useState(0);
     const [form] = Form.useForm();
 
     const onFinish = (values) => {
@@ -39,12 +39,13 @@ function Login() {
         .then(resp => resp.json().then(
             data => {
                 setMessage(data['message']);
-                setStatus(data['status']);
+                props.loginHelper(data['status']);
+                alert("Log in successfully!");
             }
         ));
     }
-    
-    return (
+
+    const loginForm = props.logined === 0 ? (
         <Form
             form={form}
             name="normal_login"
@@ -97,7 +98,14 @@ function Login() {
             </Form.Item>
             <div>{message}</div>
         </Form>
-        
+    ) : (
+        <Redirect to="/posts/public"/>
+    );
+    
+    return (
+        <>
+            {loginForm}
+        </>
     );
 }
 
@@ -105,7 +113,6 @@ function Login() {
 function Register () {
     const [message, setMessage] = useState("");
     const [form] = Form.useForm();
-
 
     const formItemLayout = {
         labelCol: {

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Redirect } from "react-router-dom";
 import { Form, Input, Button, Checkbox } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons'; // import 'antd/dist/antd.css';
 
@@ -8,9 +9,8 @@ function Users() {
   return /*#__PURE__*/React.createElement("h2", null, " Display the users' info or related components. ");
 }
 
-function Login() {
+function Login(props) {
   const [message, setMessage] = useState("");
-  const [status, setStatus] = useState(0);
   const [form] = Form.useForm();
 
   const onFinish = values => {
@@ -32,11 +32,12 @@ function Login() {
       body: JSON.stringify(getFormData())
     }).then(resp => resp.json().then(data => {
       setMessage(data['message']);
-      setStatus(data['status']);
+      props.loginHelper(data['status']);
+      alert("Log in successfully!");
     }));
   }
 
-  return /*#__PURE__*/React.createElement(Form, {
+  const loginForm = props.logined === 0 ? /*#__PURE__*/React.createElement(Form, {
     form: form,
     name: "normal_login",
     className: "login-form",
@@ -79,7 +80,10 @@ function Login() {
     htmlType: "submit",
     className: "login-form-button",
     onClick: postData
-  }, "Log in")), /*#__PURE__*/React.createElement("div", null, message));
+  }, "Log in")), /*#__PURE__*/React.createElement("div", null, message)) : /*#__PURE__*/React.createElement(Redirect, {
+    to: "/posts/public"
+  });
+  return /*#__PURE__*/React.createElement(React.Fragment, null, loginForm);
 }
 
 function Register() {

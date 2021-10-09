@@ -11,7 +11,7 @@ const {
 } = Menu;
 const {
   Header
-} = Layout; // hard-coded data
+} = Layout; // hard-coded data notifications, posts and comments
 
 const notifs_sample = [{
   notifid: 1,
@@ -66,12 +66,12 @@ for (let i = 0; i < 18; i++) {
 }
 
 export default function App() {
-  const [logined, setLogin] = useState(0);
-  const [ispublic, setIspublic] = useState(1); //test function to simulate login
+  const [logined, setLogin] = useState(0); // record the login status of a visit
 
-  function loginHelper() {
-    setLogin(1);
-    alert("Log in (simulate) successfully!");
+  const [ispublic, setIspublic] = useState(1); // decide whether to show personal info or only the public ones
+
+  function loginHelper(status) {
+    setLogin(status);
   } //test function to simulate logout
 
 
@@ -90,7 +90,6 @@ export default function App() {
 
   return /*#__PURE__*/React.createElement(Router, null, /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(Toolbar, {
     logined: logined,
-    loginHelper: loginHelper,
     logoutHelper: logoutHelper,
     setPublic: setPublic,
     setPrivate: setPrivate
@@ -116,7 +115,10 @@ export default function App() {
     path: "/register"
   }, /*#__PURE__*/React.createElement(Register, null)), /*#__PURE__*/React.createElement(Route, {
     path: "/login"
-  }, /*#__PURE__*/React.createElement(Login, null)), /*#__PURE__*/React.createElement(Route, {
+  }, /*#__PURE__*/React.createElement(Login, {
+    logined: logined,
+    loginHelper: loginHelper
+  })), /*#__PURE__*/React.createElement(Route, {
     exact: true,
     path: "/"
   }, /*#__PURE__*/React.createElement(Redirect, {
@@ -128,6 +130,8 @@ export default function App() {
 }
 
 function Toolbar(props) {
+  const username = "tourist"; // modify username / complete user info as a state of App
+
   const options = props.logined ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Menu.Item, {
     key: "sub_1"
   }, /*#__PURE__*/React.createElement(Link, {
@@ -136,14 +140,13 @@ function Toolbar(props) {
     key: "sub_2",
     onClick: props.logoutHelper
   }, /*#__PURE__*/React.createElement(Link, {
-    to: "/logout"
+    to: "/posts/public"
   }, "Log Out"))) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Menu.Item, {
     key: "sub_1"
   }, /*#__PURE__*/React.createElement(Link, {
     to: "/register"
   }, "Register")), /*#__PURE__*/React.createElement(Menu.Item, {
-    key: "sub_2",
-    onClick: props.loginHelper
+    key: "sub_2"
   }, /*#__PURE__*/React.createElement(Link, {
     to: "/login"
   }, "Log In")));
@@ -173,7 +176,7 @@ function Toolbar(props) {
   }, "Course Discussion")), /*#__PURE__*/React.createElement(SubMenu, {
     key: "sub",
     icon: /*#__PURE__*/React.createElement(UserOutlined, null),
-    title: "Welcome, tourist!",
+    title: `Welcome, ${username}!`,
     className: "navbar-user"
   }, options)));
 }

@@ -1,9 +1,10 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request, session
 from api.views import posts
 
 
-# print(__name__)
-# posts = Blueprint("posts", __name__)
+@posts.route("/posts/public", methods=["POST"])
+def display_homepage():
+    return 
 
 
 @posts.route("/add_post", methods=["POST"])
