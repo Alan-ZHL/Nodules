@@ -38,9 +38,11 @@ function Login(props) {
             data => {
                 setMessage(data['message']);
                 props.loginHelper(data['status']);
-                alert("Log in successfully!");
+                if (data["status"] === 1) {
+                    alert(data["message"]);
+                }
             }
-        ));
+        ))
     }
 
     const loginForm = props.logined === 0 ? (

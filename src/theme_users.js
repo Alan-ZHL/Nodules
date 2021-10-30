@@ -31,7 +31,10 @@ function Login(props) {
     }).then(resp => resp.json().then(data => {
       setMessage(data['message']);
       props.loginHelper(data['status']);
-      alert("Log in successfully!");
+
+      if (data["status"] === 1) {
+        alert(data["message"]);
+      }
     }));
   }
 
@@ -119,7 +122,6 @@ function Register() {
   };
 
   function getFormData() {
-    console.log(form.getFieldsValue(true));
     return form.getFieldsValue(true);
   }
 
@@ -136,7 +138,7 @@ function Register() {
   }
 
   const onFinish = values => {
-    console.log('Received values of form: ', values);
+    console.log('Received values of form: ', values); // for tests only
   };
 
   return /*#__PURE__*/React.createElement(Form, {

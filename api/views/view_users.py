@@ -46,7 +46,9 @@ def user_login():
                 session.permanent = True
                 session["user_id"] = user["user_id"]
                 session["username"] = user["username"]
-                return jsonify({"status": 1, "message": 'Login Success!'})
+                return jsonify({"status": 1, "message": 'Log in Successfuuly!'})
+
+        return jsonify({"status": 0, "message": "Mismatch on email or password."})
         
 
 # TODO: retrieve more personal data besides name and email

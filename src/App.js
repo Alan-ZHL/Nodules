@@ -102,8 +102,6 @@ export default function App() {
         username: resp_json["username"],
         email: resp_json["email"]
       });
-    } else {
-      alert("Fail to collect current user's info...");
     }
   }
 

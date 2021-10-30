@@ -78,8 +78,6 @@ export default function App() {
         const resp_json = await resp.json();
         if (resp_json["status"] === 1) {
             setUserInfo({username: resp_json["username"], email: resp_json["email"]});
-        } else {
-            alert("Fail to collect current user's info...");
         }
     }
 
