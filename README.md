@@ -26,7 +26,7 @@ npm --version    # 8.1.0
 
 ### Step 1: Restoring the Dependencies
 Python Backend Supports:
-(under /api folder)
+(under root directory)
 ```
 apt install python3.8-venv
 python3 -m venv venv

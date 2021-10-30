@@ -15,8 +15,7 @@ const {
 
 function PublicForum(props) {
   return /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(PostSider, {
-    logined: props.logined,
-    ispublic: props.ispublic
+    logined: props.logined
   }), /*#__PURE__*/React.createElement(PostContent, null), /*#__PURE__*/React.createElement(NotifSider, {
     logined: props.logined
   }));
@@ -25,8 +24,7 @@ function PublicForum(props) {
 
 function CourseForum(props) {
   return /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(PostSider, {
-    logined: props.logined,
-    ispublic: props.ispublic
+    logined: props.logined
   }), /*#__PURE__*/React.createElement(PostContent, null), /*#__PURE__*/React.createElement(NotifSider, {
     logined: props.logined
   }));
@@ -34,7 +32,7 @@ function CourseForum(props) {
 
 
 function PostSider(props) {
-  const course_selector = props.ispublic === 0 ? /*#__PURE__*/React.createElement(SubMenu, {
+  const course_selector = props.logined === 1 ? /*#__PURE__*/React.createElement(SubMenu, {
     key: "sub1",
     title: "My courses"
   }, /*#__PURE__*/React.createElement(Menu.Item, {

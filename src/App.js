@@ -68,43 +68,59 @@ for (let i = 0; i < 18; i++) {
 export default function App() {
   const [logined, setLogin] = useState(0); // record the login status of a visit
 
-  const [ispublic, setIspublic] = useState(1); // decide whether to show personal info or only the public ones
+  const [userInfo, setUserInfo] = useState({
+    username: "tourist",
+    email: "Please login."
+  });
 
-  function loginHelper(status) {
+  async function loginHelper(status) {
     setLogin(status);
+    await getUserInfo();
   } //test function to simulate logout
 
 
   function logoutHelper() {
     setLogin(0);
-    alert("Log out (simulate) successfully!");
+    setUserInfo({
+      username: "tourist",
+      email: "Please login."
+    });
   }
 
-  function setPublic() {
-    setIspublic(1);
-  }
+  async function getUserInfo() {
+    const resp = await fetch("/users/info", {
+      method: "post",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    const resp_json = await resp.json();
 
-  function setPrivate() {
-    setIspublic(0);
+    if (resp_json["status"] === 1) {
+      setUserInfo({
+        username: resp_json["username"],
+        email: resp_json["email"]
+      });
+    } else {
+      alert("Fail to collect current user's info...");
+    }
   }
 
   return /*#__PURE__*/React.createElement(Router, null, /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(Toolbar, {
     logined: logined,
-    logoutHelper: logoutHelper,
-    setPublic: setPublic,
-    setPrivate: setPrivate
+    userInfo: userInfo,
+    logoutHelper: logoutHelper
   }), /*#__PURE__*/React.createElement(Switch, null, /*#__PURE__*/React.createElement(Route, {
     exact: true,
     path: "/posts/public"
   }, /*#__PURE__*/React.createElement(PublicForum, {
-    logined: logined,
-    ispublic: ispublic
+    logined: logined
   })), /*#__PURE__*/React.createElement(Route, {
     exact: true,
     path: "/posts/courses"
   }, /*#__PURE__*/React.createElement(CourseForum, {
-    logined: logined,
-    ispublic: ispublic
+    logined: logined
   })), /*#__PURE__*/React.createElement(Route, {
     path: "/posts/:postid"
   }, /*#__PURE__*/React.createElement(PostDetail, null)), /*#__PURE__*/React.createElement(Route, {
@@ -124,13 +140,12 @@ export default function App() {
   }, /*#__PURE__*/React.createElement(Redirect, {
     to: "/posts/public"
   }), /*#__PURE__*/React.createElement(PublicForum, {
-    logined: logined,
-    ispublic: ispublic
+    logined: logined
   })))));
 }
 
 function Toolbar(props) {
-  const username = "tourist"; // modify username / complete user info as a state of App
+  var username = props.userInfo.username; // modify username / complete user info as a state of App
 
   const options = props.logined ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Menu.Item, {
     key: "sub_1"
@@ -138,7 +153,7 @@ function Toolbar(props) {
     to: "/users"
   }, "Manage User Info")), /*#__PURE__*/React.createElement(Menu.Divider, null), /*#__PURE__*/React.createElement(Menu.Item, {
     key: "sub_2",
-    onClick: props.logoutHelper
+    onClick: logout
   }, /*#__PURE__*/React.createElement(Link, {
     to: "/posts/public"
   }, "Log Out"))) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Menu.Item, {
@@ -150,6 +165,25 @@ function Toolbar(props) {
   }, /*#__PURE__*/React.createElement(Link, {
     to: "/login"
   }, "Log In")));
+
+  async function logout() {
+    const resp = await fetch("/logout", {
+      method: "post",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    const resp_json = await resp.json();
+
+    if (resp_json["status"] === 1) {
+      props.logoutHelper();
+      alert(`${resp_json["username"]} log out successfully.`);
+    } else {
+      alert("Log out failed.");
+    }
+  }
+
   return /*#__PURE__*/React.createElement(Header, {
     className: "app-header"
   }, /*#__PURE__*/React.createElement(Link, {
@@ -162,14 +196,12 @@ function Toolbar(props) {
     defaultSelectedKeys: ['1']
   }, /*#__PURE__*/React.createElement(Menu.Item, {
     key: "1",
-    className: "navbar-item",
-    onClick: props.setPublic
+    className: "navbar-item"
   }, /*#__PURE__*/React.createElement(Link, {
     to: "/posts/public"
   }, "Public Chats")), /*#__PURE__*/React.createElement(Menu.Item, {
     key: "2",
     className: "navbar-item",
-    onClick: props.setPrivate,
     disabled: !props.logined
   }, /*#__PURE__*/React.createElement(Link, {
     to: "/posts/courses"

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Redirect } from "react-router-dom";
 import { Form, Input, Button, Checkbox } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-// import 'antd/dist/antd.css';
 
 import "./theme_users.css"
 
@@ -23,7 +22,6 @@ function Login(props) {
     };
 
     function getFormData() {
-        console.log(form.getFieldsValue(true));
         return form.getFieldsValue(true);
     }
         
@@ -132,7 +130,6 @@ function Register () {
     };
 
     function getFormData() {
-        console.log(form.getFieldsValue(true));
         return form.getFieldsValue(true);
     }
         
@@ -152,7 +149,7 @@ function Register () {
     }
 
     const onFinish = (values) => {
-        console.log('Received values of form: ', values);
+        console.log('Received values of form: ', values);    // for tests only
     };
 
     return (

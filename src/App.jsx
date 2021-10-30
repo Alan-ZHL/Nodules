@@ -53,40 +53,49 @@ for (let i = 0; i < 18; i++) {
 
 export default function App() {
     const [logined, setLogin] = useState(0);    // record the login status of a visit
-    const [ispublic, setIspublic] = useState(1);           // decide whether to show personal info or only the public ones
+    const [userInfo, setUserInfo] = useState({username: "tourist", email: "Please login."});
     
-    function loginHelper(status) {
+    async function loginHelper(status) {
         setLogin(status);
+        await getUserInfo();
     }
 
     //test function to simulate logout
     function logoutHelper() {
         setLogin(0);
-        alert("Log out (simulate) successfully!");
+        setUserInfo({username: "tourist", email: "Please login."});
     }
 
-    function setPublic() {
-        setIspublic(1);
-    }
-
-    function setPrivate() {
-        setIspublic(0);
+    async function getUserInfo() {
+        const resp = await fetch("/users/info", {
+                method: "post",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+        const resp_json = await resp.json();
+        if (resp_json["status"] === 1) {
+            setUserInfo({username: resp_json["username"], email: resp_json["email"]});
+        } else {
+            alert("Fail to collect current user's info...");
+        }
     }
 
     return (
         <Router>
             <Layout>
                 <Toolbar logined={logined}
-                        logoutHelper={logoutHelper}
-                        setPublic={setPublic}
-                        setPrivate={setPrivate}/>
+                        userInfo={userInfo}
+                        logoutHelper={logoutHelper}/>
 
                 <Switch>
                     <Route exact path="/posts/public">
-                        <PublicForum logined={logined} ispublic={ispublic}/>
+                        <PublicForum logined={logined}/>
                     </Route>
                     <Route exact path="/posts/courses">
-                        <CourseForum logined={logined} ispublic={ispublic}/>
+                        <CourseForum logined={logined}/>
                     </Route>
                     <Route path="/posts/:postid">
                         <PostDetail />
@@ -105,7 +114,7 @@ export default function App() {
                     </Route>
                     <Route exact path="/">
                         <Redirect to="/posts/public" />
-                        <PublicForum logined={logined} ispublic={ispublic}/>
+                        <PublicForum logined={logined}/>
                     </Route>
                 </Switch>
             </Layout>
@@ -115,14 +124,14 @@ export default function App() {
 
 
 function Toolbar(props) {
-    const username = "tourist";    // modify username / complete user info as a state of App
+    var username = props.userInfo.username;    // modify username / complete user info as a state of App
     const options = (props.logined) ? (
         <>
             <Menu.Item key="sub_1">
                 <Link to="/users">Manage User Info</Link>
             </Menu.Item>
             <Menu.Divider />
-            <Menu.Item key="sub_2" onClick={props.logoutHelper}>
+            <Menu.Item key="sub_2" onClick={logout}>
                 <Link to="/posts/public">Log Out</Link>
             </Menu.Item>
         </>
@@ -137,16 +146,33 @@ function Toolbar(props) {
         </>
     );
 
+    async function logout() {
+        const resp = await fetch("/logout", {
+            method: "post",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        const resp_json = await resp.json();
+        if (resp_json["status"] === 1) {
+            props.logoutHelper();
+            alert(`${resp_json["username"]} log out successfully.`);
+        } else {
+            alert("Log out failed.");
+        }
+    }
+
     return (
         <Header className="app-header">
             <Link to="/posts/public">
                 <div className="logo">NodUleS</div>
             </Link>
             <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
-                <Menu.Item key="1" className="navbar-item" onClick={props.setPublic}>
+                <Menu.Item key="1" className="navbar-item">
                     <Link to="/posts/public">Public Chats</Link>
                 </Menu.Item>
-                <Menu.Item key="2" className="navbar-item" onClick={props.setPrivate} disabled={!props.logined}>
+                <Menu.Item key="2" className="navbar-item" disabled={!props.logined}>
                     <Link to="/posts/courses">Course Discussion</Link>
                 </Menu.Item>
                 <SubMenu key="sub" icon={<UserOutlined />} 

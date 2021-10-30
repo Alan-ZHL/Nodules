@@ -14,7 +14,7 @@ const { Sider, Header, Content } = Layout;
 function PublicForum(props) {
     return (
         <Layout>
-            <PostSider logined={props.logined} ispublic={props.ispublic}/>
+            <PostSider logined={props.logined}/>
             <PostContent />
             <NotifSider logined={props.logined}/>
         </Layout>
@@ -26,7 +26,7 @@ function PublicForum(props) {
 function CourseForum(props) {
     return (
         <Layout>
-            <PostSider logined={props.logined} ispublic={props.ispublic}/>
+            <PostSider logined={props.logined}/>
             <PostContent />
             <NotifSider logined={props.logined}/>
         </Layout>
@@ -36,7 +36,7 @@ function CourseForum(props) {
 
 // Left sider of the posts page: offers some simple filters
 function PostSider(props) {
-    const course_selector = props.ispublic === 0 ? (
+    const course_selector = props.logined === 1 ? (
         <SubMenu key="sub1" title="My courses">
             <Menu.Item key="course_1"><Link to="/courses/IT5007">IT5007</Link></Menu.Item>
             <Menu.Item key="course_2"><Link to="/courses/IT5002">IT5002</Link></Menu.Item>
