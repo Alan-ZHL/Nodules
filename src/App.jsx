@@ -72,11 +72,11 @@ export default function App() {
 
     async function getUserInfo() {
         const resp = await fetch("/users/info", {
-                method: "post",
+                method: "POST",
                 credentials: "include",
                 headers: {
                     "Content-Type": "application/json"
-                }
+                },
             }
         );
         const resp_json = await resp.json();

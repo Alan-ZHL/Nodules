@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, session
 from api.views import users
 
 # hard-coded user data
+# user_id (testing purpose): 0-999: students; 1001-2000: teachers; 2001 onwards: virtual users (with no detailed info)
 userinfo = [
         {"user_id": 0, 'email':'test_user@nus.edu', 'password':123, "user_name": "tester"}
     ]
