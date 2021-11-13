@@ -45,7 +45,9 @@ function PostSider(props) {
     to: "/courses/IT5002"
   }, "IT5002")), /*#__PURE__*/React.createElement(Menu.Item, {
     key: "course_3"
-  }, "CS4226"), /*#__PURE__*/React.createElement(Menu.Item, {
+  }, /*#__PURE__*/React.createElement(Link, {
+    to: "/courses/CS4226"
+  }, "CS4226")), /*#__PURE__*/React.createElement(Menu.Item, {
     key: "course_4"
   }, "CS5424")) : null;
   return /*#__PURE__*/React.createElement(Sider, {
@@ -106,7 +108,7 @@ function DraweredListItem(props) {
     }, "more")]
   }, /*#__PURE__*/React.createElement(List.Item.Meta, {
     title: /*#__PURE__*/React.createElement(React.Fragment, null, item.course_id, /*#__PURE__*/React.createElement("br", null), item.title),
-    description: /*#__PURE__*/React.createElement(React.Fragment, null, "Created on ", item.date, ", ", /*#__PURE__*/React.createElement("br", null), "by ", item.author)
+    description: /*#__PURE__*/React.createElement(React.Fragment, null, "Created on ", item.date, ", ", /*#__PURE__*/React.createElement("br", null), "by ", item.author_name)
   })), /*#__PURE__*/React.createElement("hr", null), /*#__PURE__*/React.createElement(Drawer, {
     title: /*#__PURE__*/React.createElement(React.Fragment, null, item.course_id, /*#__PURE__*/React.createElement("br", null), item.title),
     placement: "right",
@@ -146,22 +148,22 @@ function CardListItem(props) {
   const history = useHistory();
 
   function showDetail() {
-    history.push(`/posts/${item.postid}`);
+    history.push(`/posts/${item.post_id}`);
   }
 
   return /*#__PURE__*/React.createElement(List.Item, {
-    key: item.postid,
+    key: item.post_id,
     actions: [/*#__PURE__*/React.createElement(IconText, {
       icon: LikeFilled,
-      text: item.likes,
+      text: item.details.likes,
       key: "list-vertical-like"
     }), /*#__PURE__*/React.createElement(IconText, {
       icon: DislikeFilled,
-      text: item.dislikes,
+      text: item.details.dislikes,
       key: "list-vertical-dislike"
     }), /*#__PURE__*/React.createElement(IconText, {
       icon: MessageOutlined,
-      text: item.comments.length,
+      text: item.details.comments.length,
       key: "list-vertical-message"
     })],
     className: "content-post-item"
@@ -173,8 +175,8 @@ function CardListItem(props) {
     }, " ", item.course_id, " ")), /*#__PURE__*/React.createElement("span", {
       className: "link-post-detail",
       onClick: showDetail
-    }, item.topic)),
-    description: `Posted by ${item.starter}, ${item.date}`
+    }, item.title)),
+    description: `Posted by ${item.author_name}, ${item.date}`
   }), /*#__PURE__*/React.createElement("span", {
     className: "link-post-detail",
     onClick: showDetail
@@ -199,22 +201,22 @@ function PostDetail() {
     className: "post-detail",
     actions: [/*#__PURE__*/React.createElement(IconText, {
       icon: LikeFilled,
-      text: post.likes,
+      text: post.details.likes,
       key: "post-like"
     }), /*#__PURE__*/React.createElement(IconText, {
       icon: DislikeFilled,
-      text: post.dislikes,
+      text: post.details.dislikes,
       key: "post-dislike"
     })]
   }, /*#__PURE__*/React.createElement(Card.Meta, {
     title: /*#__PURE__*/React.createElement("span", {
       className: "post-detail-title"
-    }, post.topic),
+    }, post.title),
     description: /*#__PURE__*/React.createElement(React.Fragment, null, "Course:", /*#__PURE__*/React.createElement(Link, {
       to: `/courses/${post.course_id}`
     }, /*#__PURE__*/React.createElement(Button, {
       type: "text"
-    }, post.course_id, ": ", post.course_name)), /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", null, "Posted by ", post.starter, ", ", post.date))
+    }, post.course_id, ": ", post.course_name)), /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("span", null, "Posted by ", post.author_name, ", ", post.date))
   }), /*#__PURE__*/React.createElement(Divider, null), /*#__PURE__*/React.createElement("div", {
     className: "post-detail-content"
   }, /*#__PURE__*/React.createElement("span", {
@@ -230,13 +232,13 @@ function PostDetail() {
         title: "Like"
       }, /*#__PURE__*/React.createElement(LikeFilled, null), /*#__PURE__*/React.createElement("span", {
         className: "comment-action"
-      }, item.likes)), /*#__PURE__*/React.createElement(Tooltip, {
+      }, item.details.likes)), /*#__PURE__*/React.createElement(Tooltip, {
         key: `comment-${item.commentid}-dislike`,
         title: "Dislike"
       }, /*#__PURE__*/React.createElement(DislikeFilled, null), /*#__PURE__*/React.createElement("span", {
         className: "comment-action"
-      }, item.dislikes))],
-      author: item.participant,
+      }, item.details.dislikes))],
+      author: item.author_name,
       content: item.content,
       datetime: item.date
     }))
@@ -254,7 +256,7 @@ function findPost(postid) {
   const length = posts_sample.length;
 
   for (let i = 0; i < length; i++) {
-    if (posts_sample[i].postid === postid) {
+    if (posts_sample[i].post_id === postid) {
       return posts_sample[i];
     }
   }

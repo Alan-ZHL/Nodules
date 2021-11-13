@@ -14,24 +14,33 @@ const {
 } = Layout; // hard-coded data notifications, posts and comments
 
 const notifs_sample = [{
-  notifid: 1,
+  post_id: 1,
   title: "Remember to submit tutorial 4",
+  type: 0,
   course_id: "IT5007",
-  author: "Prasanna Karthik Vairam",
+  course_name: "Software Engineering on Application Architecture",
+  author_id: 1001,
+  author_name: "Prasanna Karthik Vairam",
   date: "2021-09-30",
   content: "remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd!"
 }, {
-  notifid: 2,
+  post_id: 2,
   title: "Exam date determined",
+  type: 0,
   course_id: "IT5002",
-  author: "Colin Tan",
+  course_name: "Computer Systems and Applications",
+  author_id: 1002,
+  author_name: "Colin Tan",
   date: "2021-09-03",
   content: "Midterm exam is set on Oct 5th. Please be prepared."
 }, {
-  notifid: 3,
+  post_id: 3,
   title: "Welcome to CS4226!",
+  type: 0,
   course_id: "CS4226",
-  author: "Richard Ma",
+  course_name: "Internet Architecture",
+  author_id: 1003,
+  author_name: "Richard Ma",
   date: "2021-08-26",
   content: "Welcome to CS4226. I will be the lecturer of this course. Looking forward to meeting all of you!"
 }];
@@ -40,28 +49,39 @@ const comments_sample = [];
 
 for (let i = 0; i < 16; i++) {
   posts_sample.push({
-    postid: 1056 + i,
-    topic: `Sample post ${i}`,
-    starter: "Donald Trump ex",
+    post_id: 1056 + i,
+    title: `Sample post ${i}`,
+    type: 1,
     course_id: "IT5007",
     course_name: "Software Engineering on Application Architecture",
+    author_id: 2001,
+    author_name: "Donald Trump ex",
     date: "2 days ago",
     snippet: "We supply a series of design principles, practical patterns and high quality design resources...",
     content: "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.",
-    likes: 156,
-    dislikes: 18,
-    comments: [i, i + 1, i + 2]
+    details: {
+      likes: 156,
+      dislikes: 18,
+      comments: [i, i + 1, i + 2]
+    }
   });
 }
 
 for (let i = 0; i < 18; i++) {
   comments_sample.push({
-    commentid: i,
-    participant: "Biden III",
+    post_id: i,
+    title: "",
+    type: 2,
+    course_id: "IT5007",
+    course_name: "Software Engineering on Application Architecture",
+    author_id: 2002,
+    author_name: "Biden III",
     date: "2 days ago",
     content: `Good job! ${i}`,
-    likes: 10,
-    dislikes: 2
+    details: {
+      likes: 10,
+      dislikes: 2
+    }
   });
 }
 
@@ -69,7 +89,7 @@ export default function App() {
   const [logined, setLogin] = useState(0); // record the login status of a visit
 
   const [userInfo, setUserInfo] = useState({
-    username: "tourist",
+    user_name: "tourist",
     email: "Please login."
   });
 
@@ -82,7 +102,7 @@ export default function App() {
   function logoutHelper() {
     setLogin(0);
     setUserInfo({
-      username: "tourist",
+      user_name: "tourist",
       email: "Please login."
     });
   }
@@ -99,7 +119,7 @@ export default function App() {
 
     if (resp_json["status"] === 1) {
       setUserInfo({
-        username: resp_json["username"],
+        user_name: resp_json["user_name"],
         email: resp_json["email"]
       });
     }
@@ -143,7 +163,7 @@ export default function App() {
 }
 
 function Toolbar(props) {
-  var username = props.userInfo.username; // modify username / complete user info as a state of App
+  var user_name = props.userInfo.user_name; // modify user_name / complete user info as a state of App
 
   const options = props.logined ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Menu.Item, {
     key: "sub_1"
@@ -176,7 +196,7 @@ function Toolbar(props) {
 
     if (resp_json["status"] === 1) {
       props.logoutHelper();
-      alert(`${resp_json["username"]} log out successfully.`);
+      alert(`${resp_json["user_name"]} log out successfully.`);
     } else {
       alert("Log out failed.");
     }
@@ -206,7 +226,7 @@ function Toolbar(props) {
   }, "Course Discussion")), /*#__PURE__*/React.createElement(SubMenu, {
     key: "sub",
     icon: /*#__PURE__*/React.createElement(UserOutlined, null),
-    title: `Welcome, ${username}!`,
+    title: `Welcome, ${user_name}!`,
     className: "navbar-user"
   }, options)));
 }

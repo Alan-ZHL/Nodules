@@ -40,7 +40,7 @@ function PostSider(props) {
         <SubMenu key="sub1" title="My courses">
             <Menu.Item key="course_1"><Link to="/courses/IT5007">IT5007</Link></Menu.Item>
             <Menu.Item key="course_2"><Link to="/courses/IT5002">IT5002</Link></Menu.Item>
-            <Menu.Item key="course_3">CS4226</Menu.Item>
+            <Menu.Item key="course_3"><Link to="/courses/CS4226">CS4226</Link></Menu.Item>
             <Menu.Item key="course_4">CS5424</Menu.Item>
         </SubMenu>
     ) : (
@@ -114,7 +114,7 @@ function DraweredListItem(props) {
             >
                 <List.Item.Meta
                     title={<>{item.course_id}<br/>{item.title}</>}
-                    description={<>Created on {item.date}, <br/>by {item.author}</>}
+                    description={<>Created on {item.date}, <br/>by {item.author_name}</>}
                 />
             </List.Item>
             <hr/>
@@ -161,16 +161,16 @@ function CardListItem(props) {
     const history = useHistory();
 
     function showDetail() {
-        history.push(`/posts/${item.postid}`);
+        history.push(`/posts/${item.post_id}`);
     }
 
     return (
         <List.Item
-            key={item.postid}
+            key={item.post_id}
             actions={[
-                <IconText icon={LikeFilled} text={item.likes} key="list-vertical-like" />,
-                <IconText icon={DislikeFilled} text={item.dislikes} key="list-vertical-dislike" />,
-                <IconText icon={MessageOutlined} text={item.comments.length} key="list-vertical-message" />
+                <IconText icon={LikeFilled} text={item.details.likes} key="list-vertical-like" />,
+                <IconText icon={DislikeFilled} text={item.details.dislikes} key="list-vertical-dislike" />,
+                <IconText icon={MessageOutlined} text={item.details.comments.length} key="list-vertical-message" />
             ]}
             className="content-post-item"
         >
@@ -180,10 +180,10 @@ function CardListItem(props) {
                     <Link to={`/courses/${item.course_id}`}>
                         <Button type="text"> {item.course_id} </Button>
                     </Link>
-                    <span className="link-post-detail" onClick={showDetail}>{item.topic}</span>
+                    <span className="link-post-detail" onClick={showDetail}>{item.title}</span>
                 </>
             }
-            description={`Posted by ${item.starter}, ${item.date}`}
+            description={`Posted by ${item.author_name}, ${item.date}`}
             />
             <span className="link-post-detail" onClick={showDetail}>{item.snippet}</span>
         </List.Item>
@@ -215,12 +215,12 @@ function PostDetail() {
         <Card
             className="post-detail"
             actions={[
-                <IconText icon={LikeFilled} text={post.likes} key="post-like" />,
-                <IconText icon={DislikeFilled} text={post.dislikes} key="post-dislike" />,
+                <IconText icon={LikeFilled} text={post.details.likes} key="post-like" />,
+                <IconText icon={DislikeFilled} text={post.details.dislikes} key="post-dislike" />,
             ]}
         >
             <Card.Meta
-                title={<span className="post-detail-title">{post.topic}</span>}
+                title={<span className="post-detail-title">{post.title}</span>}
                 description={
                     <>
                     Course: 
@@ -228,7 +228,7 @@ function PostDetail() {
                         <Button type="text">{post.course_id}: {post.course_name}</Button>
                     </Link>
                     <br/>
-                    <span>Posted by {post.starter}, {post.date}</span>
+                    <span>Posted by {post.author_name}, {post.date}</span>
                     </>
                 }
             />
@@ -250,14 +250,14 @@ function PostDetail() {
                         actions={[
                             <Tooltip key={`comment-${item.commentid}-like`} title="Like">
                                 <LikeFilled/>
-                                <span className="comment-action">{item.likes}</span>
+                                <span className="comment-action">{item.details.likes}</span>
                             </Tooltip>,
                             <Tooltip key={`comment-${item.commentid}-dislike`} title="Dislike">
                                 <DislikeFilled/>
-                                <span className="comment-action">{item.dislikes}</span>
+                                <span className="comment-action">{item.details.dislikes}</span>
                             </Tooltip>,
                         ]}
-                        author={item.participant}
+                        author={item.author_name}
                         content={item.content}
                         datetime={item.date}
                     />
@@ -282,7 +282,7 @@ function PostDetail() {
 function findPost(postid) {
     const length = posts_sample.length;
     for (let i = 0; i < length; i++) {
-        if (posts_sample[i].postid === postid) {
+        if (posts_sample[i].post_id === postid) {
             return posts_sample[i];
         }
     }

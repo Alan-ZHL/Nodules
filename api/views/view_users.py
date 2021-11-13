@@ -2,7 +2,9 @@ from flask import Blueprint, jsonify, request, session
 from api.views import users
 
 # hard-coded user data
-userinfo = [{"user_id": 0, 'email':'test_user@nus.edu', 'password':123, "username": "tester"}]
+userinfo = [
+        {"user_id": 0, 'email':'test_user@nus.edu', 'password':123, "user_name": "tester"}
+    ]
 
 
 @users.route("/register", methods=["POST"])
@@ -12,7 +14,7 @@ def user_register():
         email = data['email']
         password = data['password']
         confirm = data['confirm']
-        username = data["username"]
+        user_name = data["user_name"]
         if not all([email, password, confirm]):
             return jsonify("Invalid input.")
         if password != confirm:
@@ -21,7 +23,7 @@ def user_register():
             if user['email'] == email: 
                 return jsonify("User exists.")
         
-        new_user = {"user_id": len(userinfo), 'email': email, 'password': password, "username": username}
+        new_user = {"user_id": len(userinfo), 'email': email, 'password': password, "user_name": user_name}
         userinfo.append(new_user)
         return jsonify("Registeration Succeeds!")
     
@@ -45,7 +47,7 @@ def user_login():
                 session[email] = True
                 session.permanent = True
                 session["user_id"] = user["user_id"]
-                session["username"] = user["username"]
+                session["user_name"] = user["user_name"]
                 return jsonify({"status": 1, "message": 'Log in Successfuuly!'})
 
         return jsonify({"status": 0, "message": "Mismatch on email or password."})
@@ -71,7 +73,7 @@ def get_userinfo():
         return jsonify({"status": 0});
 
     print(f"Succeed: user {user_id} found.")
-    return jsonify({"status": 1, "username": current_user["username"], "email": current_user["email"]})
+    return jsonify({"status": 1, "user_name": current_user["user_name"], "email": current_user["email"]})
 
 
 # TODO: still developing
@@ -83,7 +85,7 @@ def logout():
             print("Logout Error: no session currently.")
             return jsonify({"status": 0})
         
-        username = session.get("username")
+        user_name = session.get("user_name")
         session.clear()
-        print(f"Succeed: {username} log out successfully. Remaining session info: ", session)    # for tests only
-        return jsonify({"status": 1, "username": username})
+        print(f"Succeed: {user_name} log out successfully. Remaining session info: ", session)    # for tests only
+        return jsonify({"status": 1, "user_name": user_name})
