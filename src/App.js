@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { BrowserRouter as Router, Switch, Route, Link, Redirect } from "react-router-dom";
 import { Layout, Menu } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
-import { PublicForum, CourseForum, PostDetail } from "./theme_posts";
+import { PostForum, PostDetail } from "./theme_posts";
 import { CoursePage } from "./theme_courses";
 import { Users, Register, Login } from "./theme_users";
 import "./App.css";
@@ -11,79 +11,42 @@ const {
 } = Menu;
 const {
   Header
-} = Layout; // hard-coded data notifications, posts and comments
-
-const notifs_sample = [{
-  post_id: 1,
-  title: "Remember to submit tutorial 4",
-  type: 0,
-  course_id: "IT5007",
-  course_name: "Software Engineering on Application Architecture",
-  author_id: 1001,
-  author_name: "Prasanna Karthik Vairam",
-  date: "2021-09-30",
-  content: "remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd!"
-}, {
-  post_id: 2,
-  title: "Exam date determined",
-  type: 0,
-  course_id: "IT5002",
-  course_name: "Computer Systems and Applications",
-  author_id: 1002,
-  author_name: "Colin Tan",
-  date: "2021-09-03",
-  content: "Midterm exam is set on Oct 5th. Please be prepared."
-}, {
-  post_id: 3,
-  title: "Welcome to CS4226!",
-  type: 0,
-  course_id: "CS4226",
-  course_name: "Internet Architecture",
-  author_id: 1003,
-  author_name: "Richard Ma",
-  date: "2021-08-26",
-  content: "Welcome to CS4226. I will be the lecturer of this course. Looking forward to meeting all of you!"
-}];
-const posts_sample = [];
-const comments_sample = [];
-
-for (let i = 0; i < 16; i++) {
-  posts_sample.push({
-    post_id: 1056 + i,
-    title: `Sample post ${i}`,
-    type: 1,
-    course_id: "IT5007",
-    course_name: "Software Engineering on Application Architecture",
-    author_id: 2001,
-    author_name: "Donald Trump ex",
-    date: "2 days ago",
-    snippet: "We supply a series of design principles, practical patterns and high quality design resources...",
-    content: "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.",
-    details: {
-      likes: 156,
-      dislikes: 18,
-      comments: [i, i + 1, i + 2]
-    }
-  });
-}
-
-for (let i = 0; i < 18; i++) {
-  comments_sample.push({
-    post_id: i,
-    title: "",
-    type: 2,
-    course_id: "IT5007",
-    course_name: "Software Engineering on Application Architecture",
-    author_id: 2002,
-    author_name: "Biden III",
-    date: "2 days ago",
-    content: `Good job! ${i}`,
-    details: {
-      likes: 10,
-      dislikes: 2
-    }
-  });
-}
+} = Layout; // // hard-coded data notifications, posts and comments
+// const notifs_sample = [
+//     {post_id: 1, title: "Remember to submit tutorial 4", type: 0,
+//     course_id: "IT5007", course_name: "Software Engineering on Application Architecture",
+//     author_id: 1001, author_name: "Prasanna Karthik Vairam", date:"2021-09-30",
+//     content: "remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd!"},
+//     {post_id: 2, title: "Exam date determined", type: 0,
+//     course_id: "IT5002", course_name: "Computer Systems and Applications",
+//     author_id: 1002, author_name: "Colin Tan", date: "2021-09-03", 
+//     content: "Midterm exam is set on Oct 5th. Please be prepared."}, 
+//     {post_id: 3, title: "Welcome to CS4226!", type: 0, 
+//     course_id: "CS4226", course_name: "Internet Architecture", 
+//     author_id: 1003, author_name: "Richard Ma", date: "2021-08-26", 
+//     content: "Welcome to CS4226. I will be the lecturer of this course. Looking forward to meeting all of you!"}
+// ];
+// const posts_sample = [];
+// const comments_sample = [];
+// for (let i = 0; i < 16; i++) {
+//     posts_sample.push({
+//         post_id: 1056 + i, title: `Sample post ${i}`, type: 1,
+//         course_id: "IT5007", course_name: "Software Engineering on Application Architecture",
+//         author_id: 2001, author_name: "Donald Trump ex", date: "2 days ago",
+//         snippet: "We supply a series of design principles, practical patterns and high quality design resources...",
+//         content: "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.",
+//         details: {likes: 156, dislikes: 18, comments: [i, i+1, i+2]}
+//     });
+// }
+// for (let i = 0; i < 18; i++) {
+//     comments_sample.push({
+//         post_id: i, title: "", type: 2,
+//         course_id: "IT5007", course_name: "Software Engineering on Application Architecture",
+//         author_id: 2002, author_name: "Biden III", date: "2 days ago",
+//         content: `Good job! ${i}`,
+//         details: {likes: 10, dislikes: 2}
+//     });
+// }
 
 export default function App() {
   const [logined, setLogin] = useState(0); // record the login status of a visit
@@ -108,7 +71,7 @@ export default function App() {
   }
 
   async function getUserInfo() {
-    const resp = await fetch("/users/info", {
+    const resp = await fetch("/api/users/info", {
       method: "POST",
       credentials: "include",
       headers: {
@@ -132,13 +95,15 @@ export default function App() {
   }), /*#__PURE__*/React.createElement(Switch, null, /*#__PURE__*/React.createElement(Route, {
     exact: true,
     path: "/posts/public"
-  }, /*#__PURE__*/React.createElement(PublicForum, {
-    logined: logined
+  }, /*#__PURE__*/React.createElement(PostForum, {
+    logined: logined,
+    public: 1
   })), /*#__PURE__*/React.createElement(Route, {
     exact: true,
     path: "/posts/courses"
-  }, /*#__PURE__*/React.createElement(CourseForum, {
-    logined: logined
+  }, /*#__PURE__*/React.createElement(PostForum, {
+    logined: logined,
+    public: 0
   })), /*#__PURE__*/React.createElement(Route, {
     path: "/posts/:postid"
   }, /*#__PURE__*/React.createElement(PostDetail, null)), /*#__PURE__*/React.createElement(Route, {
@@ -157,7 +122,7 @@ export default function App() {
     path: "/"
   }, /*#__PURE__*/React.createElement(Redirect, {
     to: "/posts/public"
-  }), /*#__PURE__*/React.createElement(PublicForum, {
+  }), /*#__PURE__*/React.createElement(PostForum, {
     logined: logined
   })))));
 }
@@ -185,7 +150,7 @@ function Toolbar(props) {
   }, "Log In")));
 
   async function logout() {
-    const resp = await fetch("/logout", {
+    const resp = await fetch("/api/logout", {
       method: "post",
       credentials: "include",
       headers: {
@@ -230,5 +195,3 @@ function Toolbar(props) {
     className: "navbar-user"
   }, options)));
 }
-
-export { notifs_sample, posts_sample, comments_sample };

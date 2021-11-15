@@ -1,40 +1,45 @@
-import React, { useState } from "react";
+// stated components: PostForum, PostDetail, DraweredListItem
+
+import React, { useState, useEffect } from "react";
 import { Link, useParams, useHistory } from "react-router-dom";
 import { Layout, Menu, List, Drawer, Button, Space, Card, Comment, Tooltip, Divider } from 'antd';
 import { LikeFilled, DislikeFilled, MessageOutlined } from '@ant-design/icons';
 
 import "./theme_posts.css";
-import { notifs_sample, posts_sample, comments_sample } from "./App";
+// import { notifs_sample, posts_sample, comments_sample } from "./App";
 
 const { SubMenu } = Menu;
 const { Sider, Header, Content } = Layout;
 
 
-// Top-level component: display public posts with a complete layout
-function PublicForum(props) {
+// Top-level component: display the public posts, filters and notifications
+// states: postcards (simple form of a post), notifs
+function PostForum(props) {
+    const [postcards, setPostcards] = useState([]);
+    const [notifs, setNotifs] = useState([]);
+
+    useEffect(() => {
+        getPostcards((postcards) => {
+            setPostcards(postcards);
+        });    // TODO: pass "public" to the function
+        if (props.logined) {
+            getNotifs((notifs) => {
+                setNotifs(notifs);
+            });
+        }
+    }, [props.logined]);
+
     return (
         <Layout>
             <PostSider logined={props.logined}/>
-            <PostContent />
-            <NotifSider logined={props.logined}/>
+            <PostContent postcards={postcards}/>
+            <NotifSider logined={props.logined} notifs={notifs}/>
         </Layout>
     );
 }
 
 
-// Top-level component: display course posts with a complete layout
-function CourseForum(props) {
-    return (
-        <Layout>
-            <PostSider logined={props.logined}/>
-            <PostContent />
-            <NotifSider logined={props.logined}/>
-        </Layout>
-    );
-}
-
-
-// Left sider of the posts page: offers some simple filters
+// Left sider of the posts page: offer some simple filters
 function PostSider(props) {
     const course_selector = props.logined === 1 ? (
         <SubMenu key="sub1" title="My courses">
@@ -71,7 +76,7 @@ function NotifSider(props) {
     const notif_list = props.logined ? (
         <List
             itemLayout="horizontal"
-            dataSource={notifs_sample}
+            dataSource={props.notifs}
             renderItem={item => (
                 <DraweredListItem item={item} />
             )}
@@ -95,6 +100,7 @@ function NotifSider(props) {
 
 
 // Child component of NotifSider: renders a notification as a list item with a detailed drawer.
+// states: visible
 function DraweredListItem(props) {
     const [visible, setVisible] = useState(false);
     const item = props.item;
@@ -128,13 +134,13 @@ function DraweredListItem(props) {
 
 
 // Showing a list of posts in the public or course forum
-function PostContent() {
+function PostContent(props) {
     return (
         <Content className="content-post">
             <List
                 itemLayout="vertical"
                 size="large"
-                dataSource={posts_sample}
+                dataSource={props.postcards}
                 renderItem={item => (
                     <>
                         <br/>
@@ -146,7 +152,7 @@ function PostContent() {
                         console.log(page);
                     },
                     pageSize: 5,
-                    total: posts_sample.length,
+                    total: props.postcards.length,
                     style: {textAlign: "center"}
                 }}
             />
@@ -201,14 +207,24 @@ const IconText = ({ icon, text }) => (
 
 
 // Displaying the post detail
+// states: post, comments
 function PostDetail() {
     const { postid } = useParams();
+    const [post, setPost] = useState([]);
+    const [comments, setComments] = useState([]);
     const history = useHistory();
-    // pass these functions to backend later
-    const post = findPost(parseInt(postid));
-    const comments = findComments(parseInt(postid) - 1056);
 
-    const post_content = post === null ? (
+    useEffect(() => {
+        findPost((post) => {
+            setPost(post);
+        }, parseInt(postid));
+
+        getComments((comments) => {
+            setComments(comments);
+        }, comments);
+    }, [postid, comments]);
+
+    const post_content = post === [] ? (
         <h2> Sorry, post {postid} does not exist.. </h2>
     ) : (
         <>
@@ -248,11 +264,11 @@ function PostDetail() {
                 <li>
                     <Comment
                         actions={[
-                            <Tooltip key={`comment-${item.commentid}-like`} title="Like">
+                            <Tooltip key={`comment-${item.post_id}-like`} title="Like">
                                 <LikeFilled/>
                                 <span className="comment-action">{item.details.likes}</span>
                             </Tooltip>,
-                            <Tooltip key={`comment-${item.commentid}-dislike`} title="Dislike">
+                            <Tooltip key={`comment-${item.post_id}-dislike`} title="Dislike">
                                 <DislikeFilled/>
                                 <span className="comment-action">{item.details.dislikes}</span>
                             </Tooltip>,
@@ -278,27 +294,109 @@ function PostDetail() {
 }
 
 
-// TODO: should be implemented on the backend
-function findPost(postid) {
-    const length = posts_sample.length;
-    for (let i = 0; i < length; i++) {
-        if (posts_sample[i].post_id === postid) {
-            return posts_sample[i];
-        }
+// getPostcards: function to get a postcard list for the post forum
+// postcard: simpler form of a post
+// author_id: 0: any author
+async function getPostcards(setPostcardsHelper=null, access=true, course_id=0) {
+    const resp = await fetch("/api/posts/cards", {
+        method: "post",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            "access": access, "course_id": course_id
+        }),
+    });
+    const resp_json = await resp.json();
+    console.log("Postcards: \n", resp_json);
+    var postcards = [];
+    for (let postcard of resp_json) {
+        postcards.push({
+            post_id: postcard["post_id"], title: postcard["title"], 
+            course_id: postcard["course_id"], 
+            author_id: postcard["author_id"], author_name: postcard["author_name"], date: postcard["date"],
+            snippet: postcard["snippet"],
+            details: {likes: postcard["details"]["likes"], dislikes: postcard["details"]["dislikes"], comments: postcard["details"]["comments"]}
+        });
     }
-    return null;
+    setPostcardsHelper(postcards);
 }
 
 
-// TODO: should be implemented on the backend, and the logic should change accordingly
-function findComments(idx) {
-    if (idx < 0 || idx >= comments_sample.length - 3) {
-        return null;
-    } else {
-        return comments_sample.slice(idx, idx + 3);
+// findPost (different from getPostcards): 
+async function findPost(setPostHelper, post_id) {
+    const resp = await fetch("/api/posts/get_post", {
+        method: "post",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({"post_id": post_id}),
+    });
+    const post = await resp.json();
+    if (post["post_id"] !== -1) {
+        setPostHelper({
+            post_id: post["post_id"], title: post["title"], access: post["access"], post_type: post["post_type"],
+            course_id: post["course_id"], course_name: post["course_name"],
+            author_id: post["author_id"], author_name: post["author_name"], date: post["date"],
+            content: post["content"],
+            details: {likes: post["details"]["likes"], dislikes: post["details"]["dislikes"], comments: post["details"]["comments"]}
+        });
     }
 }
 
 
+// getNotifs: function to get notifications of a user
+async function getNotifs(setNotifsHelper, course_id=0) {
+    const resp = await fetch("/api/posts/notifs", {
+        method: "post",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({"course_id": course_id})
+    });
+    const resp_json = await resp.json();
+    console.log(resp_json);
+    var notifs = [];
+    for (let notif of resp_json) {
+        notifs.push({
+            post_id: notif["post_id"], title: notif["title"], access: notif["access"], post_type: notif["post_type"],
+            course_id: notif["course_id"], course_name: notif["course_name"],
+            author_id: notif["author_id"], author_name: notif["author_name"], date: notif["date"],
+            content: notif["content"]
+        });
+    }
+    setNotifsHelper(notifs);
+}
 
-export {PublicForum, CourseForum, PostDetail, CardListItem};
+
+// getComments: function to get comments of a post
+async function getComments(setCommentsHelper, indices) {
+    const resp = await fetch("/api/posts/comments", {
+        method: "post",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({"comments": indices})
+    });
+    const resp_json = await resp.json();
+    console.log(resp_json);
+    var comments = [];
+    for (let comment of resp_json) {
+        comments.push({
+            post_id: comment["post_id"], title: comment["title"], access: comment["access"], type: comment["type"],
+            course_id: comment["course_id"], course_name: comment["course_name"],
+            author_id: comment["author_id"], author_name: comment["author_name"], date: comment["date"],
+            content: comment["content"],
+            details: {likes: comment["details"]["likes"], dislikes: comment["details"]["dislikes"]}
+        });
+    }
+    setCommentsHelper(comments);
+}
+
+
+
+export {PostForum, PostDetail, CardListItem, getNotifs, getPostcards};

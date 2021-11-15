@@ -8,7 +8,7 @@ userinfo = [
     ]
 
 
-@users.route("/register", methods=["POST"])
+@users.route("/api/register", methods=["POST"])
 def user_register():
     if request.method == "POST":
         data = request.get_json()
@@ -29,7 +29,7 @@ def user_register():
         return jsonify("Registeration Succeeds!")
     
 
-@users.route("/login", methods=["GET", "POST"])
+@users.route("/api/login", methods=["GET", "POST"])
 def user_login():
     if request.method == "POST":
         data = request.get_json()
@@ -55,7 +55,7 @@ def user_login():
         
 
 # TODO: retrieve more personal data besides name and email
-@users.route("/users/info", methods=["POST"])
+@users.route("/api/users/info", methods=["POST"])
 def get_userinfo():
     user_id = session.get("user_id")
 
@@ -78,7 +78,7 @@ def get_userinfo():
 
 
 # TODO: still developing
-@users.route('/logout', methods=["POST"])
+@users.route('/api/logout', methods=["POST"])
 def logout(): 
     if request.method == 'POST':
         print("session to be deleted: ", session)    # for tests only

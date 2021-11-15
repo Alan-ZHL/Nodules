@@ -37,7 +37,7 @@ course_sample = [
 ]
 
 
-@courses.route("/courses/info", methods=["POST"])
+@courses.route("/api/courses/info", methods=["POST"])
 def display_courses():
     data = request.get_json()
     courseid = data["course_id"]

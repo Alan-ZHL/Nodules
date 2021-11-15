@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+// stated components: PostForum, PostDetail, DraweredListItem
+import React, { useState, useEffect } from "react";
 import { Link, useParams, useHistory } from "react-router-dom";
 import { Layout, Menu, List, Drawer, Button, Space, Card, Comment, Tooltip, Divider } from 'antd';
 import { LikeFilled, DislikeFilled, MessageOutlined } from '@ant-design/icons';
-import "./theme_posts.css";
-import { notifs_sample, posts_sample, comments_sample } from "./App";
+import "./theme_posts.css"; // import { notifs_sample, posts_sample, comments_sample } from "./App";
+
 const {
   SubMenu
 } = Menu;
@@ -11,24 +12,32 @@ const {
   Sider,
   Header,
   Content
-} = Layout; // Top-level component: display public posts with a complete layout
+} = Layout; // Top-level component: display the public posts, filters and notifications
+// states: postcards (simple form of a post), notifs
 
-function PublicForum(props) {
+function PostForum(props) {
+  const [postcards, setPostcards] = useState([]);
+  const [notifs, setNotifs] = useState([]);
+  useEffect(() => {
+    getPostcards(postcards => {
+      setPostcards(postcards);
+    }); // TODO: pass "public" to the function
+
+    if (props.logined) {
+      getNotifs(notifs => {
+        setNotifs(notifs);
+      });
+    }
+  }, [props.logined]);
   return /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(PostSider, {
     logined: props.logined
-  }), /*#__PURE__*/React.createElement(PostContent, null), /*#__PURE__*/React.createElement(NotifSider, {
-    logined: props.logined
+  }), /*#__PURE__*/React.createElement(PostContent, {
+    postcards: postcards
+  }), /*#__PURE__*/React.createElement(NotifSider, {
+    logined: props.logined,
+    notifs: notifs
   }));
-} // Top-level component: display course posts with a complete layout
-
-
-function CourseForum(props) {
-  return /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(PostSider, {
-    logined: props.logined
-  }), /*#__PURE__*/React.createElement(PostContent, null), /*#__PURE__*/React.createElement(NotifSider, {
-    logined: props.logined
-  }));
-} // Left sider of the posts page: offers some simple filters
+} // Left sider of the posts page: offer some simple filters
 
 
 function PostSider(props) {
@@ -73,7 +82,7 @@ function PostSider(props) {
 function NotifSider(props) {
   const notif_list = props.logined ? /*#__PURE__*/React.createElement(List, {
     itemLayout: "horizontal",
-    dataSource: notifs_sample,
+    dataSource: props.notifs,
     renderItem: item => /*#__PURE__*/React.createElement(DraweredListItem, {
       item: item
     }),
@@ -88,6 +97,7 @@ function NotifSider(props) {
     className: "header-notif"
   }, "Notifications"), /*#__PURE__*/React.createElement(Content, null, notif_list)));
 } // Child component of NotifSider: renders a notification as a list item with a detailed drawer.
+// states: visible
 
 
 function DraweredListItem(props) {
@@ -119,13 +129,13 @@ function DraweredListItem(props) {
 } // Showing a list of posts in the public or course forum
 
 
-function PostContent() {
+function PostContent(props) {
   return /*#__PURE__*/React.createElement(Content, {
     className: "content-post"
   }, /*#__PURE__*/React.createElement(List, {
     itemLayout: "vertical",
     size: "large",
-    dataSource: posts_sample,
+    dataSource: props.postcards,
     renderItem: item => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement(CardListItem, {
       item: item
     })),
@@ -134,7 +144,7 @@ function PostContent() {
         console.log(page);
       },
       pageSize: 5,
-      total: posts_sample.length,
+      total: props.postcards.length,
       style: {
         textAlign: "center"
       }
@@ -187,17 +197,25 @@ const IconText = ({
   icon,
   text
 }) => /*#__PURE__*/React.createElement(Space, null, /*#__PURE__*/React.createElement(icon), text); // Displaying the post detail
+// states: post, comments
 
 
 function PostDetail() {
   const {
     postid
   } = useParams();
-  const history = useHistory(); // pass these functions to backend later
-
-  const post = findPost(parseInt(postid));
-  const comments = findComments(parseInt(postid) - 1056);
-  const post_content = post === null ? /*#__PURE__*/React.createElement("h2", null, " Sorry, post ", postid, " does not exist.. ") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Card, {
+  const [post, setPost] = useState([]);
+  const [comments, setComments] = useState([]);
+  const history = useHistory();
+  useEffect(() => {
+    findPost(post => {
+      setPost(post);
+    }, parseInt(postid));
+    getComments(comments => {
+      setComments(comments);
+    }, comments);
+  }, [postid, comments]);
+  const post_content = post === [] ? /*#__PURE__*/React.createElement("h2", null, " Sorry, post ", postid, " does not exist.. ") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Card, {
     className: "post-detail",
     actions: [/*#__PURE__*/React.createElement(IconText, {
       icon: LikeFilled,
@@ -228,12 +246,12 @@ function PostDetail() {
     dataSource: comments,
     renderItem: item => /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement(Comment, {
       actions: [/*#__PURE__*/React.createElement(Tooltip, {
-        key: `comment-${item.commentid}-like`,
+        key: `comment-${item.post_id}-like`,
         title: "Like"
       }, /*#__PURE__*/React.createElement(LikeFilled, null), /*#__PURE__*/React.createElement("span", {
         className: "comment-action"
       }, item.details.likes)), /*#__PURE__*/React.createElement(Tooltip, {
-        key: `comment-${item.commentid}-dislike`,
+        key: `comment-${item.post_id}-dislike`,
         title: "Dislike"
       }, /*#__PURE__*/React.createElement(DislikeFilled, null), /*#__PURE__*/React.createElement("span", {
         className: "comment-action"
@@ -249,28 +267,152 @@ function PostDetail() {
     className: "button-back",
     onClick: () => history.goBack()
   }, "Back to the Forum"), post_content));
-} // TODO: should be implemented on the backend
+} // getPostcards: function to get a postcard list for the post forum
+// postcard: simpler form of a post
+// author_id: 0: any author
 
 
-function findPost(postid) {
-  const length = posts_sample.length;
+async function getPostcards(setPostcardsHelper = null, access = true, course_id = 0) {
+  const resp = await fetch("/api/posts/cards", {
+    method: "post",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "access": access,
+      "course_id": course_id
+    })
+  });
+  const resp_json = await resp.json();
+  console.log("Postcards: \n", resp_json);
+  var postcards = [];
 
-  for (let i = 0; i < length; i++) {
-    if (posts_sample[i].post_id === postid) {
-      return posts_sample[i];
-    }
+  for (let postcard of resp_json) {
+    postcards.push({
+      post_id: postcard["post_id"],
+      title: postcard["title"],
+      course_id: postcard["course_id"],
+      author_id: postcard["author_id"],
+      author_name: postcard["author_name"],
+      date: postcard["date"],
+      snippet: postcard["snippet"],
+      details: {
+        likes: postcard["details"]["likes"],
+        dislikes: postcard["details"]["dislikes"],
+        comments: postcard["details"]["comments"]
+      }
+    });
   }
 
-  return null;
-} // TODO: should be implemented on the backend, and the logic should change accordingly
+  setPostcardsHelper(postcards);
+} // findPost (different from getPostcards): 
 
 
-function findComments(idx) {
-  if (idx < 0 || idx >= comments_sample.length - 3) {
-    return null;
-  } else {
-    return comments_sample.slice(idx, idx + 3);
+async function findPost(setPostHelper, post_id) {
+  const resp = await fetch("/api/posts/get_post", {
+    method: "post",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "post_id": post_id
+    })
+  });
+  const post = await resp.json();
+
+  if (post["post_id"] !== -1) {
+    setPostHelper({
+      post_id: post["post_id"],
+      title: post["title"],
+      access: post["access"],
+      post_type: post["post_type"],
+      course_id: post["course_id"],
+      course_name: post["course_name"],
+      author_id: post["author_id"],
+      author_name: post["author_name"],
+      date: post["date"],
+      content: post["content"],
+      details: {
+        likes: post["details"]["likes"],
+        dislikes: post["details"]["dislikes"],
+        comments: post["details"]["comments"]
+      }
+    });
   }
+} // getNotifs: function to get notifications of a user
+
+
+async function getNotifs(setNotifsHelper, course_id = 0) {
+  const resp = await fetch("/api/posts/notifs", {
+    method: "post",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "course_id": course_id
+    })
+  });
+  const resp_json = await resp.json();
+  console.log(resp_json);
+  var notifs = [];
+
+  for (let notif of resp_json) {
+    notifs.push({
+      post_id: notif["post_id"],
+      title: notif["title"],
+      access: notif["access"],
+      post_type: notif["post_type"],
+      course_id: notif["course_id"],
+      course_name: notif["course_name"],
+      author_id: notif["author_id"],
+      author_name: notif["author_name"],
+      date: notif["date"],
+      content: notif["content"]
+    });
+  }
+
+  setNotifsHelper(notifs);
+} // getComments: function to get comments of a post
+
+
+async function getComments(setCommentsHelper, indices) {
+  const resp = await fetch("/api/posts/comments", {
+    method: "post",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "comments": indices
+    })
+  });
+  const resp_json = await resp.json();
+  console.log(resp_json);
+  var comments = [];
+
+  for (let comment of resp_json) {
+    comments.push({
+      post_id: comment["post_id"],
+      title: comment["title"],
+      access: comment["access"],
+      type: comment["type"],
+      course_id: comment["course_id"],
+      course_name: comment["course_name"],
+      author_id: comment["author_id"],
+      author_name: comment["author_name"],
+      date: comment["date"],
+      content: comment["content"],
+      details: {
+        likes: comment["details"]["likes"],
+        dislikes: comment["details"]["dislikes"]
+      }
+    });
+  }
+
+  setCommentsHelper(comments);
 }
 
-export { PublicForum, CourseForum, PostDetail, CardListItem };
+export { PostForum, PostDetail, CardListItem, getNotifs, getPostcards };

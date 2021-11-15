@@ -26,7 +26,7 @@ function Login(props) {
     }
         
     function postData(){
-        fetch("/login", {
+        fetch("/api/login", {
             method: "post",
             credentials: "include",
             headers: {
@@ -136,7 +136,7 @@ function Register () {
     }
         
     function postData(){
-        fetch("/register", {
+        fetch("/api/register", {
             method: "post",
             headers: {
                 "Content-Type": "application/json"

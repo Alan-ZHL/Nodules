@@ -1,47 +1,38 @@
-import React, {useState, useEffect} from "react";
+// stated components: CoursePage
+
+import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Layout, PageHeader, Descriptions, List, Button, Menu, Tooltip } from "antd";
 import { StarOutlined, CommentOutlined, NotificationOutlined } from "@ant-design/icons";
 
 import "./theme_courses.css";
-import { notifs_sample, posts_sample } from "./App";
+import {getNotifs, getPostcards} from "./theme_posts";
+// import { notifs_sample, posts_sample } from "./App";
 import { CardListItem } from "./theme_posts";
 
 const { Content } = Layout;
 
 
-// General layout of a coursepage
+// Top-level component: a coursepage
+// states: course, posts, notifs
 function CoursePage() {
     const { courseid } = useParams();
     const [ course, setCourse ] = useState(null);
-    const posts = findPosts(courseid);
-    const notifs = findNotifs(courseid);
+    const [ postcards, setPostcards] = useState([]);
+    const [ notifs, setNotifs] = useState([]);
 
-    useEffect(() => {
-        async function findCourse() {
-            const resp = await fetch("/courses/info", {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({"course_id": courseid})
-            });
-        
-            const course = await resp.json();
-            if (course["course_id"] !== "") {
-                setCourse({
-                    course_id: course["course_id"], course_name: course["course_name"], 
-                    credit: course["credit"], workload: course["workload"], prerequisites: course["prerequisites"],
-                    lecturer_id: course["lecturer_id"], lecturer_name: course["lecturer_name"],
-                    open_semesters: course["open_semesters"],
-                    description: course["description"], rating: course["rating"]
-                });
-            } else {
-                setCourse(null);
-            }
-        }
-        findCourse();
+    function setCourseHelper(course) {
+        setCourse(course);
+    }
+
+    useEffect(() => {    
+        findCourse(setCourseHelper, courseid);
+        getPostcards((postcards) => {
+            setPostcards(postcards);
+        }, courseid);
+        getNotifs((notifs) => {
+            setNotifs(notifs);
+        }, courseid);
     }, [courseid]);
 
     if (course === null) {
@@ -52,7 +43,7 @@ function CoursePage() {
                 <Content>
                     <CourseHeader id={course.course_id} name={course.course_name}/>
                     <CourseDesciptions course={course}/>
-                    <CoursePostsAndNotifs posts={posts} notifs={notifs}/>
+                    <CoursePostsAndNotifs posts={postcards} notifs={notifs}/>
                 </Content>
             </Layout>
         );
@@ -60,28 +51,28 @@ function CoursePage() {
 }
 
 
-function findNotifs(courseid) {
-    const notifs = [];
+async function findCourse(setCourseHelper, courseid) {
+    const resp = await fetch("/api/courses/info", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({"course_id": courseid})
+    });
 
-    for (var i = 0; i < notifs_sample.length; i++) {
-        if (notifs_sample[i].course_id === courseid) {
-            notifs.push(notifs_sample[i]);
-        }
+    const course = await resp.json();
+    if (course["course_id"] !== "") {
+        setCourseHelper({
+            course_id: course["course_id"], course_name: course["course_name"], 
+            credit: course["credit"], workload: course["workload"], prerequisites: course["prerequisites"],
+            lecturer_id: course["lecturer_id"], lecturer_name: course["lecturer_name"],
+            open_semesters: course["open_semesters"],
+            description: course["description"], rating: course["rating"]
+        });
+    } else {
+        setCourseHelper(null);
     }
-
-    return notifs;
-}
-
-function findPosts(courseid) {
-    const posts = [];
-
-    for (var i = 0; i < posts_sample.length; i++) {
-        if (posts_sample[i].course_id === courseid) {
-            posts.push(posts_sample[i]);
-        }
-    }
-
-    return posts;
 }
 
 
