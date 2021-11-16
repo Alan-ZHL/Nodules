@@ -28,7 +28,7 @@ function CoursePage() {
     findCourse(setCourseHelper, courseid);
     getPostcards(postcards => {
       setPostcards(postcards);
-    }, courseid);
+    }, true, courseid);
     getNotifs(notifs => {
       setNotifs(notifs);
     }, courseid);

@@ -204,18 +204,22 @@ function PostDetail() {
   const {
     postid
   } = useParams();
-  const [post, setPost] = useState([]);
+  const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const history = useHistory();
+
+  function setPostHelper(fetched_post) {
+    setPost(fetched_post);
+  }
+
+  function setCommentsHelper(indices) {
+    setComments(indices);
+  }
+
   useEffect(() => {
-    findPost(post => {
-      setPost(post);
-    }, parseInt(postid));
-    getComments(comments => {
-      setComments(comments);
-    }, comments);
-  }, [postid, comments]);
-  const post_content = post === [] ? /*#__PURE__*/React.createElement("h2", null, " Sorry, post ", postid, " does not exist.. ") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Card, {
+    findPost(setPostHelper, setCommentsHelper, parseInt(postid));
+  }, [postid]);
+  const post_content = post === null ? /*#__PURE__*/React.createElement("h2", null, " Sorry, post ", postid, " does not exist.. ") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Card, {
     className: "post-detail",
     actions: [/*#__PURE__*/React.createElement(IconText, {
       icon: LikeFilled,
@@ -285,7 +289,6 @@ async function getPostcards(setPostcardsHelper = null, access = true, course_id 
     })
   });
   const resp_json = await resp.json();
-  console.log("Postcards: \n", resp_json);
   var postcards = [];
 
   for (let postcard of resp_json) {
@@ -306,10 +309,11 @@ async function getPostcards(setPostcardsHelper = null, access = true, course_id 
   }
 
   setPostcardsHelper(postcards);
-} // findPost (different from getPostcards): 
+} // findPost (different from getPostcards): find a specific and complete post, updating the post as well as its comments
+// (export notice: please export the nested "getComments" as well)
 
 
-async function findPost(setPostHelper, post_id) {
+async function findPost(setPostHelper, setCommentsHelper, post_id) {
   const resp = await fetch("/api/posts/get_post", {
     method: "post",
     credentials: "include",
@@ -340,6 +344,9 @@ async function findPost(setPostHelper, post_id) {
         comments: post["details"]["comments"]
       }
     });
+    getComments(setCommentsHelper, post["details"]["comments"]);
+  } else {
+    setPostHelper(null);
   }
 } // getNotifs: function to get notifications of a user
 
@@ -356,7 +363,6 @@ async function getNotifs(setNotifsHelper, course_id = 0) {
     })
   });
   const resp_json = await resp.json();
-  console.log(resp_json);
   var notifs = [];
 
   for (let notif of resp_json) {
@@ -390,7 +396,6 @@ async function getComments(setCommentsHelper, indices) {
     })
   });
   const resp_json = await resp.json();
-  console.log(resp_json);
   var comments = [];
 
   for (let comment of resp_json) {

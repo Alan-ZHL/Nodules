@@ -11,43 +11,7 @@ const {
 } = Menu;
 const {
   Header
-} = Layout; // // hard-coded data notifications, posts and comments
-// const notifs_sample = [
-//     {post_id: 1, title: "Remember to submit tutorial 4", type: 0,
-//     course_id: "IT5007", course_name: "Software Engineering on Application Architecture",
-//     author_id: 1001, author_name: "Prasanna Karthik Vairam", date:"2021-09-30",
-//     content: "remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd!"},
-//     {post_id: 2, title: "Exam date determined", type: 0,
-//     course_id: "IT5002", course_name: "Computer Systems and Applications",
-//     author_id: 1002, author_name: "Colin Tan", date: "2021-09-03", 
-//     content: "Midterm exam is set on Oct 5th. Please be prepared."}, 
-//     {post_id: 3, title: "Welcome to CS4226!", type: 0, 
-//     course_id: "CS4226", course_name: "Internet Architecture", 
-//     author_id: 1003, author_name: "Richard Ma", date: "2021-08-26", 
-//     content: "Welcome to CS4226. I will be the lecturer of this course. Looking forward to meeting all of you!"}
-// ];
-// const posts_sample = [];
-// const comments_sample = [];
-// for (let i = 0; i < 16; i++) {
-//     posts_sample.push({
-//         post_id: 1056 + i, title: `Sample post ${i}`, type: 1,
-//         course_id: "IT5007", course_name: "Software Engineering on Application Architecture",
-//         author_id: 2001, author_name: "Donald Trump ex", date: "2 days ago",
-//         snippet: "We supply a series of design principles, practical patterns and high quality design resources...",
-//         content: "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.",
-//         details: {likes: 156, dislikes: 18, comments: [i, i+1, i+2]}
-//     });
-// }
-// for (let i = 0; i < 18; i++) {
-//     comments_sample.push({
-//         post_id: i, title: "", type: 2,
-//         course_id: "IT5007", course_name: "Software Engineering on Application Architecture",
-//         author_id: 2002, author_name: "Biden III", date: "2 days ago",
-//         content: `Good job! ${i}`,
-//         details: {likes: 10, dislikes: 2}
-//     });
-// }
-
+} = Layout;
 export default function App() {
   const [logined, setLogin] = useState(0); // record the login status of a visit
 

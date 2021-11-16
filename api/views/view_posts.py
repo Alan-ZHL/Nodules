@@ -50,7 +50,7 @@ def get_multiple_postcards():
         for post in posts_sample:
             if post["course_id"] == course_id:
                 posts.append(post)
-        return jsonify(posts) if posts != [] else None
+        return jsonify(posts)
 
 
 @posts.route("/api/posts/get_post", methods=["POST"])
@@ -74,7 +74,7 @@ def get_notifs():
         for notif in notifs_sample:
             if notif["course_id"] == course_id:
                 notifs.append(notif)
-        return jsonify(notifs) if notifs != [] else None
+        return jsonify(notifs)
 
 
 @posts.route("/api/posts/comments", methods=["POST"])

@@ -210,21 +210,22 @@ const IconText = ({ icon, text }) => (
 // states: post, comments
 function PostDetail() {
     const { postid } = useParams();
-    const [post, setPost] = useState([]);
+    const [post, setPost] = useState(null);
     const [comments, setComments] = useState([]);
     const history = useHistory();
 
+    function setPostHelper(fetched_post) {
+        setPost(fetched_post);
+    }
+    function setCommentsHelper(indices) {
+        setComments(indices);
+    }
+
     useEffect(() => {
-        findPost((post) => {
-            setPost(post);
-        }, parseInt(postid));
+        findPost(setPostHelper, setCommentsHelper, parseInt(postid));
+    }, [postid]);
 
-        getComments((comments) => {
-            setComments(comments);
-        }, comments);
-    }, [postid, comments]);
-
-    const post_content = post === [] ? (
+    const post_content = post === null ? (
         <h2> Sorry, post {postid} does not exist.. </h2>
     ) : (
         <>
@@ -309,7 +310,6 @@ async function getPostcards(setPostcardsHelper=null, access=true, course_id=0) {
         }),
     });
     const resp_json = await resp.json();
-    console.log("Postcards: \n", resp_json);
     var postcards = [];
     for (let postcard of resp_json) {
         postcards.push({
@@ -324,8 +324,9 @@ async function getPostcards(setPostcardsHelper=null, access=true, course_id=0) {
 }
 
 
-// findPost (different from getPostcards): 
-async function findPost(setPostHelper, post_id) {
+// findPost (different from getPostcards): find a specific and complete post, updating the post as well as its comments
+// (export notice: please export the nested "getComments" as well)
+async function findPost(setPostHelper, setCommentsHelper, post_id) {
     const resp = await fetch("/api/posts/get_post", {
         method: "post",
         credentials: "include",
@@ -343,6 +344,9 @@ async function findPost(setPostHelper, post_id) {
             content: post["content"],
             details: {likes: post["details"]["likes"], dislikes: post["details"]["dislikes"], comments: post["details"]["comments"]}
         });
+        getComments(setCommentsHelper, post["details"]["comments"]);
+    } else {
+        setPostHelper(null);
     }
 }
 
@@ -358,7 +362,6 @@ async function getNotifs(setNotifsHelper, course_id=0) {
         body: JSON.stringify({"course_id": course_id})
     });
     const resp_json = await resp.json();
-    console.log(resp_json);
     var notifs = [];
     for (let notif of resp_json) {
         notifs.push({
@@ -383,7 +386,6 @@ async function getComments(setCommentsHelper, indices) {
         body: JSON.stringify({"comments": indices})
     });
     const resp_json = await resp.json();
-    console.log(resp_json);
     var comments = [];
     for (let comment of resp_json) {
         comments.push({
