@@ -13,8 +13,10 @@ const {
   Header
 } = Layout;
 export default function App() {
-  const [logined, setLogin] = useState(0); // record the login status of a visit
+  // record the login status of a visit -- 1: logined; 0: not logined
+  const [logined, setLogin] = useState(0); // distinguish public post area from course post area -- 1: public; 0: course
 
+  const [access, setAccess] = useState(1);
   const [userInfo, setUserInfo] = useState({
     user_name: "tourist",
     email: "Please login."
@@ -28,10 +30,15 @@ export default function App() {
 
   function logoutHelper() {
     setLogin(0);
+    setAccess(1);
     setUserInfo({
       user_name: "tourist",
       email: "Please login."
     });
+  }
+
+  function setAccessHelper(val) {
+    setAccess(val);
   }
 
   async function getUserInfo() {
@@ -55,19 +62,20 @@ export default function App() {
   return /*#__PURE__*/React.createElement(Router, null, /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(Toolbar, {
     logined: logined,
     userInfo: userInfo,
-    logoutHelper: logoutHelper
+    logoutHelper: logoutHelper,
+    setAccessHelper: setAccessHelper
   }), /*#__PURE__*/React.createElement(Switch, null, /*#__PURE__*/React.createElement(Route, {
     exact: true,
     path: "/posts/public"
   }, /*#__PURE__*/React.createElement(PostForum, {
     logined: logined,
-    public: 1
+    access: access
   })), /*#__PURE__*/React.createElement(Route, {
     exact: true,
     path: "/posts/courses"
   }, /*#__PURE__*/React.createElement(PostForum, {
     logined: logined,
-    public: 0
+    access: access
   })), /*#__PURE__*/React.createElement(Route, {
     path: "/posts/:postid"
   }, /*#__PURE__*/React.createElement(PostDetail, null)), /*#__PURE__*/React.createElement(Route, {
@@ -143,12 +151,14 @@ function Toolbar(props) {
     defaultSelectedKeys: ['1']
   }, /*#__PURE__*/React.createElement(Menu.Item, {
     key: "1",
-    className: "navbar-item"
+    className: "navbar-item",
+    onClick: () => props.setAccessHelper(1)
   }, /*#__PURE__*/React.createElement(Link, {
     to: "/posts/public"
   }, "Public Chats")), /*#__PURE__*/React.createElement(Menu.Item, {
     key: "2",
     className: "navbar-item",
+    onClick: () => props.setAccessHelper(0),
     disabled: !props.logined
   }, /*#__PURE__*/React.createElement(Link, {
     to: "/posts/courses"

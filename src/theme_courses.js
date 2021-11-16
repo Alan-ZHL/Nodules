@@ -4,8 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { Layout, PageHeader, Descriptions, List, Button, Menu, Tooltip } from "antd";
 import { StarOutlined, CommentOutlined, NotificationOutlined } from "@ant-design/icons";
 import "./theme_courses.css";
-import { getNotifs, getPostcards } from "./theme_posts"; // import { notifs_sample, posts_sample } from "./App";
-
+import { getNotifs, getPostcards } from "./theme_posts";
 import { CardListItem } from "./theme_posts";
 const {
   Content
@@ -28,7 +27,7 @@ function CoursePage() {
     findCourse(setCourseHelper, courseid);
     getPostcards(postcards => {
       setPostcards(postcards);
-    }, true, courseid);
+    }, 0, courseid);
     getNotifs(notifs => {
       setNotifs(notifs);
     }, courseid);

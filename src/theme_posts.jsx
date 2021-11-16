@@ -6,7 +6,6 @@ import { Layout, Menu, List, Drawer, Button, Space, Card, Comment, Tooltip, Divi
 import { LikeFilled, DislikeFilled, MessageOutlined } from '@ant-design/icons';
 
 import "./theme_posts.css";
-// import { notifs_sample, posts_sample, comments_sample } from "./App";
 
 const { SubMenu } = Menu;
 const { Sider, Header, Content } = Layout;
@@ -17,15 +16,20 @@ const { Sider, Header, Content } = Layout;
 function PostForum(props) {
     const [postcards, setPostcards] = useState([]);
     const [notifs, setNotifs] = useState([]);
-
+    
     useEffect(() => {
         getPostcards((postcards) => {
             setPostcards(postcards);
-        });    // TODO: pass "public" to the function
+        }, props.access);
+    }, [props.access]);
+
+    useEffect(() => {
         if (props.logined) {
             getNotifs((notifs) => {
-                setNotifs(notifs);
+                setNotifs(notifs);    // TODO: bind notifs with enrolled courses of a user
             });
+        } else {
+            setNotifs([]);
         }
     }, [props.logined]);
 
@@ -297,8 +301,10 @@ function PostDetail() {
 
 // getPostcards: function to get a postcard list for the post forum
 // postcard: simpler form of a post
+// access:    0: course; 1: public
+// course_id: 0: any course
 // author_id: 0: any author
-async function getPostcards(setPostcardsHelper=null, access=true, course_id=0) {
+async function getPostcards(setPostcardsHelper, access=1, course_id=0, author_id=0) {
     const resp = await fetch("/api/posts/cards", {
         method: "post",
         credentials: "include",
@@ -306,7 +312,7 @@ async function getPostcards(setPostcardsHelper=null, access=true, course_id=0) {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            "access": access, "course_id": course_id
+            "access": access, "course_id": course_id, "author_id": author_id
         }),
     });
     const resp_json = await resp.json();
@@ -344,7 +350,7 @@ async function findPost(setPostHelper, setCommentsHelper, post_id) {
             content: post["content"],
             details: {likes: post["details"]["likes"], dislikes: post["details"]["dislikes"], comments: post["details"]["comments"]}
         });
-        getComments(setCommentsHelper, post["details"]["comments"]);
+        getComments(setCommentsHelper, post["access"], 0, post["details"]["comments"]);
     } else {
         setPostHelper(null);
     }
@@ -352,14 +358,18 @@ async function findPost(setPostHelper, setCommentsHelper, post_id) {
 
 
 // getNotifs: function to get notifications of a user
-async function getNotifs(setNotifsHelper, course_id=0) {
+// course_id: 0: any course
+// author_id: 0: any author
+async function getNotifs(setNotifsHelper, course_id=0, author_id=0) {
     const resp = await fetch("/api/posts/notifs", {
         method: "post",
         credentials: "include",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({"course_id": course_id})
+        body: JSON.stringify({
+            "course_id": course_id, "author_id": author_id
+        })
     });
     const resp_json = await resp.json();
     var notifs = [];
@@ -376,14 +386,19 @@ async function getNotifs(setNotifsHelper, course_id=0) {
 
 
 // getComments: function to get comments of a post
-async function getComments(setCommentsHelper, indices) {
+// access:    0: course; 1: public
+// author_id: 0: any author
+// indices:   list of comments (as post_ids)
+async function getComments(setCommentsHelper, access=1, author_id=0, indices=[]) {
     const resp = await fetch("/api/posts/comments", {
         method: "post",
         credentials: "include",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({"comments": indices})
+        body: JSON.stringify({
+            "comments": indices, "access": access, "author_id": author_id
+        })
     });
     const resp_json = await resp.json();
     var comments = [];
@@ -401,4 +416,4 @@ async function getComments(setCommentsHelper, indices) {
 
 
 
-export {PostForum, PostDetail, CardListItem, getNotifs, getPostcards};
+export {PostForum, PostDetail, CardListItem, getPostcards, getNotifs, getComments};

@@ -3,8 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useParams, useHistory } from "react-router-dom";
 import { Layout, Menu, List, Drawer, Button, Space, Card, Comment, Tooltip, Divider } from 'antd';
 import { LikeFilled, DislikeFilled, MessageOutlined } from '@ant-design/icons';
-import "./theme_posts.css"; // import { notifs_sample, posts_sample, comments_sample } from "./App";
-
+import "./theme_posts.css";
 const {
   SubMenu
 } = Menu;
@@ -21,12 +20,15 @@ function PostForum(props) {
   useEffect(() => {
     getPostcards(postcards => {
       setPostcards(postcards);
-    }); // TODO: pass "public" to the function
-
+    }, props.access);
+  }, [props.access]);
+  useEffect(() => {
     if (props.logined) {
       getNotifs(notifs => {
-        setNotifs(notifs);
+        setNotifs(notifs); // TODO: bind notifs with enrolled courses of a user
       });
+    } else {
+      setNotifs([]);
     }
   }, [props.logined]);
   return /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(PostSider, {
@@ -273,10 +275,12 @@ function PostDetail() {
   }, "Back to the Forum"), post_content));
 } // getPostcards: function to get a postcard list for the post forum
 // postcard: simpler form of a post
+// access:    0: course; 1: public
+// course_id: 0: any course
 // author_id: 0: any author
 
 
-async function getPostcards(setPostcardsHelper = null, access = true, course_id = 0) {
+async function getPostcards(setPostcardsHelper, access = 1, course_id = 0, author_id = 0) {
   const resp = await fetch("/api/posts/cards", {
     method: "post",
     credentials: "include",
@@ -285,7 +289,8 @@ async function getPostcards(setPostcardsHelper = null, access = true, course_id 
     },
     body: JSON.stringify({
       "access": access,
-      "course_id": course_id
+      "course_id": course_id,
+      "author_id": author_id
     })
   });
   const resp_json = await resp.json();
@@ -344,14 +349,16 @@ async function findPost(setPostHelper, setCommentsHelper, post_id) {
         comments: post["details"]["comments"]
       }
     });
-    getComments(setCommentsHelper, post["details"]["comments"]);
+    getComments(setCommentsHelper, post["access"], 0, post["details"]["comments"]);
   } else {
     setPostHelper(null);
   }
 } // getNotifs: function to get notifications of a user
+// course_id: 0: any course
+// author_id: 0: any author
 
 
-async function getNotifs(setNotifsHelper, course_id = 0) {
+async function getNotifs(setNotifsHelper, course_id = 0, author_id = 0) {
   const resp = await fetch("/api/posts/notifs", {
     method: "post",
     credentials: "include",
@@ -359,7 +366,8 @@ async function getNotifs(setNotifsHelper, course_id = 0) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      "course_id": course_id
+      "course_id": course_id,
+      "author_id": author_id
     })
   });
   const resp_json = await resp.json();
@@ -382,9 +390,12 @@ async function getNotifs(setNotifsHelper, course_id = 0) {
 
   setNotifsHelper(notifs);
 } // getComments: function to get comments of a post
+// access:    0: course; 1: public
+// author_id: 0: any author
+// indices:   list of comments (as post_ids)
 
 
-async function getComments(setCommentsHelper, indices) {
+async function getComments(setCommentsHelper, access = 1, author_id = 0, indices = []) {
   const resp = await fetch("/api/posts/comments", {
     method: "post",
     credentials: "include",
@@ -392,7 +403,9 @@ async function getComments(setCommentsHelper, indices) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      "comments": indices
+      "comments": indices,
+      "access": access,
+      "author_id": author_id
     })
   });
   const resp_json = await resp.json();
@@ -420,4 +433,4 @@ async function getComments(setCommentsHelper, indices) {
   setCommentsHelper(comments);
 }
 
-export { PostForum, PostDetail, CardListItem, getNotifs, getPostcards };
+export { PostForum, PostDetail, CardListItem, getPostcards, getNotifs, getComments };

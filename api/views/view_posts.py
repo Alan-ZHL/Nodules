@@ -18,23 +18,29 @@ notifs_sample = [
     "author_id": 1003, "author_name": "Richard Ma", "date": "2021-08-26", 
     "content": "Welcome to CS4226. I will be the lecturer of this course. Looking forward to meeting all of you!"}
 ]
-posts_sample = [];    # TODO: remove "snippet" and generate with string contatenation
+posts_sample = [];
 comments_sample = [];
-for i in range(16):
+for i in range(20):
+    title = f"Sample public post {i}" if i < 16 else f"Sample course post {i}"
+    access = 1 if i < 16 else 0
+    content = "This is a sample course post. Ask me anything!" if i >= 15 else "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product protopost_types beautifully and efficiently."
+    snippet = content[:50]
     posts_sample.append({
-        "post_id": 1056 + i, "title": f"Sample post {i}", "access": 1, "post_type": 1,
+        "post_id": 1056 + i, "title": title, "access": access, "post_type": 1,
         "course_id": "IT5007", "course_name": "Software Engineering on Application Architecture",
         "author_id": 2001, "author_name": "Donald Trump ex", "date": "2 days ago",
-        "content": "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product protopost_types beautifully and efficiently.",
-        "snippet": "We supply a series of design principles, practical patterns and high quality design resources...",
-        "details": {"likes": 156, "dislikes": 18, "comments": [i, i+1, i+2]}
+        "content": content,
+        "snippet": snippet,
+        "details": {"likes": 56, "dislikes": 18, "comments": [i*3, i*3+1, i*3+2]}
     })
-for i in range(18):
+for i in range(60):
+    access = 1 if i < 48 else 0
+    content = "Sounds great!" if i < 48 else "Good job!"
     comments_sample.append({
-        "post_id": i, "title": "", "access": 1, "post_type": 2,
+        "post_id": i, "title": "", "access": access, "post_type": 2,
         "course_id": "IT5007", "course_name": "Software Engineering on Application Architecture",
         "author_id": 2002, "author_name": "Biden III", "date": "2 days ago",
-        "content": f"Good job! {i}",
+        "content": content,
         "details": {"likes": 10, "dislikes": 2}
     })
 
@@ -42,15 +48,12 @@ for i in range(18):
 @posts.route("/api/posts/cards", methods=["POST"])
 def get_multiple_postcards():
     data = request.get_json()
+    access = data["access"]
     course_id = data["course_id"]
-    if course_id == 0:
-        return jsonify(posts_sample)
-    else:
-        posts = []
-        for post in posts_sample:
-            if post["course_id"] == course_id:
-                posts.append(post)
-        return jsonify(posts)
+    author_id = data["author_id"]
+    posts = filter_posts(posts=posts_sample, access=access, course_id=course_id, author_id=author_id)
+    
+    return jsonify(posts)
 
 
 @posts.route("/api/posts/get_post", methods=["POST"])
@@ -67,23 +70,49 @@ def get_post():
 def get_notifs():
     data = request.get_json()
     course_id = data["course_id"]
-    if course_id == 0:
-        return jsonify(notifs_sample)
-    else:
-        notifs = []
-        for notif in notifs_sample:
-            if notif["course_id"] == course_id:
-                notifs.append(notif)
-        return jsonify(notifs)
+    author_id = data["author_id"]
+    notifs = filter_posts(posts=notifs_sample, access=0, course_id=course_id, author_id=author_id)
+    
+    return jsonify(notifs)
 
 
 @posts.route("/api/posts/comments", methods=["POST"])
 def get_comments():
     data = request.get_json()
+    access = data["access"]
+    author_id = data["author_id"]
     indices = data["comments"]
+
     comments = []
-    for comment in comments_sample:
-        if comment["post_id"] in indices:
-            comments.append(comment)
+    if indices != []:
+        for idx in indices:
+            comments.append(comments_sample[idx])
+    else:
+        comments = filter_posts(posts=comments_sample, access=access, author_id=author_id)
 
     return jsonify(comments)
+
+
+# helper functions
+
+# filter_posts: filter posts, notifs or comments with reagard to author_id and course_id
+def filter_posts(posts, access=1, course_id=0, author_id=0):
+    filtered_posts = []
+    if course_id == 0 and author_id == 0:
+        for post in posts:
+            if post["access"] == access:
+                filtered_posts.append(post)
+    elif course_id == 0:
+        for post in posts:
+            if post["access"] == access and post["author_id"] == author_id:
+                filtered_posts.append(post)
+    elif author_id == 0:
+        for post in posts:
+            if post["access"] == access and post["course_id"] == course_id:
+                filtered_posts.append(post)
+    else:
+        for post in posts:
+            if post["access"] == access and (post["course_id"] == course_id and post["author_id"] == author_id):
+                filtered_posts.append(post)
+
+    return filtered_posts

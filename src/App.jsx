@@ -18,7 +18,10 @@ const { Header } = Layout;
 
 
 export default function App() {
-    const [logined, setLogin] = useState(0);    // record the login status of a visit
+    // record the login status of a visit -- 1: logined; 0: not logined
+    const [logined, setLogin] = useState(0);
+    // distinguish public post area from course post area -- 1: public; 0: course
+    const [access, setAccess] = useState(1);
     const [userInfo, setUserInfo] = useState({user_name: "tourist", email: "Please login."});
     
     async function loginHelper(status) {
@@ -29,7 +32,12 @@ export default function App() {
     //test function to simulate logout
     function logoutHelper() {
         setLogin(0);
+        setAccess(1);
         setUserInfo({user_name: "tourist", email: "Please login."});
+    }
+
+    function setAccessHelper(val) {
+        setAccess(val);
     }
 
     async function getUserInfo() {
@@ -52,15 +60,16 @@ export default function App() {
             <Layout>
                 <Toolbar logined={logined}
                         userInfo={userInfo}
-                        logoutHelper={logoutHelper}/>
+                        logoutHelper={logoutHelper}
+                        setAccessHelper={setAccessHelper}/>
 
                 <Switch>
                     <Route exact path="/posts/public">
                         {/* TODO: change "public" as a state */}
-                        <PostForum logined={logined} public={1}/>
+                        <PostForum logined={logined} access={access}/>
                     </Route>
                     <Route exact path="/posts/courses">
-                        <PostForum logined={logined} public={0}/>
+                        <PostForum logined={logined} access={access}/>
                     </Route>
                     <Route path="/posts/:postid">
                         <PostDetail />
@@ -134,10 +143,10 @@ function Toolbar(props) {
                 <div className="logo">NodUleS</div>
             </Link>
             <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
-                <Menu.Item key="1" className="navbar-item">
+                <Menu.Item key="1" className="navbar-item" onClick={() => props.setAccessHelper(1)}>
                     <Link to="/posts/public">Public Chats</Link>
                 </Menu.Item>
-                <Menu.Item key="2" className="navbar-item" disabled={!props.logined}>
+                <Menu.Item key="2" className="navbar-item" onClick={() => props.setAccessHelper(0)} disabled={!props.logined}>
                     <Link to="/posts/courses">Course Discussion</Link>
                 </Menu.Item>
                 <SubMenu key="sub" icon={<UserOutlined />} 
