@@ -49,9 +49,9 @@ for i in range(60):
 def get_multiple_postcards():
     data = request.get_json()
     access = data["access"]
-    course_id = data["course_id"]
+    courses = data["courses"]
     author_id = data["author_id"]
-    posts = filter_posts(posts=posts_sample, access=access, course_id=course_id, author_id=author_id)
+    posts = filter_posts(posts=posts_sample, access=access, courses=courses, author_id=author_id)
     
     return jsonify(posts)
 
@@ -69,9 +69,9 @@ def get_post():
 @posts.route("/api/posts/notifs", methods=["POST"])
 def get_notifs():
     data = request.get_json()
-    course_id = data["course_id"]
+    courses = data["courses"]
     author_id = data["author_id"]
-    notifs = filter_posts(posts=notifs_sample, access=0, course_id=course_id, author_id=author_id)
+    notifs = filter_posts(posts=notifs_sample, access=0, courses=courses, author_id=author_id)
     
     return jsonify(notifs)
 
@@ -96,23 +96,23 @@ def get_comments():
 # helper functions
 
 # filter_posts: filter posts, notifs or comments with reagard to author_id and course_id
-def filter_posts(posts, access=1, course_id=0, author_id=0):
+def filter_posts(posts, access=1, courses=[0], author_id=0):
     filtered_posts = []
-    if course_id == 0 and author_id == 0:
+    if 0 in courses and author_id == 0:
         for post in posts:
             if post["access"] == access:
                 filtered_posts.append(post)
-    elif course_id == 0:
+    elif 0 in courses:
         for post in posts:
             if post["access"] == access and post["author_id"] == author_id:
                 filtered_posts.append(post)
     elif author_id == 0:
         for post in posts:
-            if post["access"] == access and post["course_id"] == course_id:
+            if post["access"] == access and post["course_id"] in courses:
                 filtered_posts.append(post)
     else:
         for post in posts:
-            if post["access"] == access and (post["course_id"] == course_id and post["author_id"] == author_id):
+            if post["access"] == access and (post["course_id"] in courses and post["author_id"] == author_id):
                 filtered_posts.append(post)
 
     return filtered_posts

@@ -150,9 +150,9 @@ function MyPosts(props) {
 
   useEffect(() => {
     if (display === "public") {
-      getPostcards(setPublicPostsHelper, 1, 0, user_id);
+      getPostcards(setPublicPostsHelper, 1, [0], user_id);
     } else {
-      getPostcards(setCoursePostsHelper, 0, 0, user_id);
+      getPostcards(setCoursePostsHelper, 0, [0], user_id);
     }
   }, [display, user_id]);
   const drop_down_list = display === "public" ? /*#__PURE__*/React.createElement(PublicPostsByUser, {
@@ -423,7 +423,7 @@ function Register() {
 
     })]
   }, /*#__PURE__*/React.createElement(Input.Password, null)), /*#__PURE__*/React.createElement(Form.Item, {
-    name: "username",
+    name: "user_name",
     label: "Username",
     tooltip: "What do you want others to call you?",
     rules: [{

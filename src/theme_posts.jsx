@@ -21,21 +21,21 @@ function PostForum(props) {
         getPostcards((postcards) => {
             setPostcards(postcards);
         }, props.access);
-    }, [props.access]);
+    }, [props.access]);    // bind course posts with specific users
 
     useEffect(() => {
-        if (props.logined) {
+        if (props.logined === 1 && props.user.user_id !== -1) {
             getNotifs((notifs) => {
-                setNotifs(notifs);    // TODO: bind notifs with enrolled courses of a user
-            });
+                setNotifs(notifs);
+            }, props.user.enrolled_courses);
         } else {
             setNotifs([]);
         }
-    }, [props.logined]);
+    }, [props.logined, props.user]);
 
     return (
         <Layout>
-            <PostSider logined={props.logined}/>
+            <PostSider logined={props.logined} user={props.user}/>
             <PostContent postcards={postcards}/>
             <NotifSider logined={props.logined} notifs={notifs}/>
         </Layout>
@@ -45,16 +45,30 @@ function PostForum(props) {
 
 // Left sider of the posts page: offer some simple filters
 function PostSider(props) {
-    const course_selector = props.logined === 1 ? (
-        <SubMenu key="sub1" title="My courses">
-            <Menu.Item key="course_1"><Link to="/courses/IT5007">IT5007</Link></Menu.Item>
-            <Menu.Item key="course_2"><Link to="/courses/IT5002">IT5002</Link></Menu.Item>
-            <Menu.Item key="course_3"><Link to="/courses/CS4226">CS4226</Link></Menu.Item>
-            <Menu.Item key="course_4">CS5424</Menu.Item>
-        </SubMenu>
-    ) : (
-        null
-    );
+    var course_selector = (null);
+    if (props.logined === 1 && props.user.user_id !== -1) {
+        const enrolled_courses = props.user.enrolled_courses;
+        const favored_courses = props.user.favored_courses;
+        let course_list = [];
+        let key = 1;
+        for (let course of enrolled_courses) {
+            course_list.push(
+                <Menu.Item key={`course_${key}`}><Link to={`/courses/${course}`}>{course} (enrolled)</Link></Menu.Item>
+            );
+            key ++;
+        }
+        for (let course of favored_courses) {
+            course_list.push(
+                <Menu.Item key={`course_${key}`}><Link to={`/courses/${course}`}>{course}</Link></Menu.Item>
+            );
+            key ++;
+        }
+        course_selector = (
+            <SubMenu key="sub1" title="My courses">
+                {course_list}
+            </SubMenu>
+        );
+    }
 
     return (
         <Sider width={220} className="sider-post">
@@ -302,9 +316,9 @@ function PostDetail() {
 // getPostcards: function to get a postcard list for the post forum
 // postcard: simpler form of a post
 // access:    0: course; 1: public
-// course_id: 0: any course
+// course_id: [0]: any course
 // author_id: 0: any author
-async function getPostcards(setPostcardsHelper, access=1, course_id=0, author_id=0) {
+async function getPostcards(setPostcardsHelper, access=1, courses=[0], author_id=0) {
     const resp = await fetch("/api/posts/cards", {
         method: "post",
         credentials: "include",
@@ -312,7 +326,7 @@ async function getPostcards(setPostcardsHelper, access=1, course_id=0, author_id
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            "access": access, "course_id": course_id, "author_id": author_id
+            "access": access, "courses": courses, "author_id": author_id
         }),
     });
     const resp_json = await resp.json();
@@ -358,9 +372,9 @@ async function findPost(setPostHelper, setCommentsHelper, post_id) {
 
 
 // getNotifs: function to get notifications of a user
-// course_id: 0: any course
+// course_id: [0]: any course
 // author_id: 0: any author
-async function getNotifs(setNotifsHelper, course_id=0, author_id=0) {
+async function getNotifs(setNotifsHelper, courses=[0], author_id=0) {
     const resp = await fetch("/api/posts/notifs", {
         method: "post",
         credentials: "include",
@@ -368,7 +382,7 @@ async function getNotifs(setNotifsHelper, course_id=0, author_id=0) {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            "course_id": course_id, "author_id": author_id
+            "courses": courses, "author_id": author_id
         })
     });
     const resp_json = await resp.json();

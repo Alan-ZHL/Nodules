@@ -5,15 +5,12 @@ from api.views import users
 # user_id (testing purpose): 0-999: students; 1001-2000: teachers; 2001 onwards: virtual users (with no detailed info)
 userinfo = [
         {
-            "user_id": 2001,
-            "user_name": "tester", 
-            "email": "test_user@nus.edu", 
-            "password": 123,
-            "enrolled_courses": ["IT5007", "IT5002"],
-            "favored_courses": ["CS4226", "CS5424"],
-            "taken_courses": ["IT4001", "IT4002"],
-            "role": 0, # student; 1:lecturer 2: administer
-            "about_me": "Trump is the forever god!!! Trump is the forever god!!! Trump is the forever god!!! Trump is the forever god!!! Trump is the forever god!!!",
+            "user_id": 2001, "user_name": "tester", "email": "test_user@nus.edu", 
+            "password": 123, "role": 0, # student; 1:lecturer 2: administer
+            "enrolled_courses": ["IT5007", "IT5002", "CS4226"],
+            "favored_courses": ["CS5424"],
+            "taken_courses": ["IT5001", "IT5003"],
+            "about_me": "Hello, testing testing... Hello, testing testing... Hello, testing testing...",
         }
     ]
 
@@ -34,7 +31,14 @@ def user_register():
             if user['email'] == email: 
                 return jsonify("User exists.")
         
-        new_user = {"user_id": len(userinfo), 'email': email, 'password': password, "user_name": user_name}
+        new_user = {
+                "user_id": len(userinfo) + 1, "user_name": user_name, 'email': email,
+                'password': password, "role": 0, 
+                "enrolled_courses": ["IT5007", "IT5002"],
+                "favored_courses": [],
+                "taken_courses": ["IT5001", "IT5003"],
+                "about_me": "",
+            }
         userinfo.append(new_user)
         return jsonify("Registeration Succeeds!")
     

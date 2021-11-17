@@ -21,18 +21,20 @@ function PostForum(props) {
     getPostcards(postcards => {
       setPostcards(postcards);
     }, props.access);
-  }, [props.access]);
+  }, [props.access]); // bind course posts with specific users
+
   useEffect(() => {
-    if (props.logined) {
+    if (props.logined === 1 && props.user.user_id !== -1) {
       getNotifs(notifs => {
-        setNotifs(notifs); // TODO: bind notifs with enrolled courses of a user
-      });
+        setNotifs(notifs);
+      }, props.user.enrolled_courses);
     } else {
       setNotifs([]);
     }
-  }, [props.logined]);
+  }, [props.logined, props.user]);
   return /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(PostSider, {
-    logined: props.logined
+    logined: props.logined,
+    user: props.user
   }), /*#__PURE__*/React.createElement(PostContent, {
     postcards: postcards
   }), /*#__PURE__*/React.createElement(NotifSider, {
@@ -43,24 +45,38 @@ function PostForum(props) {
 
 
 function PostSider(props) {
-  const course_selector = props.logined === 1 ? /*#__PURE__*/React.createElement(SubMenu, {
-    key: "sub1",
-    title: "My courses"
-  }, /*#__PURE__*/React.createElement(Menu.Item, {
-    key: "course_1"
-  }, /*#__PURE__*/React.createElement(Link, {
-    to: "/courses/IT5007"
-  }, "IT5007")), /*#__PURE__*/React.createElement(Menu.Item, {
-    key: "course_2"
-  }, /*#__PURE__*/React.createElement(Link, {
-    to: "/courses/IT5002"
-  }, "IT5002")), /*#__PURE__*/React.createElement(Menu.Item, {
-    key: "course_3"
-  }, /*#__PURE__*/React.createElement(Link, {
-    to: "/courses/CS4226"
-  }, "CS4226")), /*#__PURE__*/React.createElement(Menu.Item, {
-    key: "course_4"
-  }, "CS5424")) : null;
+  var course_selector = null;
+
+  if (props.logined === 1 && props.user.user_id !== -1) {
+    const enrolled_courses = props.user.enrolled_courses;
+    const favored_courses = props.user.favored_courses;
+    let course_list = [];
+    let key = 1;
+
+    for (let course of enrolled_courses) {
+      course_list.push( /*#__PURE__*/React.createElement(Menu.Item, {
+        key: `course_${key}`
+      }, /*#__PURE__*/React.createElement(Link, {
+        to: `/courses/${course}`
+      }, course, " (enrolled)")));
+      key++;
+    }
+
+    for (let course of favored_courses) {
+      course_list.push( /*#__PURE__*/React.createElement(Menu.Item, {
+        key: `course_${key}`
+      }, /*#__PURE__*/React.createElement(Link, {
+        to: `/courses/${course}`
+      }, course)));
+      key++;
+    }
+
+    course_selector = /*#__PURE__*/React.createElement(SubMenu, {
+      key: "sub1",
+      title: "My courses"
+    }, course_list);
+  }
+
   return /*#__PURE__*/React.createElement(Sider, {
     width: 220,
     className: "sider-post"
@@ -276,11 +292,11 @@ function PostDetail() {
 } // getPostcards: function to get a postcard list for the post forum
 // postcard: simpler form of a post
 // access:    0: course; 1: public
-// course_id: 0: any course
+// course_id: [0]: any course
 // author_id: 0: any author
 
 
-async function getPostcards(setPostcardsHelper, access = 1, course_id = 0, author_id = 0) {
+async function getPostcards(setPostcardsHelper, access = 1, courses = [0], author_id = 0) {
   const resp = await fetch("/api/posts/cards", {
     method: "post",
     credentials: "include",
@@ -289,7 +305,7 @@ async function getPostcards(setPostcardsHelper, access = 1, course_id = 0, autho
     },
     body: JSON.stringify({
       "access": access,
-      "course_id": course_id,
+      "courses": courses,
       "author_id": author_id
     })
   });
@@ -354,11 +370,11 @@ async function findPost(setPostHelper, setCommentsHelper, post_id) {
     setPostHelper(null);
   }
 } // getNotifs: function to get notifications of a user
-// course_id: 0: any course
+// course_id: [0]: any course
 // author_id: 0: any author
 
 
-async function getNotifs(setNotifsHelper, course_id = 0, author_id = 0) {
+async function getNotifs(setNotifsHelper, courses = [0], author_id = 0) {
   const resp = await fetch("/api/posts/notifs", {
     method: "post",
     credentials: "include",
@@ -366,7 +382,7 @@ async function getNotifs(setNotifsHelper, course_id = 0, author_id = 0) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      "course_id": course_id,
+      "courses": courses,
       "author_id": author_id
     })
   });

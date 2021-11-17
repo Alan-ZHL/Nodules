@@ -28,10 +28,10 @@ function CoursePage() {
         findCourse(setCourseHelper, courseid);
         getPostcards((postcards) => {
             setPostcards(postcards);
-        }, 0, courseid);
+        }, 0, [courseid]);
         getNotifs((notifs) => {
             setNotifs(notifs);
-        }, courseid);
+        }, [courseid]);
     }, [courseid]);
 
     if (course === null) {

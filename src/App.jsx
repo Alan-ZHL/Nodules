@@ -22,18 +22,19 @@ export default function App() {
     const [logined, setLogin] = useState(0);
     // distinguish public post area from course post area -- 1: public; 0: course
     const [access, setAccess] = useState(1);
-    const [userInfo, setUserInfo] = useState({user_name: "tourist", email: "Please login."});
+    // get user information upon a login operation
+    const [userInfo, setUserInfo] = useState({user_id: -1, user_name: "tourist", email: "Please login."});
     
     async function loginHelper(status) {
         setLogin(status);
         await getUserInfo();
     }
 
-    //test function to simulate logout
+    // function to simulate logout
     function logoutHelper() {
         setLogin(0);
         setAccess(1);
-        setUserInfo({user_name: "tourist", email: "Please login."});
+        setUserInfo({user_id: -1, user_name: "tourist", email: "Please login."});
     }
 
     function setAccessHelper(val) {
@@ -51,7 +52,7 @@ export default function App() {
         );
         const user = await resp.json();
         if (user["user_id"] === -1) {
-            setUserInfo({user_name: "tourist", email: "Please login."});
+            setUserInfo({user_id: -1, user_name: "tourist", email: "Please login."});
         } else {
             setUserInfo({
                 user_id: user["user_id"], user_name: user["user_name"], email: user["email"], 
@@ -74,11 +75,10 @@ export default function App() {
 
                 <Switch>
                     <Route exact path="/posts/public">
-                        {/* TODO: change "public" as a state */}
-                        <PostForum logined={logined} access={access}/>
+                        <PostForum logined={logined} access={access} user={userInfo}/>
                     </Route>
                     <Route exact path="/posts/courses">
-                        <PostForum logined={logined} access={access}/>
+                        <PostForum logined={logined} access={access} user={userInfo}/>
                     </Route>
                     <Route path="/posts/:postid">
                         <PostDetail />
@@ -97,7 +97,7 @@ export default function App() {
                     </Route>
                     <Route exact path="/">
                         <Redirect to="/posts/public" />
-                        <PostForum logined={logined}/>
+                        <PostForum logined={logined} access={access} user={userInfo}/>
                     </Route>
                 </Switch>
             </Layout>

@@ -16,8 +16,10 @@ export default function App() {
   // record the login status of a visit -- 1: logined; 0: not logined
   const [logined, setLogin] = useState(0); // distinguish public post area from course post area -- 1: public; 0: course
 
-  const [access, setAccess] = useState(1);
+  const [access, setAccess] = useState(1); // get user information upon a login operation
+
   const [userInfo, setUserInfo] = useState({
+    user_id: -1,
     user_name: "tourist",
     email: "Please login."
   });
@@ -25,13 +27,14 @@ export default function App() {
   async function loginHelper(status) {
     setLogin(status);
     await getUserInfo();
-  } //test function to simulate logout
+  } // function to simulate logout
 
 
   function logoutHelper() {
     setLogin(0);
     setAccess(1);
     setUserInfo({
+      user_id: -1,
       user_name: "tourist",
       email: "Please login."
     });
@@ -53,6 +56,7 @@ export default function App() {
 
     if (user["user_id"] === -1) {
       setUserInfo({
+        user_id: -1,
         user_name: "tourist",
         email: "Please login."
       });
@@ -80,13 +84,15 @@ export default function App() {
     path: "/posts/public"
   }, /*#__PURE__*/React.createElement(PostForum, {
     logined: logined,
-    access: access
+    access: access,
+    user: userInfo
   })), /*#__PURE__*/React.createElement(Route, {
     exact: true,
     path: "/posts/courses"
   }, /*#__PURE__*/React.createElement(PostForum, {
     logined: logined,
-    access: access
+    access: access,
+    user: userInfo
   })), /*#__PURE__*/React.createElement(Route, {
     path: "/posts/:postid"
   }, /*#__PURE__*/React.createElement(PostDetail, null)), /*#__PURE__*/React.createElement(Route, {
@@ -109,7 +115,9 @@ export default function App() {
   }, /*#__PURE__*/React.createElement(Redirect, {
     to: "/posts/public"
   }), /*#__PURE__*/React.createElement(PostForum, {
-    logined: logined
+    logined: logined,
+    access: access,
+    user: userInfo
   })))));
 }
 
