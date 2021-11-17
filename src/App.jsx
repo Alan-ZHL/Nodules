@@ -49,9 +49,18 @@ export default function App() {
                 },
             }
         );
-        const resp_json = await resp.json();
-        if (resp_json["status"] === 1) {
-            setUserInfo({user_name: resp_json["user_name"], email: resp_json["email"]});
+        const user = await resp.json();
+        if (user["user_id"] === -1) {
+            setUserInfo({user_name: "tourist", email: "Please login."});
+        } else {
+            setUserInfo({
+                user_id: user["user_id"], user_name: user["user_name"], email: user["email"], 
+                enrolled_courses: user["enrolled_courses"], 
+                favored_courses: user["favored_courses"],
+                taken_courses: user["taken_courses"],
+                role: user["role"],
+                about_me: user["about_me"],
+            });
         }
     }
 
@@ -78,7 +87,7 @@ export default function App() {
                         <CoursePage />
                     </Route>
                     <Route path="/users">
-                        <Users />
+                        <Users logined={logined} userInfo={userInfo}/>
                     </Route>
                     <Route path="/register">
                         <Register />

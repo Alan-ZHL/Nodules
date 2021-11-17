@@ -4,7 +4,17 @@ from api.views import users
 # hard-coded user data
 # user_id (testing purpose): 0-999: students; 1001-2000: teachers; 2001 onwards: virtual users (with no detailed info)
 userinfo = [
-        {"user_id": 0, 'email':'test_user@nus.edu', 'password':123, "user_name": "tester"}
+        {
+            "user_id": 2001,
+            "user_name": "tester", 
+            "email": "test_user@nus.edu", 
+            "password": 123,
+            "enrolled_courses": ["IT5007", "IT5002"],
+            "favored_courses": ["CS4226", "CS5424"],
+            "taken_courses": ["IT4001", "IT4002"],
+            "role": 0, # student; 1:lecturer 2: administer
+            "about_me": "Trump is the forever god!!! Trump is the forever god!!! Trump is the forever god!!! Trump is the forever god!!! Trump is the forever god!!!",
+        }
     ]
 
 
@@ -61,7 +71,7 @@ def get_userinfo():
 
     if user_id == None:
         print(f"getUserInfo Error: Probably no user has logined.")
-        return jsonify({"status": 0})
+        return jsonify({"user_id": -1})
     
     current_user = None
     for user in userinfo:
@@ -71,10 +81,10 @@ def get_userinfo():
     
     if current_user == None:
         print(f"getUserInfor Error: user with id {user_id} is not found.")
-        return jsonify({"status": 0});
+        return jsonify({"user_id": -1});
 
     print(f"Succeed: user {user_id} found.")
-    return jsonify({"status": 1, "user_name": current_user["user_name"], "email": current_user["email"]})
+    return jsonify(current_user)
 
 
 # TODO: still developing

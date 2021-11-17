@@ -49,12 +49,23 @@ export default function App() {
         "Content-Type": "application/json"
       }
     });
-    const resp_json = await resp.json();
+    const user = await resp.json();
 
-    if (resp_json["status"] === 1) {
+    if (user["user_id"] === -1) {
       setUserInfo({
-        user_name: resp_json["user_name"],
-        email: resp_json["email"]
+        user_name: "tourist",
+        email: "Please login."
+      });
+    } else {
+      setUserInfo({
+        user_id: user["user_id"],
+        user_name: user["user_name"],
+        email: user["email"],
+        enrolled_courses: user["enrolled_courses"],
+        favored_courses: user["favored_courses"],
+        taken_courses: user["taken_courses"],
+        role: user["role"],
+        about_me: user["about_me"]
       });
     }
   }
@@ -82,7 +93,10 @@ export default function App() {
     path: "/courses/:courseid"
   }, /*#__PURE__*/React.createElement(CoursePage, null)), /*#__PURE__*/React.createElement(Route, {
     path: "/users"
-  }, /*#__PURE__*/React.createElement(Users, null)), /*#__PURE__*/React.createElement(Route, {
+  }, /*#__PURE__*/React.createElement(Users, {
+    logined: logined,
+    userInfo: userInfo
+  })), /*#__PURE__*/React.createElement(Route, {
     path: "/register"
   }, /*#__PURE__*/React.createElement(Register, null)), /*#__PURE__*/React.createElement(Route, {
     path: "/login"

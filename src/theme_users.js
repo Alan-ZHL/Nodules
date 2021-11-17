@@ -1,11 +1,246 @@
-import React, { useState } from "react";
-import { Redirect } from "react-router-dom";
+// stated components: MyPosts
+import React, { useEffect, useState } from "react";
+import { Redirect, Link } from "react-router-dom";
 import { Form, Input, Button, Checkbox } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { Layout, PageHeader, Descriptions, List, Menu } from "antd";
+import { UserOutlined, LockOutlined, CoffeeOutlined, CommentOutlined } from '@ant-design/icons';
 import "./theme_users.css";
+import { CardListItem, getPostcards } from "./theme_posts";
+const {
+  Content
+} = Layout;
 
-function Users() {
-  return /*#__PURE__*/React.createElement("h2", null, " Display the users' info or related components. ");
+function Users(props) {
+  const user = props.userInfo;
+
+  if (props.logined === 0) {
+    return /*#__PURE__*/React.createElement("div", null, "Please login to retrieve user information.");
+  } else {
+    return /*#__PURE__*/React.createElement(Layout, {
+      className: "user-layout"
+    }, /*#__PURE__*/React.createElement(Content, null, /*#__PURE__*/React.createElement(UserHeader, {
+      title: "Basic Information"
+    }), /*#__PURE__*/React.createElement(UserDesciptions_basic, {
+      user: user
+    }), /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement(UserHeader, {
+      title: "Module Information"
+    }), /*#__PURE__*/React.createElement(UserDesciptions_module, {
+      user: user
+    }), /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement(UserHeader, {
+      title: "My Post"
+    }), /*#__PURE__*/React.createElement(MyPosts, {
+      user: user
+    })));
+  }
+}
+
+function UserHeader(props) {
+  return /*#__PURE__*/React.createElement(PageHeader, {
+    ghost: false,
+    title: props.title,
+    className: "user-header"
+  });
+}
+
+function UserDesciptions_basic(props) {
+  const user = props.user;
+  let role = 'N/A';
+
+  if (user.role === 0) {
+    role = 'Student';
+  }
+
+  ;
+
+  if (user.role === 1) {
+    role = 'Lecturer';
+  }
+
+  ;
+
+  if (user.role === 2) {
+    role = 'Admin';
+  }
+
+  ;
+  return /*#__PURE__*/React.createElement(Descriptions, {
+    column: 1,
+    bordered: true,
+    contentStyle: {
+      background: "#fafafa"
+    },
+    labelStyle: {
+      background: "#ffffff",
+      fontSize: "16px",
+      width: 200
+    }
+  }, /*#__PURE__*/React.createElement(Descriptions.Item, {
+    label: "User Name"
+  }, user.user_name), /*#__PURE__*/React.createElement(Descriptions.Item, {
+    label: "Role"
+  }, role), /*#__PURE__*/React.createElement(Descriptions.Item, {
+    label: "Email"
+  }, user.email), /*#__PURE__*/React.createElement(Descriptions.Item, {
+    label: "About Me"
+  }, user.about_me));
+}
+
+function UserDesciptions_module(props) {
+  const user = props.user;
+  return /*#__PURE__*/React.createElement(Descriptions, {
+    column: 5,
+    bordered: true,
+    contentStyle: {
+      background: "#fafafa"
+    },
+    labelStyle: {
+      background: "#ffffff",
+      fontSize: "16px",
+      width: 200
+    }
+  }, /*#__PURE__*/React.createElement(Descriptions.Item, {
+    label: "Taken Moduls",
+    span: 5
+  }, /*#__PURE__*/React.createElement(List, {
+    dataSource: user.taken_courses,
+    renderItem: item => /*#__PURE__*/React.createElement(Link, {
+      to: `/courses/${item}`
+    }, /*#__PURE__*/React.createElement(Button, {
+      type: "text"
+    }, " ", item, " "))
+  })), /*#__PURE__*/React.createElement(Descriptions.Item, {
+    label: "Enrolled Moduls",
+    span: 5
+  }, /*#__PURE__*/React.createElement(List, {
+    dataSource: user.enrolled_courses,
+    renderItem: item => /*#__PURE__*/React.createElement(Link, {
+      to: `/courses/${item}`
+    }, /*#__PURE__*/React.createElement(Button, {
+      type: "text"
+    }, " ", item, " "))
+  })), /*#__PURE__*/React.createElement(Descriptions.Item, {
+    label: "Favored Moduls",
+    span: 5
+  }, /*#__PURE__*/React.createElement(List, {
+    dataSource: user.favored_courses,
+    renderItem: item => /*#__PURE__*/React.createElement(Link, {
+      to: `/courses/${item}`
+    }, /*#__PURE__*/React.createElement(Button, {
+      type: "text"
+    }, " ", item, " "))
+  })));
+} // categaried by --public
+//               --course (filtered by enrolled modules)
+// states: display, publicPosts, coursePosts
+
+
+function MyPosts(props) {
+  const [display, setDisplay] = useState("public");
+  const [publicPosts, setPublicPosts] = useState([]);
+  const [coursePosts, setCoursePosts] = useState([]);
+  const user_id = props.user.user_id;
+
+  function setPublicPostsHelper(posts) {
+    setPublicPosts(posts);
+  }
+
+  function setCoursePostsHelper(posts) {
+    setCoursePosts(posts);
+  }
+
+  useEffect(() => {
+    if (display === "public") {
+      getPostcards(setPublicPostsHelper, 1, 0, user_id);
+    } else {
+      getPostcards(setCoursePostsHelper, 0, 0, user_id);
+    }
+  }, [display, user_id]);
+  const drop_down_list = display === "public" ? /*#__PURE__*/React.createElement(PublicPostsByUser, {
+    posts: publicPosts
+  }) : /*#__PURE__*/React.createElement(CoursePostsByUser, {
+    user: props.user,
+    posts: coursePosts
+  });
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Menu, {
+    theme: "light",
+    mode: "horizontal",
+    defaultSelectedKeys: ['1']
+  }, /*#__PURE__*/React.createElement(Menu.Item, {
+    key: "1",
+    icon: /*#__PURE__*/React.createElement(CoffeeOutlined, null),
+    onClick: () => setDisplay("public")
+  }, "Public Chats"), /*#__PURE__*/React.createElement(Menu.Item, {
+    key: "2",
+    icon: /*#__PURE__*/React.createElement(CommentOutlined, null),
+    onClick: () => setDisplay("course")
+  }, "Course Discussion")), drop_down_list);
+}
+
+function PublicPostsByUser(props) {
+  return /*#__PURE__*/React.createElement(List, {
+    itemLayout: "vertical",
+    dataSource: props.posts,
+    renderItem: item => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement(CardListItem, {
+      item: item
+    })),
+    pagination: {
+      onchange: page => {
+        console.log(page);
+      },
+      pageSize: 3,
+      total: props.posts.length,
+      style: {
+        textAlign: "center"
+      }
+    },
+    className: "user-posts"
+  });
+}
+
+function CoursePostsByUser(props) {
+  const enrolledCourseList = props.user.enrolled_courses;
+  const [displayed_course, setCourse] = useState(enrolledCourseList[0]);
+  const course_posts_by_user = getSelectedCoursePosts(props.posts, displayed_course);
+  const menuItems = enrolledCourseList.map(course => {
+    return /*#__PURE__*/React.createElement(Menu.Item, {
+      onClick: () => setCourse(course)
+    }, course);
+  });
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Menu, {
+    theme: "light",
+    mode: "horizontal",
+    className: "user-course-disscusion-menu"
+  }, menuItems), /*#__PURE__*/React.createElement(List, {
+    itemLayout: "vertical",
+    dataSource: course_posts_by_user,
+    renderItem: item => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement(CardListItem, {
+      item: item
+    })),
+    pagination: {
+      onchange: page => {
+        console.log(page);
+      },
+      pageSize: 3,
+      total: course_posts_by_user.length,
+      style: {
+        textAlign: "center"
+      }
+    },
+    className: "user-posts"
+  }));
+} // helper function: get posts from a selected course **among user's enrolled courses**
+
+
+function getSelectedCoursePosts(posts, course) {
+  let course_posts = [];
+
+  for (let post of posts) {
+    if (post["course_id"] === course) {
+      course_posts.push(post);
+    }
+  }
+
+  return course_posts;
 }
 
 function Login(props) {

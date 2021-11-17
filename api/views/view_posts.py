@@ -24,7 +24,7 @@ for i in range(20):
     title = f"Sample public post {i}" if i < 16 else f"Sample course post {i}"
     access = 1 if i < 16 else 0
     content = "This is a sample course post. Ask me anything!" if i >= 15 else "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product protopost_types beautifully and efficiently."
-    snippet = content[:50]
+    snippet = content[:80] + "..."
     posts_sample.append({
         "post_id": 1056 + i, "title": title, "access": access, "post_type": 1,
         "course_id": "IT5007", "course_name": "Software Engineering on Application Architecture",
