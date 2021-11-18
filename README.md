@@ -31,7 +31,7 @@ Python Backend Supports:
 apt install python3.8-venv
 python3 -m venv venv
 source venv/bin/activate    # enter Python virtual env in the project
-pip install flask flask-cors
+pip install flask flask-cors pymongo
 ```
 React framework and dependencies:
 (under root directory)

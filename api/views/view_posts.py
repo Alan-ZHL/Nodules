@@ -28,7 +28,7 @@ for i in range(20):
     posts_sample.append({
         "post_id": 1056 + i, "title": title, "access": access, "post_type": 1,
         "course_id": "IT5007", "course_name": "Software Engineering on Application Architecture",
-        "author_id": 2001, "author_name": "Donald Trump ex", "date": "2 days ago",
+        "author_id": 2001, "author_name": "tester", "date": "2 days ago",
         "content": content,
         "snippet": snippet,
         "details": {"likes": 56, "dislikes": 18, "comments": [i*3, i*3+1, i*3+2]}

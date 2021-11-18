@@ -1,7 +1,10 @@
 from flask import Flask
 from flask_cors import CORS
+from pymongo import MongoClient
 
 from api.config import Config
+from api.models import collection_posts, collection_courses, collection_users
+from api.models.load_sample import load_samples
 
 
 def create_app(configs="api.config.Config"):
@@ -12,15 +15,4 @@ def create_app(configs="api.config.Config"):
     return app
 
 app = create_app()
-# login_manager = app.static_folder # (put your init code here)
-
-
-
-# # add these imports if the project is run with "flask run (FLASK_APP=api)"
-# from api.views.view_posts import posts
-# from api.views.view_courses import courses
-# from api.views.view_users import users
-
-# app.register_blueprint(posts)
-# app.register_blueprint(courses)
-# app.register_blueprint(users)
+load_samples(collection_posts, collection_courses, collection_users, clearup=True)
