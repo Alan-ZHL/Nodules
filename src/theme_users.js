@@ -150,9 +150,9 @@ function MyPosts(props) {
 
   useEffect(() => {
     if (display === "public") {
-      getPostcards(setPublicPostsHelper, 1, [0], user_id);
+      getPostcards(setPublicPostsHelper, 2, [0], user_id);
     } else {
-      getPostcards(setCoursePostsHelper, 0, [0], user_id);
+      getPostcards(setCoursePostsHelper, 1, [0], user_id);
     }
   }, [display, user_id]);
   const drop_down_list = display === "public" ? /*#__PURE__*/React.createElement(PublicPostsByUser, {

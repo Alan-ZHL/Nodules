@@ -1,10 +1,10 @@
 # data samples for the project (change the content on any modifications on data formats)
 
 # users
-# user_id (testing purpose): 0-999: students; 1001-2000: teachers; 2001 onwards: virtual users (with no detailed info)
+# user_id (testing purpose): 1-1000: virtual users (with no detailed info); 1001-3000: teachers; 3001 onwards: students
 userinfo = [
         {
-            "user_id": 2001, "user_name": "tester", "email": "test_user@nus.edu", 
+            "user_id": 1, "user_name": "tester", "email": "test_user@nus.edu", 
             "password": "123", "role": 0, # student; 1:lecturer 2: administer
             "enrolled_courses": ["IT5007", "IT5002", "CS4226"],
             "favored_courses": ["CS5424"],
@@ -49,15 +49,15 @@ course_sample = [
 
 # posts: notifs, posts and comments
 notifs_sample = [
-    {"post_id": 1, "title": "Remember to submit tutorial 4", "access": 0, "post_type": 0, 
+    {"post_id": 1, "title": "Remember to submit tutorial 4", "access": 1, "post_type": 1, 
     "course_id": "IT5007", "course_name": "Software Engineering on Application Architecture",
     "author_id": 1001, "author_name": "Prasanna Karthik Vairam", "date":"2021-09-30",
     "content": "remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd!"},
-    {"post_id": 2, "title": "Exam date determined", "access": 0, "post_type": 0,
+    {"post_id": 2, "title": "Exam date determined", "access": 1, "post_type": 1,
     "course_id": "IT5002", "course_name": "Computer Systems and Applications",
     "author_id": 1002, "author_name": "Colin Tan", "date": "2021-09-03", 
     "content": "Midterm exam is set on Oct 5th. Please be prepared."}, 
-    {"post_id": 3, "title": "Welcome to CS4226!", "access": 0, "post_type": 0, 
+    {"post_id": 3, "title": "Welcome to CS4226!", "access": 1, "post_type": 1, 
     "course_id": "CS4226", "course_name": "Internet Architecture", 
     "author_id": 1003, "author_name": "Richard Ma", "date": "2021-08-26", 
     "content": "Welcome to CS4226. I will be the lecturer of this course. Looking forward to meeting all of you!"}
@@ -66,24 +66,24 @@ posts_sample = [];
 comments_sample = [];
 for i in range(20):
     title = f"Sample public post {i}" if i < 16 else f"Sample course post {i}"
-    access = 1 if i < 16 else 0
+    access = 2 if i < 16 else 1
     content = "This is a sample course post. Ask me anything!" if i >= 15 else "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product protopost_types beautifully and efficiently."
     snippet = content[:80] + "..."
     posts_sample.append({
-        "post_id": 1001 + i, "title": title, "access": access, "post_type": 1,
+        "post_id": 1001 + i, "title": title, "access": access, "post_type": 2,
         "course_id": "IT5007", "course_name": "Software Engineering on Application Architecture",
-        "author_id": 2001, "author_name": "tester", "date": "2 days ago",
+        "author_id": 1, "author_name": "tester", "date": "2 days ago",
         "content": content,
         "snippet": snippet,
-        "details": {"likes": 56, "dislikes": 18, "comments": [i*3, i*3+1, i*3+2]}
+        "details": {"likes": 56, "dislikes": 18, "comments": [i*3+2001, i*3+2002, i*3+2003]}
     })
 for i in range(60):
-    access = 1 if i < 48 else 0
+    access = 2 if i < 48 else 1
     content = "Sounds great!" if i < 48 else "Good job!"
     comments_sample.append({
-        "post_id": 2001 + i, "title": "", "access": access, "post_type": 2,
+        "post_id": 2001 + i, "title": "", "access": access, "post_type": 3,
         "course_id": "IT5007", "course_name": "Software Engineering on Application Architecture",
-        "author_id": 2002, "author_name": "Biden III", "date": "2 days ago",
+        "author_id": 2, "author_name": "Biden III", "date": "2 days ago",
         "content": content,
         "details": {"likes": 10, "dislikes": 2}
     })

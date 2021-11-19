@@ -315,10 +315,10 @@ function PostDetail() {
 
 // getPostcards: function to get a postcard list for the post forum
 // postcard: simpler form of a post
-// access:    0: course; 1: public
+// access:    1: course; 2: public
 // course_id: [0]: any course
 // author_id: 0: any author
-async function getPostcards(setPostcardsHelper, access=1, courses=[0], author_id=0) {
+async function getPostcards(setPostcardsHelper, access=2, courses=[0], author_id=0) {
     const resp = await fetch("/api/posts/cards", {
         method: "post",
         credentials: "include",
@@ -403,7 +403,7 @@ async function getNotifs(setNotifsHelper, courses=[0], author_id=0) {
 // access:    0: course; 1: public
 // author_id: 0: any author
 // indices:   list of comments (as post_ids)
-async function getComments(setCommentsHelper, access=1, author_id=0, indices=[]) {
+async function getComments(setCommentsHelper, access=2, author_id=0, indices=[]) {
     const resp = await fetch("/api/posts/comments", {
         method: "post",
         credentials: "include",

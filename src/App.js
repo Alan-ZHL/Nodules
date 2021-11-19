@@ -14,9 +14,9 @@ const {
 } = Layout;
 export default function App() {
   // record the login status of a visit -- 1: logined; 0: not logined
-  const [logined, setLogin] = useState(0); // distinguish public post area from course post area -- 1: public; 0: course
+  const [logined, setLogin] = useState(0); // distinguish public post area from course post area -- 2: public; 1: course
 
-  const [access, setAccess] = useState(1); // get user information upon a login operation
+  const [access, setAccess] = useState(2); // get user information upon a login operation
 
   const [userInfo, setUserInfo] = useState({
     user_id: -1,
@@ -32,7 +32,7 @@ export default function App() {
 
   function logoutHelper() {
     setLogin(0);
-    setAccess(1);
+    setAccess(2);
     setUserInfo({
       user_id: -1,
       user_name: "tourist",
@@ -97,7 +97,9 @@ export default function App() {
     path: "/posts/:postid"
   }, /*#__PURE__*/React.createElement(PostDetail, null)), /*#__PURE__*/React.createElement(Route, {
     path: "/courses/:courseid"
-  }, /*#__PURE__*/React.createElement(CoursePage, null)), /*#__PURE__*/React.createElement(Route, {
+  }, /*#__PURE__*/React.createElement(CoursePage, {
+    user: userInfo
+  })), /*#__PURE__*/React.createElement(Route, {
     path: "/users"
   }, /*#__PURE__*/React.createElement(Users, {
     logined: logined,
@@ -174,13 +176,13 @@ function Toolbar(props) {
   }, /*#__PURE__*/React.createElement(Menu.Item, {
     key: "1",
     className: "navbar-item",
-    onClick: () => props.setAccessHelper(1)
+    onClick: () => props.setAccessHelper(2)
   }, /*#__PURE__*/React.createElement(Link, {
     to: "/posts/public"
   }, "Public Chats")), /*#__PURE__*/React.createElement(Menu.Item, {
     key: "2",
     className: "navbar-item",
-    onClick: () => props.setAccessHelper(0),
+    onClick: () => props.setAccessHelper(1),
     disabled: !props.logined
   }, /*#__PURE__*/React.createElement(Link, {
     to: "/posts/courses"

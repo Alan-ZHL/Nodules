@@ -11,7 +11,7 @@ const {
 } = Layout; // Top-level component: a coursepage
 // states: course, posts, notifs
 
-function CoursePage() {
+function CoursePage(props) {
   const {
     courseid
   } = useParams();
@@ -27,7 +27,7 @@ function CoursePage() {
     findCourse(setCourseHelper, courseid);
     getPostcards(postcards => {
       setPostcards(postcards);
-    }, 0, [courseid]);
+    }, 1, [courseid]);
     getNotifs(notifs => {
       setNotifs(notifs);
     }, [courseid]);
@@ -39,11 +39,13 @@ function CoursePage() {
     return /*#__PURE__*/React.createElement(Layout, {
       className: "coursepage-layout"
     }, /*#__PURE__*/React.createElement(Content, null, /*#__PURE__*/React.createElement(CourseHeader, {
-      id: course.course_id,
+      id: courseid,
       name: course.course_name
     }), /*#__PURE__*/React.createElement(CourseDesciptions, {
       course: course
     }), /*#__PURE__*/React.createElement(CoursePostsAndNotifs, {
+      id: courseid,
+      user: props.user,
       posts: postcards,
       notifs: notifs
     })));
@@ -135,7 +137,8 @@ function CourseDesciptions(props) {
 
 function CoursePostsAndNotifs(props) {
   const [display, setDisplay] = useState("notifs");
-  const DropdownList = display === "notifs" ? /*#__PURE__*/React.createElement(List, {
+  const enrolled = props.user.user_id === -1 || !props.user.enrolled_courses.includes(props.id) ? false : true;
+  const DropdownList = enrolled ? display === "notifs" ? /*#__PURE__*/React.createElement(List, {
     itemLayout: "vertical",
     size: "large",
     dataSource: props.notifs,
@@ -170,7 +173,7 @@ function CoursePostsAndNotifs(props) {
       }
     },
     className: "coursepage-posts"
-  });
+  }) : null;
 
   function displayPosts() {
     setDisplay("posts");
@@ -187,11 +190,13 @@ function CoursePostsAndNotifs(props) {
   }, /*#__PURE__*/React.createElement(Menu.Item, {
     key: "notifs",
     icon: /*#__PURE__*/React.createElement(NotificationOutlined, null),
-    onClick: displayNotifs
+    onClick: displayNotifs,
+    disabled: !enrolled
   }, "Notifications"), /*#__PURE__*/React.createElement(Menu.Item, {
     key: "posts",
     icon: /*#__PURE__*/React.createElement(CommentOutlined, null),
-    onClick: displayPosts
+    onClick: displayPosts,
+    disabled: !enrolled
   }, "Course Posts")), DropdownList);
 }
 

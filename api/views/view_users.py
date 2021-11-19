@@ -19,12 +19,12 @@ def user_register():
             return jsonify("Inconsistent passwords.")
         
         try:
-            existent_user = collection_users.find_one({"email": email})
+            existent_user = collection_users.find_one({"email": email}, projection={"password": False})
             if existent_user != None:
                 return jsonify("User exists with this email. Please try a new one.")
             
             max_id = 1
-            for user in collection_users.find(filter={}, sort=[("user_id", DESCENDING)], limit=1):
+            for user in collection_users.find(filter={}, sort=[("user_id", DESCENDING)], limit=1, projection={"user_id": True}):
                 max_id = user["user_id"] + 1
             new_user = {
                     "user_id": max_id + 1, "user_name": user_name, 'email': email,
@@ -55,7 +55,7 @@ def user_login():
         # ip = request.remote_addr //for trying limit
         check_comb = {"email": email, "password": password}
         try:
-            user = collection_users.find_one(check_comb)
+            user = collection_users.find_one(check_comb, projection={"user_id": True, "user_name": True})
             print('Succeed: login matched.')
             session[email] = True
             session.permanent = True
@@ -77,9 +77,10 @@ def get_userinfo():
         return jsonify({"user_id": -1})
 
     try:
-        user = collection_users.find_one({"user_id": user_id})
+        user = collection_users.find_one({"user_id": user_id}, projection={"_id": False, "password": False})
         print(f"Succeed: user {user_id} found.")
-        return jsonify(get_schema(user))
+        # print(user)
+        return jsonify(user)
     except Exception as e:
         print(e)
         print(f"getUserInfor Error: user with id {user_id} is not found.")
@@ -98,14 +99,3 @@ def logout():
         session.clear()
         print(f"Succeed: {user_name} log out successfully. Remaining session info: ", session)    # for tests only
         return jsonify({"status": 1, "user_name": user_name})
-
-
-def get_schema(user):
-    return {
-            "user_id": user["user_id"], "user_name": user["user_name"], "email": user["email"], 
-            "role": 0, # student; 1:lecturer 2: administer
-            "enrolled_courses": user["enrolled_courses"],
-            "favored_courses": user["favored_courses"],
-            "taken_courses": user["taken_courses"],
-            "about_me": user["about_me"],
-        }

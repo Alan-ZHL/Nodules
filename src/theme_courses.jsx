@@ -14,7 +14,7 @@ const { Content } = Layout;
 
 // Top-level component: a coursepage
 // states: course, posts, notifs
-function CoursePage() {
+function CoursePage(props) {
     const { courseid } = useParams();
     const [ course, setCourse ] = useState(null);
     const [ postcards, setPostcards] = useState([]);
@@ -28,7 +28,7 @@ function CoursePage() {
         findCourse(setCourseHelper, courseid);
         getPostcards((postcards) => {
             setPostcards(postcards);
-        }, 0, [courseid]);
+        }, 1, [courseid]);
         getNotifs((notifs) => {
             setNotifs(notifs);
         }, [courseid]);
@@ -40,9 +40,9 @@ function CoursePage() {
         return (
             <Layout className="coursepage-layout">
                 <Content>
-                    <CourseHeader id={course.course_id} name={course.course_name}/>
+                    <CourseHeader id={courseid} name={course.course_name}/>
                     <CourseDesciptions course={course}/>
-                    <CoursePostsAndNotifs posts={postcards} notifs={notifs}/>
+                    <CoursePostsAndNotifs id={courseid} user={props.user} posts={postcards} notifs={notifs}/>
                 </Content>
             </Layout>
         );
@@ -129,44 +129,50 @@ function CourseDesciptions(props) {
 
 function CoursePostsAndNotifs(props) {
     const [display, setDisplay] = useState("notifs");
-    const DropdownList = display === "notifs" ? (
-        <List
-            itemLayout="vertical"
-            size="large"
-            dataSource={props.notifs}
-            renderItem={item => (
-                <NotifListItem item={item}/>
-            )}
-            pagination={{
-                onchange: page => {
-                    console.log(page);
-                },
-                pageSize: 5,
-                total: props.notifs.length,
-                style: {textAlign: "center"}
-            }}
-            className="coursepage-notifs"
-        />
+    const enrolled = (props.user.user_id === -1 || !props.user.enrolled_courses.includes(props.id)) ? false : true;
+    
+    const DropdownList = (enrolled) ? (
+        (display === "notifs") ? (
+            <List
+                itemLayout="vertical"
+                size="large"
+                dataSource={props.notifs}
+                renderItem={item => (
+                    <NotifListItem item={item}/>
+                )}
+                pagination={{
+                    onchange: page => {
+                        console.log(page);
+                    },
+                    pageSize: 5,
+                    total: props.notifs.length,
+                    style: {textAlign: "center"}
+                }}
+                className="coursepage-notifs"
+            />
+        ) : (
+            <List
+                itemLayout="vertical"
+                dataSource={props.posts}
+                renderItem={item => (
+                    <>
+                        <br/>
+                        <CardListItem item={item}/>
+                    </>
+                )}
+                pagination={{
+                    onchange: page => {
+                        console.log(page);
+                    },
+                    pageSize: 3,
+                    total: props.posts.length,
+                    style: {textAlign: "center"}
+                }}
+                className="coursepage-posts"
+            />
+        )
     ) : (
-        <List
-            itemLayout="vertical"
-            dataSource={props.posts}
-            renderItem={item => (
-                <>
-                    <br/>
-                    <CardListItem item={item}/>
-                </>
-            )}
-            pagination={{
-                onchange: page => {
-                    console.log(page);
-                },
-                pageSize: 3,
-                total: props.posts.length,
-                style: {textAlign: "center"}
-            }}
-            className="coursepage-posts"
-        />
+        null
     );
 
     function displayPosts() {
@@ -180,10 +186,10 @@ function CoursePostsAndNotifs(props) {
     return (
         <>
         <Menu mode="horizontal" defaultSelectedKeys={["notifs"]} className="coursepage-options">
-            <Menu.Item key="notifs" icon={<NotificationOutlined/>} onClick={displayNotifs}>
+            <Menu.Item key="notifs" icon={<NotificationOutlined/>} onClick={displayNotifs} disabled={!enrolled}>
                 Notifications
             </Menu.Item>
-            <Menu.Item key="posts" icon={<CommentOutlined/>} onClick={displayPosts}>
+            <Menu.Item key="posts" icon={<CommentOutlined/>} onClick={displayPosts} disabled={!enrolled}>
                 Course Posts
             </Menu.Item>
         </Menu>

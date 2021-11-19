@@ -20,8 +20,8 @@ const { Header } = Layout;
 export default function App() {
     // record the login status of a visit -- 1: logined; 0: not logined
     const [logined, setLogin] = useState(0);
-    // distinguish public post area from course post area -- 1: public; 0: course
-    const [access, setAccess] = useState(1);
+    // distinguish public post area from course post area -- 2: public; 1: course
+    const [access, setAccess] = useState(2);
     // get user information upon a login operation
     const [userInfo, setUserInfo] = useState({user_id: -1, user_name: "tourist", email: "Please login."});
     
@@ -33,7 +33,7 @@ export default function App() {
     // function to simulate logout
     function logoutHelper() {
         setLogin(0);
-        setAccess(1);
+        setAccess(2);
         setUserInfo({user_id: -1, user_name: "tourist", email: "Please login."});
     }
 
@@ -84,7 +84,7 @@ export default function App() {
                         <PostDetail />
                     </Route>
                     <Route path="/courses/:courseid">
-                        <CoursePage />
+                        <CoursePage user={userInfo}/>
                     </Route>
                     <Route path="/users">
                         <Users logined={logined} userInfo={userInfo}/>
@@ -152,10 +152,10 @@ function Toolbar(props) {
                 <div className="logo">NodUleS</div>
             </Link>
             <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
-                <Menu.Item key="1" className="navbar-item" onClick={() => props.setAccessHelper(1)}>
+                <Menu.Item key="1" className="navbar-item" onClick={() => props.setAccessHelper(2)}>
                     <Link to="/posts/public">Public Chats</Link>
                 </Menu.Item>
-                <Menu.Item key="2" className="navbar-item" onClick={() => props.setAccessHelper(0)} disabled={!props.logined}>
+                <Menu.Item key="2" className="navbar-item" onClick={() => props.setAccessHelper(1)} disabled={!props.logined}>
                     <Link to="/posts/courses">Course Discussion</Link>
                 </Menu.Item>
                 <SubMenu key="sub" icon={<UserOutlined />} 

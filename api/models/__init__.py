@@ -20,10 +20,10 @@ def init_db():
     collection_list = db.list_collection_names()
     if "posts" not in collection_list:
         indexes = [
-            IndexModel([("post_id", ASCENDING)], unique=True),
+            IndexModel([("post_id", DESCENDING)], unique=True),
             IndexModel([("title", TEXT)]),
             IndexModel([("type", ASCENDING)]),
-            IndexModel([("author_id", ASCENDING)]),
+            IndexModel([("author_id", DESCENDING)]),
             IndexModel([("course_id", ASCENDING)]),
             IndexModel([("date", DESCENDING)]),
         ]
@@ -33,12 +33,12 @@ def init_db():
         indexes = [
             IndexModel([("course_id", ASCENDING)], unique=True),
             IndexModel([("course_name", TEXT)], unique=True),
-            IndexModel([("lecturer_id", ASCENDING)]),
+            IndexModel([("lecturer_id", DESCENDING)]),
         ]
         collection_courses.create_indexes(indexes)
     if "users" not in collection_list:
         indexes = [
-            IndexModel([("user_id", ASCENDING)], unique=True),
+            IndexModel([("user_id", DESCENDING)], unique=True),
             IndexModel([("user_name", ASCENDING)]),
             IndexModel([("email", TEXT)], unique=True),
             IndexModel([("role", ASCENDING)]),
