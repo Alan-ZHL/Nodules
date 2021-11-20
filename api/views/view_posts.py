@@ -50,6 +50,32 @@ def get_comments():
     return jsonify(comments)
 
 
+@posts.route("/api/posts/update_like", methods=["POST"])
+def update_likes():
+    data = request.get_json()
+    like_state = data["like_state"]
+    try:
+        user_details = collection_posts.find_one({"post_id": data["post_id"]}, projection={"_id": False, "details": True})["details"]
+        # like_state: 
+        #     0: no change; 1: liked; 2: like cancelled; 3: liked and dislike cancelled; 
+        #     4: disliked; 5: dislike cancelled; 6: disliked and like cancelled
+        if like_state == 1 or like_state == 3:
+            user_details["likes"].append(data["user_id"])
+        if like_state == 2 or like_state == 6:
+            user_details["likes"].remove(data["user_id"])
+        if like_state == 4 or like_state == 6:
+            user_details["dislikes"].append(data["user_id"])
+        if like_state == 3 or like_state == 5:
+            user_details["dislikes"].remove(data["user_id"])
+
+        collection_posts.update_one({"post_id": data["post_id"]}, {"$set": {"details": user_details}})
+        # print(data["user_id"] in user_details["likes"], data["user_id"] in user_details["dislikes"])
+        return {"status": 1}
+    except Exception as e:
+        print(e)
+        return {"status": 0}
+
+
 # helper functions
 
 # filter_posts: filter posts, notifs or comments with reagard to author_id and course_id

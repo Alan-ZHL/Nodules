@@ -23,9 +23,11 @@ def user_register():
             if existent_user != None:
                 return jsonify("User exists with this email. Please try a new one.")
             
-            max_id = 1
+            # default role: student (user_id >= 3001)
+            max_id = 3000
             for user in collection_users.find(filter={}, sort=[("user_id", DESCENDING)], limit=1, projection={"user_id": True}):
-                max_id = user["user_id"] + 1
+                if user["user_id"] > max_id:
+                    max_id = user["user_id"]
             new_user = {
                     "user_id": max_id + 1, "user_name": user_name, 'email': email,
                     'password': password, "role": 0, 

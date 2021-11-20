@@ -192,8 +192,8 @@ function CardListItem(props) {
         <List.Item
             key={item.post_id}
             actions={[
-                <IconText icon={LikeFilled} text={item.details.likes} key="list-vertical-like" />,
-                <IconText icon={DislikeFilled} text={item.details.dislikes} key="list-vertical-dislike" />,
+                <IconText icon={LikeFilled} text={item.details.likes.length} key="list-vertical-like" />,
+                <IconText icon={DislikeFilled} text={item.details.dislikes.length} key="list-vertical-dislike" />,
                 <IconText icon={MessageOutlined} text={item.details.comments.length} key="list-vertical-message" />
             ]}
             className="content-post-item"
@@ -215,18 +215,20 @@ function CardListItem(props) {
 }
 
 
-const IconText = ({ icon, text }) => (
-    <Space>
-        {React.createElement(icon)}
-        {text}
-    </Space>
+const IconText = ({ icon, text, trigger }) => (
+    <Button type="text" onClick={trigger}>
+        <Space>
+            {React.createElement(icon)}
+            {text}
+        </Space>
+    </Button>
 );
 
 
 
 // Displaying the post detail
 // states: post, comments
-function PostDetail() {
+function PostDetail(props) {
     const { postid } = useParams();
     const [post, setPost] = useState(null);
     const [comments, setComments] = useState([]);
@@ -243,6 +245,7 @@ function PostDetail() {
         findPost(setPostHelper, setCommentsHelper, parseInt(postid));
     }, [postid]);
 
+
     const post_content = post === null ? (
         <h2> Sorry, post {postid} does not exist.. </h2>
     ) : (
@@ -250,8 +253,12 @@ function PostDetail() {
         <Card
             className="post-detail"
             actions={[
-                <IconText icon={LikeFilled} text={post.details.likes} key="post-like" />,
-                <IconText icon={DislikeFilled} text={post.details.dislikes} key="post-dislike" />,
+                <IconText 
+                    icon={LikeFilled} text={post.details.likes.length} 
+                    trigger={() => like_post(setPostHelper, props.user_id, post)} key="post-like"/>,
+                <IconText 
+                    icon={DislikeFilled} text={post.details.dislikes.length} 
+                    trigger={() => dislike_post(setPostHelper, props.user_id, post)} key="post-dislike"/>,
             ]}
         >
             <Card.Meta
@@ -284,12 +291,28 @@ function PostDetail() {
                     <Comment
                         actions={[
                             <Tooltip key={`comment-${item.post_id}-like`} title="Like">
-                                <LikeFilled/>
-                                <span className="comment-action">{item.details.likes}</span>
+                                <LikeFilled onClick={() => {
+                                    let idx = comments.findIndex((comment) => {
+                                        return comment.post_id === item.post_id;
+                                    });
+                                    if (idx !== -1) {
+                                        like_post(setCommentsHelper, props.user_id, comments[idx]);
+                                        setComments([].concat(comments));
+                                    }
+                                }}/>
+                                <span className="comment-action">{item.details.likes.length}</span>
                             </Tooltip>,
                             <Tooltip key={`comment-${item.post_id}-dislike`} title="Dislike">
-                                <DislikeFilled/>
-                                <span className="comment-action">{item.details.dislikes}</span>
+                                <DislikeFilled onClick={() => {
+                                    let idx = comments.findIndex((comment) => {
+                                        return comment.post_id === item.post_id;
+                                    });
+                                    if (idx !== -1) {
+                                        dislike_post(setCommentsHelper, props.user_id, comments[idx]);
+                                        setComments([].concat(comments));
+                                    }
+                                }}/>
+                                <span className="comment-action">{item.details.dislikes.length}</span>
                             </Tooltip>,
                         ]}
                         author={item.author_name}
@@ -426,6 +449,93 @@ async function getComments(setCommentsHelper, access=2, author_id=0, indices=[])
         });
     }
     setCommentsHelper(comments);
+}
+
+
+// like_post: front-end processing for liking bahaviors
+async function like_post(setHelper, user_id, post) {
+    // like_state: 
+    //     0: no change; 1: liked; 2: like cancelled; 3: liked and dislike cancelled; 
+    //     4: disliked; 5: dislike cancelled; 6: disliked and like cancelled
+    let like_state = 0;
+
+    if (user_id !== -1) {
+        let likes = post.details.likes;
+        let dislikes = post.details.dislikes;
+        
+        if (likes.includes(user_id)) {
+            likes.splice(likes.indexOf(user_id), 1);
+            like_state = 2;
+        } else {
+            likes.push(user_id);
+            like_state = 1;
+            let dislike_pos = dislikes.indexOf(user_id);
+            if (dislike_pos !== -1) {
+                dislikes.splice(dislike_pos, 1);
+                like_state = 3;
+            }
+        }
+
+        await fetch("/api/posts/update_like", {
+            method: "post",
+            confidential: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                "post_id": post.post_id, "user_id": user_id, "like_state": like_state
+            })
+        });
+        
+        if (post.post_type === 2) {
+            let new_post = {};
+            Object.assign(new_post, post);    // shallow copy of the modified post
+            setHelper(new_post);
+        }
+    }
+}
+
+// dislike_post: front-end processing for disliking bahaviors
+async function dislike_post(setHelper, user_id, post) {
+    // like_state: 
+    //     0: no change; 1: liked; 2: like cancelled; 3: liked and dislike cancelled; 
+    //     4: disliked; 5: dislike cancelled; 6: disliked and like cancelled
+    let like_state = 0;
+
+    if (user_id !== -1) {
+        let likes = post.details.likes;
+        let dislikes = post.details.dislikes;
+
+        if (dislikes.includes(user_id)) {
+            dislikes.splice(dislikes.indexOf(user_id), 1);
+            like_state = 5;
+        } else {
+            dislikes.push(user_id);
+            like_state = 4;
+            let like_pos = likes.indexOf(user_id);
+            if (like_pos !== -1) {
+                likes.splice(like_pos, 1);
+                like_state = 6;
+            }
+        }
+        
+        await fetch("/api/posts/update_like", {
+            method: "post",
+            confidential: "include",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "post_id": post.post_id, "user_id": user_id, "like_state": like_state
+            })
+        });
+
+        if (post.post_type === 2) {
+            let new_post = {};
+            Object.assign(new_post, post);    // shallow copy of the modified post
+            setHelper(new_post);
+        }
+    }
 }
 
 

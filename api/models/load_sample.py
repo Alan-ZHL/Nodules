@@ -4,8 +4,8 @@
 # user_id (testing purpose): 1-1000: virtual users (with no detailed info); 1001-3000: teachers; 3001 onwards: students
 userinfo = [
         {
-            "user_id": 1, "user_name": "tester", "email": "test_user@nus.edu", 
-            "password": "123", "role": 0, # student; 1:lecturer 2: administer
+            "user_id": 3001, "user_name": "tester", "email": "test_user@nus.edu", 
+            "password": "123", "role": 0, # 0: student; 1:lecturer 2: administer
             "enrolled_courses": ["IT5007", "IT5002", "CS4226"],
             "favored_courses": ["CS5424"],
             "taken_courses": ["IT5001", "IT5003"],
@@ -72,10 +72,10 @@ for i in range(20):
     posts_sample.append({
         "post_id": 1001 + i, "title": title, "access": access, "post_type": 2,
         "course_id": "IT5007", "course_name": "Software Engineering on Application Architecture",
-        "author_id": 1, "author_name": "tester", "date": "2 days ago",
+        "author_id": 30011, "author_name": "tester", "date": "2 days ago",
         "content": content,
         "snippet": snippet,
-        "details": {"likes": 56, "dislikes": 18, "comments": [i*3+2001, i*3+2002, i*3+2003]}
+        "details": {"likes": [i for i in range(900, 982)], "dislikes": [i for i in range(982, 1000)], "comments": [i*3+2001, i*3+2002, i*3+2003]}
     })
 for i in range(60):
     access = 2 if i < 48 else 1
@@ -83,9 +83,9 @@ for i in range(60):
     comments_sample.append({
         "post_id": 2001 + i, "title": "", "access": access, "post_type": 3,
         "course_id": "IT5007", "course_name": "Software Engineering on Application Architecture",
-        "author_id": 2, "author_name": "Biden III", "date": "2 days ago",
+        "author_id": 1, "author_name": "Biden III", "date": "2 days ago",
         "content": content,
-        "details": {"likes": 10, "dislikes": 2}
+        "details": {"likes": [i for i in range(990, 999)], "dislikes": [i for i in range(999, 1000)]}
     })
 
 

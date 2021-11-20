@@ -81,7 +81,7 @@ export default function App() {
                         <PostForum logined={logined} access={access} user={userInfo}/>
                     </Route>
                     <Route path="/posts/:postid">
-                        <PostDetail />
+                        <PostDetail user_id={userInfo.user_id}/>
                     </Route>
                     <Route path="/courses/:courseid">
                         <CoursePage user={userInfo}/>
