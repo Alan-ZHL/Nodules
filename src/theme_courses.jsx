@@ -19,6 +19,7 @@ function CoursePage(props) {
     const [ course, setCourse ] = useState(null);
     const [ postcards, setPostcards] = useState([]);
     const [ notifs, setNotifs] = useState([]);
+    const enrolled = (props.user.user_id === -1 || !props.user.enrolled_courses.includes(courseid)) ? false : true;
 
     function setCourseHelper(course) {
         setCourse(course);
@@ -42,7 +43,7 @@ function CoursePage(props) {
                 <Content>
                     <CourseHeader id={courseid} name={course.course_name}/>
                     <CourseDesciptions course={course}/>
-                    <CoursePostsAndNotifs id={courseid} user={props.user} posts={postcards} notifs={notifs}/>
+                    <CoursePostsAndNotifs enrolled={enrolled} posts={postcards} notifs={notifs}/>
                 </Content>
             </Layout>
         );
@@ -129,7 +130,7 @@ function CourseDesciptions(props) {
 
 function CoursePostsAndNotifs(props) {
     const [display, setDisplay] = useState("notifs");
-    const enrolled = (props.user.user_id === -1 || !props.user.enrolled_courses.includes(props.id)) ? false : true;
+    const enrolled = props.enrolled;
     
     const DropdownList = (enrolled) ? (
         (display === "notifs") ? (

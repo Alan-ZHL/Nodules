@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request, session
+from pymongo import DESCENDING
 
 from api.views import posts
 from api import collection_posts
@@ -74,6 +75,24 @@ def update_likes():
     except Exception as e:
         print(e)
         return {"status": 0}
+
+
+@posts.route("/api/posts/add_post", methods=["POST"])
+def add_post():
+    data = request.get_json()
+    max_id = 1
+    try:
+        for post in collection_posts.find(sort=[("post_id", DESCENDING)], limit=1, projection={"post_id": True}):
+            max_id = post["post_id"] + 1
+        data["course_id"] = data["course_id"].upper()
+        data["post_id"] = max_id
+        data["date"] = "today"    # TODO: change date to real Date object
+        data["details"] = {"likes": [], "dislikes": [], "comments": []}
+        collection_posts.insert_one(data)
+        return jsonify({"status": 1})
+    except Exception as e:
+        print(e)
+        return jsonify({"status": 0})
 
 
 # helper functions

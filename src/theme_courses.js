@@ -18,6 +18,7 @@ function CoursePage(props) {
   const [course, setCourse] = useState(null);
   const [postcards, setPostcards] = useState([]);
   const [notifs, setNotifs] = useState([]);
+  const enrolled = props.user.user_id === -1 || !props.user.enrolled_courses.includes(courseid) ? false : true;
 
   function setCourseHelper(course) {
     setCourse(course);
@@ -44,8 +45,7 @@ function CoursePage(props) {
     }), /*#__PURE__*/React.createElement(CourseDesciptions, {
       course: course
     }), /*#__PURE__*/React.createElement(CoursePostsAndNotifs, {
-      id: courseid,
-      user: props.user,
+      enrolled: enrolled,
       posts: postcards,
       notifs: notifs
     })));
@@ -137,7 +137,7 @@ function CourseDesciptions(props) {
 
 function CoursePostsAndNotifs(props) {
   const [display, setDisplay] = useState("notifs");
-  const enrolled = props.user.user_id === -1 || !props.user.enrolled_courses.includes(props.id) ? false : true;
+  const enrolled = props.enrolled;
   const DropdownList = enrolled ? display === "notifs" ? /*#__PURE__*/React.createElement(List, {
     itemLayout: "vertical",
     size: "large",

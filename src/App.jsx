@@ -7,7 +7,7 @@ import {
 import { Layout, Menu } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 
-import { PostForum, PostDetail } from "./theme_posts";
+import { PostForum, NewPost, PostDetail } from "./theme_posts";
 import { CoursePage } from "./theme_courses";
 import { Users, Register, Login } from "./theme_users";
 import "./App.css";
@@ -71,20 +71,29 @@ export default function App() {
                 <Toolbar logined={logined}
                         userInfo={userInfo}
                         logoutHelper={logoutHelper}
-                        setAccessHelper={setAccessHelper}/>
+                        setAccessHelper={setAccessHelper} />
 
                 <Switch>
                     <Route exact path="/posts/public">
-                        <PostForum logined={logined} access={access} user={userInfo}/>
+                        <PostForum 
+                            logined={logined} 
+                            access={access} 
+                            user={userInfo}/>
                     </Route>
                     <Route exact path="/posts/courses">
-                        <PostForum logined={logined} access={access} user={userInfo}/>
+                        <PostForum 
+                            logined={logined} 
+                            access={access}
+                            user={userInfo}/>
+                    </Route>
+                    <Route exact path="/posts/create/:post_type">
+                        <NewPost logined={logined} access={access} user={userInfo}/>
                     </Route>
                     <Route path="/posts/:postid">
                         <PostDetail user_id={userInfo.user_id}/>
                     </Route>
                     <Route path="/courses/:courseid">
-                        <CoursePage user={userInfo}/>
+                        <CoursePage user={userInfo} setAccessHelper={setAccessHelper}/>
                     </Route>
                     <Route path="/users">
                         <Users logined={logined} userInfo={userInfo}/>
@@ -96,8 +105,11 @@ export default function App() {
                         <Login logined={logined} loginHelper={loginHelper} />
                     </Route>
                     <Route exact path="/">
-                        <Redirect to="/posts/public" />
-                        <PostForum logined={logined} access={access} user={userInfo}/>
+                        <Redirect to="/posts/public"/>
+                        <PostForum 
+                            logined={logined} 
+                            access={access} 
+                            user={userInfo}/>
                     </Route>
                 </Switch>
             </Layout>
@@ -166,3 +178,18 @@ function Toolbar(props) {
         </Header>
     );
 }
+
+
+// helper function: create a post request with this template
+function create_postREQ(body) {
+    return {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body)
+    }
+}
+
+export {App, create_postREQ};

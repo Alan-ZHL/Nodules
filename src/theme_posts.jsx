@@ -2,13 +2,19 @@
 
 import React, { useState, useEffect } from "react";
 import { Link, useParams, useHistory } from "react-router-dom";
-import { Layout, Menu, List, Drawer, Button, Space, Card, Comment, Tooltip, Divider } from 'antd';
-import { LikeFilled, DislikeFilled, MessageOutlined } from '@ant-design/icons';
+import { Layout, Menu, List, Drawer, Button, 
+        Space, Card, Comment, Tooltip, Divider,
+        Input, Form } from 'antd';
+import { LikeFilled, DislikeFilled, 
+        MessageOutlined, FileAddOutlined,
+        BookOutlined, FilterOutlined } from '@ant-design/icons';
 
 import "./theme_posts.css";
+import {create_postREQ} from "./App";
 
 const { SubMenu } = Menu;
 const { Sider, Header, Content } = Layout;
+const { TextArea } = Input;
 
 
 // Top-level component: display the public posts, filters and notifications
@@ -35,7 +41,7 @@ function PostForum(props) {
 
     return (
         <Layout>
-            <PostSider logined={props.logined} user={props.user}/>
+            <PostSider access={props.access} logined={props.logined} user={props.user}/>
             <PostContent postcards={postcards}/>
             <NotifSider logined={props.logined} notifs={notifs}/>
         </Layout>
@@ -45,6 +51,7 @@ function PostForum(props) {
 
 // Left sider of the posts page: offer some simple filters
 function PostSider(props) {
+    const access_name = (props.access === 1) ? "course" : "public";
     var course_selector = (null);
     if (props.logined === 1 && props.user.user_id !== -1) {
         const enrolled_courses = props.user.enrolled_courses;
@@ -64,7 +71,7 @@ function PostSider(props) {
             key ++;
         }
         course_selector = (
-            <SubMenu key="sub1" title="My courses">
+            <SubMenu key="sub1" title="My courses" icon={<BookOutlined/>}>
                 {course_list}
             </SubMenu>
         );
@@ -77,8 +84,11 @@ function PostSider(props) {
                 defaultOpenKeys={["sub1", "sub2"]}
                 className="sider-post-menu"
             >
+                <Menu.Item key="item1" icon={<FileAddOutlined/>} disabled={props.logined === 0}>
+                    <Link to="/posts/create/post">Add new {access_name} post</Link>
+                </Menu.Item>
                 {course_selector}
-                <SubMenu key="sub2" title="Filter by">
+                <SubMenu key="sub2" title="Filter by" icon={<FilterOutlined/>}>
                     <Menu.Item key="filter_1">Favored courses</Menu.Item>
                     <Menu.Item key="fileter_2">Hotest posts</Menu.Item>
                     <Menu.Item key="filter_3">Latest posts</Menu.Item>
@@ -224,6 +234,80 @@ const IconText = ({ icon, text, trigger }) => (
     </Button>
 );
 
+
+// page to create a new post
+function NewPost(props) {
+    const {post_type} = useParams();
+    const [form] = Form.useForm();
+    const history = useHistory();
+    // const access_name = (props.access === 2) ? "pubic" : "course";
+
+    async function create_post() {
+        let new_post = form.getFieldsValue(true);
+        let resp = await fetch("/api/courses/get_name", create_postREQ({course_id: new_post.course_id}));
+        let resp_json = await resp.json();
+
+        if (resp_json.course_name === "") {
+            alert(`Cannot find course ${new_post.course_id}!`);
+        } else {
+            new_post.access = props.access;
+            new_post.post_type = (post_type === "post") ? 2 : 3;
+            new_post.course_name = resp_json.course_name;
+            new_post.author_id = props.user.user_id;
+            new_post.author_name = props.user.user_name;
+            resp = await fetch("/api/posts/add_post", create_postREQ(new_post));
+            resp_json = await resp.json();
+            console.log(resp_json);
+            alert(`Added a new ${post_type} successfully!`);
+            form.resetFields();
+        }
+    }
+
+    return (
+        <Layout>
+            <Content className="content-detail">
+                <Button className="button-back" onClick={() => history.goBack()}>Cancel and Return</Button>
+                <h1> new {(props.access === 2) ? "public" : "course"} post </h1>
+                <Form
+                    form={form}
+                    className="newpost_form">
+                        <Form.Item
+                            name="course_id"
+                            label="Course ID:"
+                            rules={[{
+                                required: true,
+                                message: "Must specify a course you're talking about!",
+                            }]}>
+                            <Input/>
+                        </Form.Item>
+                        <Form.Item 
+                            name="title"
+                            label="Title:"
+                            rules={[{
+                                required: true,
+                                message: "Please give a title to describe your post!",
+                            }]}>
+                            <Input/>
+                        </Form.Item>
+                        <Form.Item
+                            name="content"
+                            label="Content:"
+                            rules={[{
+                                required: true,
+                                message: "Please say something about your post!"
+                            }]}>
+                            <TextArea showCount maxLength={2000}/>
+                        </Form.Item>
+                        <Form.Item>
+                            <Button type="primary" htmlType="submit" onClick={create_post}>
+                                Create Post
+                            </Button>
+                        </Form.Item>
+                </Form>
+            </Content>
+        </Layout>
+    );
+}
 
 
 // Displaying the post detail
@@ -540,4 +624,4 @@ async function dislike_post(setHelper, user_id, post) {
 
 
 
-export {PostForum, PostDetail, CardListItem, getPostcards, getNotifs, getComments};
+export {PostForum, NewPost, PostDetail, CardListItem, getPostcards, getNotifs, getComments};

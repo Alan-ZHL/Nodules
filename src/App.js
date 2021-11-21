@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { BrowserRouter as Router, Switch, Route, Link, Redirect } from "react-router-dom";
 import { Layout, Menu } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
-import { PostForum, PostDetail } from "./theme_posts";
+import { PostForum, NewPost, PostDetail } from "./theme_posts";
 import { CoursePage } from "./theme_courses";
 import { Users, Register, Login } from "./theme_users";
 import "./App.css";
@@ -94,13 +94,21 @@ export default function App() {
     access: access,
     user: userInfo
   })), /*#__PURE__*/React.createElement(Route, {
+    exact: true,
+    path: "/posts/create/:post_type"
+  }, /*#__PURE__*/React.createElement(NewPost, {
+    logined: logined,
+    access: access,
+    user: userInfo
+  })), /*#__PURE__*/React.createElement(Route, {
     path: "/posts/:postid"
   }, /*#__PURE__*/React.createElement(PostDetail, {
     user_id: userInfo.user_id
   })), /*#__PURE__*/React.createElement(Route, {
     path: "/courses/:courseid"
   }, /*#__PURE__*/React.createElement(CoursePage, {
-    user: userInfo
+    user: userInfo,
+    setAccessHelper: setAccessHelper
   })), /*#__PURE__*/React.createElement(Route, {
     path: "/users"
   }, /*#__PURE__*/React.createElement(Users, {
@@ -194,4 +202,18 @@ function Toolbar(props) {
     title: `Welcome, ${user_name}!`,
     className: "navbar-user"
   }, options)));
+} // helper function: create a post request with this template
+
+
+function create_postREQ(body) {
+  return {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  };
 }
+
+export { App, create_postREQ };

@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, request, session
+from pymongo import DESCENDING
 
 from api.views import users
 from api import collection_users
-from pymongo import DESCENDING
 
 
 @users.route("/api/register", methods=["POST"])

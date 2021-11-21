@@ -1,9 +1,10 @@
 // stated components: PostForum, PostDetail, DraweredListItem
 import React, { useState, useEffect } from "react";
 import { Link, useParams, useHistory } from "react-router-dom";
-import { Layout, Menu, List, Drawer, Button, Space, Card, Comment, Tooltip, Divider } from 'antd';
-import { LikeFilled, DislikeFilled, MessageOutlined } from '@ant-design/icons';
+import { Layout, Menu, List, Drawer, Button, Space, Card, Comment, Tooltip, Divider, Input, Form } from 'antd';
+import { LikeFilled, DislikeFilled, MessageOutlined, FileAddOutlined, BookOutlined, FilterOutlined } from '@ant-design/icons';
 import "./theme_posts.css";
+import { create_postREQ } from "./App";
 const {
   SubMenu
 } = Menu;
@@ -11,7 +12,10 @@ const {
   Sider,
   Header,
   Content
-} = Layout; // Top-level component: display the public posts, filters and notifications
+} = Layout;
+const {
+  TextArea
+} = Input; // Top-level component: display the public posts, filters and notifications
 // states: postcards (simple form of a post), notifs
 
 function PostForum(props) {
@@ -33,6 +37,7 @@ function PostForum(props) {
     }
   }, [props.logined, props.user]);
   return /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(PostSider, {
+    access: props.access,
     logined: props.logined,
     user: props.user
   }), /*#__PURE__*/React.createElement(PostContent, {
@@ -45,6 +50,7 @@ function PostForum(props) {
 
 
 function PostSider(props) {
+  const access_name = props.access === 1 ? "course" : "public";
   var course_selector = null;
 
   if (props.logined === 1 && props.user.user_id !== -1) {
@@ -73,7 +79,8 @@ function PostSider(props) {
 
     course_selector = /*#__PURE__*/React.createElement(SubMenu, {
       key: "sub1",
-      title: "My courses"
+      title: "My courses",
+      icon: /*#__PURE__*/React.createElement(BookOutlined, null)
     }, course_list);
   }
 
@@ -84,9 +91,16 @@ function PostSider(props) {
     mode: "inline",
     defaultOpenKeys: ["sub1", "sub2"],
     className: "sider-post-menu"
-  }, course_selector, /*#__PURE__*/React.createElement(SubMenu, {
+  }, /*#__PURE__*/React.createElement(Menu.Item, {
+    key: "item1",
+    icon: /*#__PURE__*/React.createElement(FileAddOutlined, null),
+    disabled: props.logined === 0
+  }, /*#__PURE__*/React.createElement(Link, {
+    to: "/posts/create/post"
+  }, "Add new ", access_name, " post")), course_selector, /*#__PURE__*/React.createElement(SubMenu, {
     key: "sub2",
-    title: "Filter by"
+    title: "Filter by",
+    icon: /*#__PURE__*/React.createElement(FilterOutlined, null)
   }, /*#__PURE__*/React.createElement(Menu.Item, {
     key: "filter_1"
   }, "Favored courses"), /*#__PURE__*/React.createElement(Menu.Item, {
@@ -218,7 +232,77 @@ const IconText = ({
 }) => /*#__PURE__*/React.createElement(Button, {
   type: "text",
   onClick: trigger
-}, /*#__PURE__*/React.createElement(Space, null, /*#__PURE__*/React.createElement(icon), text)); // Displaying the post detail
+}, /*#__PURE__*/React.createElement(Space, null, /*#__PURE__*/React.createElement(icon), text)); // page to create a new post
+
+
+function NewPost(props) {
+  const {
+    post_type
+  } = useParams();
+  const [form] = Form.useForm();
+  const history = useHistory(); // const access_name = (props.access === 2) ? "pubic" : "course";
+
+  async function create_post() {
+    let new_post = form.getFieldsValue(true);
+    let resp = await fetch("/api/courses/get_name", create_postREQ({
+      course_id: new_post.course_id
+    }));
+    let resp_json = await resp.json();
+
+    if (resp_json.course_name === "") {
+      alert(`Cannot find course ${new_post.course_id}!`);
+    } else {
+      new_post.access = props.access;
+      new_post.post_type = post_type === "post" ? 2 : 3;
+      new_post.course_name = resp_json.course_name;
+      new_post.author_id = props.user.user_id;
+      new_post.author_name = props.user.user_name;
+      resp = await fetch("/api/posts/add_post", create_postREQ(new_post));
+      resp_json = await resp.json();
+      console.log(resp_json);
+      alert(`Added a new ${post_type} successfully!`);
+      form.resetFields();
+    }
+  }
+
+  return /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(Content, {
+    className: "content-detail"
+  }, /*#__PURE__*/React.createElement(Button, {
+    className: "button-back",
+    onClick: () => history.goBack()
+  }, "Cancel and Return"), /*#__PURE__*/React.createElement("h1", null, " new ", props.access === 2 ? "public" : "course", " post "), /*#__PURE__*/React.createElement(Form, {
+    form: form,
+    className: "newpost_form"
+  }, /*#__PURE__*/React.createElement(Form.Item, {
+    name: "course_id",
+    label: "Course ID:",
+    rules: [{
+      required: true,
+      message: "Must specify a course you're talking about!"
+    }]
+  }, /*#__PURE__*/React.createElement(Input, null)), /*#__PURE__*/React.createElement(Form.Item, {
+    name: "title",
+    label: "Title:",
+    rules: [{
+      required: true,
+      message: "Please give a title to describe your post!"
+    }]
+  }, /*#__PURE__*/React.createElement(Input, null)), /*#__PURE__*/React.createElement(Form.Item, {
+    name: "content",
+    label: "Content:",
+    rules: [{
+      required: true,
+      message: "Please say something about your post!"
+    }]
+  }, /*#__PURE__*/React.createElement(TextArea, {
+    showCount: true,
+    maxLength: 2000
+  })), /*#__PURE__*/React.createElement(Form.Item, null, /*#__PURE__*/React.createElement(Button, {
+    type: "primary",
+    htmlType: "submit",
+    onClick: create_post
+  }, "Create Post")))));
+} // Displaying the post detail
 // states: post, comments
 
 
@@ -571,4 +655,4 @@ async function dislike_post(setHelper, user_id, post) {
   }
 }
 
-export { PostForum, PostDetail, CardListItem, getPostcards, getNotifs, getComments };
+export { PostForum, NewPost, PostDetail, CardListItem, getPostcards, getNotifs, getComments };
