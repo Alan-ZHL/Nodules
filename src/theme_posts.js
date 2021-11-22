@@ -1,7 +1,7 @@
 // stated components: PostForum, PostDetail, DraweredListItem
 import React, { useState, useEffect } from "react";
 import { Link, useParams, useHistory } from "react-router-dom";
-import { Layout, Menu, List, Drawer, Button, Space, Card, Comment, Tooltip, Divider, Input, Form } from 'antd';
+import { Layout, Menu, List, Drawer, Button, Space, Card, Comment, Tooltip, Divider, Input, Form, Modal } from 'antd';
 import { LikeFilled, DislikeFilled, MessageOutlined, FileAddOutlined, BookOutlined, FilterOutlined } from '@ant-design/icons';
 import "./theme_posts.css";
 import { create_postREQ } from "./App";
@@ -228,10 +228,12 @@ function CardListItem(props) {
 const IconText = ({
   icon,
   text,
-  trigger
+  trigger,
+  disabled
 }) => /*#__PURE__*/React.createElement(Button, {
   type: "text",
-  onClick: trigger
+  onClick: trigger,
+  disabled: disabled
 }, /*#__PURE__*/React.createElement(Space, null, /*#__PURE__*/React.createElement(icon), text)); // page to create a new post
 
 
@@ -240,7 +242,7 @@ function NewPost(props) {
     post_type
   } = useParams();
   const [form] = Form.useForm();
-  const history = useHistory(); // const access_name = (props.access === 2) ? "pubic" : "course";
+  const history = useHistory();
 
   async function create_post() {
     let new_post = form.getFieldsValue(true);
@@ -253,7 +255,7 @@ function NewPost(props) {
       alert(`Cannot find course ${new_post.course_id}!`);
     } else {
       new_post.access = props.access;
-      new_post.post_type = post_type === "post" ? 2 : 3;
+      new_post.post_type = post_type === "post" ? 2 : 1;
       new_post.course_name = resp_json.course_name;
       new_post.author_id = props.user.user_id;
       new_post.author_name = props.user.user_name;
@@ -270,9 +272,12 @@ function NewPost(props) {
   }, /*#__PURE__*/React.createElement(Button, {
     className: "button-back",
     onClick: () => history.goBack()
-  }, "Cancel and Return"), /*#__PURE__*/React.createElement("h1", null, " new ", props.access === 2 ? "public" : "course", " post "), /*#__PURE__*/React.createElement(Form, {
+  }, "Cancel and Return"), /*#__PURE__*/React.createElement("h1", {
+    className: "newpost-title"
+  }, " new ", props.access === 2 ? "public" : "course", " ", post_type, " "), /*#__PURE__*/React.createElement(Form, {
     form: form,
-    className: "newpost_form"
+    layout: "vertical",
+    className: "newpost-form"
   }, /*#__PURE__*/React.createElement(Form.Item, {
     name: "course_id",
     label: "Course ID:",
@@ -296,10 +301,15 @@ function NewPost(props) {
     }]
   }, /*#__PURE__*/React.createElement(TextArea, {
     showCount: true,
+    autoSize: {
+      minRows: 5,
+      maxRows: 10
+    },
     maxLength: 2000
   })), /*#__PURE__*/React.createElement(Form.Item, null, /*#__PURE__*/React.createElement(Button, {
     type: "primary",
     htmlType: "submit",
+    className: "newpost-submit",
     onClick: create_post
   }, "Create Post")))));
 } // Displaying the post detail
@@ -312,7 +322,11 @@ function PostDetail(props) {
   } = useParams();
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
+  const [form] = Form.useForm();
+  const [pop, setPop] = useState(false); // control whether to pop up the form to create new comment
+
   const history = useHistory();
+  const user_id = props.user.user_id;
 
   function setPostHelper(fetched_post) {
     setPost(fetched_post);
@@ -322,27 +336,85 @@ function PostDetail(props) {
     setComments(indices);
   }
 
+  function setPopHelper(state) {
+    setPop(state);
+  }
+
   useEffect(() => {
     findPost(setPostHelper, setCommentsHelper, parseInt(postid));
   }, [postid]);
+
+  async function create_comment() {
+    let new_comment = form.getFieldsValue(true);
+
+    if (new_comment.content) {
+      new_comment.access = post.access;
+      new_comment.title = "";
+      new_comment.post_type = 3;
+      new_comment.author_id = user_id;
+      new_comment.author_name = props.user.user_name;
+      new_comment.course_id = post.course_id;
+      new_comment.course_name = post.course_name;
+      let resp = await fetch("/api/posts/add_post", create_postREQ(new_comment));
+      let resp_json = await resp.json();
+      console.log(resp_json);
+      resp = await fetch("/api/posts/update_comments", create_postREQ({
+        post_id: post.post_id,
+        comment_id: resp_json["post_id"]
+      }));
+      resp_json = await resp.json();
+      console.log(resp_json);
+      post.details.comments.push(resp_json["post_id"]);
+      const new_post = {};
+      Object.assign(new_post, post);
+      setPost(new_post);
+      getComments(setCommentsHelper, post.access, 0, post.details.comments);
+    }
+
+    setPop(false);
+  }
+
+  const new_comment_form = /*#__PURE__*/React.createElement(Form, {
+    form: form,
+    className: "newcomment_form"
+  }, /*#__PURE__*/React.createElement(Form.Item, {
+    name: "content",
+    placeholder: "comment on the post...",
+    rules: [{
+      required: true,
+      message: "An empty comment does nothing!"
+    }]
+  }, /*#__PURE__*/React.createElement(TextArea, {
+    autoSize: {
+      minRows: 3,
+      maxRows: 6
+    },
+    maxLength: 1000
+  })));
   const post_content = post === null ? /*#__PURE__*/React.createElement("h2", null, " Sorry, post ", postid, " does not exist.. ") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Card, {
     className: "post-detail",
     actions: [/*#__PURE__*/React.createElement(IconText, {
       icon: LikeFilled,
       text: post.details.likes.length,
-      trigger: () => like_post(setPostHelper, props.user_id, post),
+      trigger: () => like_post(setPostHelper, user_id, post),
       key: "post-like"
     }), /*#__PURE__*/React.createElement(IconText, {
       icon: DislikeFilled,
       text: post.details.dislikes.length,
-      trigger: () => dislike_post(setPostHelper, props.user_id, post),
+      trigger: () => dislike_post(setPostHelper, user_id, post),
       key: "post-dislike"
+    }), /*#__PURE__*/React.createElement(IconText, {
+      icon: MessageOutlined,
+      text: "make a comment",
+      trigger: () => setPopHelper(true),
+      disabled: user_id === -1,
+      key: "post-new-comment"
     })]
   }, /*#__PURE__*/React.createElement(Card.Meta, {
-    title: /*#__PURE__*/React.createElement("span", {
+    title: /*#__PURE__*/React.createElement("h1", {
       className: "post-detail-title"
     }, post.title),
-    description: /*#__PURE__*/React.createElement(React.Fragment, null, "Course:", /*#__PURE__*/React.createElement(Link, {
+    description: /*#__PURE__*/React.createElement("div", null, "Course:", /*#__PURE__*/React.createElement(Link, {
       to: `/courses/${post.course_id}`
     }, /*#__PURE__*/React.createElement(Button, {
       type: "text"
@@ -351,7 +423,12 @@ function PostDetail(props) {
     className: "post-detail-content"
   }, /*#__PURE__*/React.createElement("span", {
     className: "post-detail-content-head"
-  }, "Content"), /*#__PURE__*/React.createElement("br", null), post.content)), /*#__PURE__*/React.createElement(List, {
+  }, "Content"), /*#__PURE__*/React.createElement("br", null), post.content)), /*#__PURE__*/React.createElement(Modal, {
+    title: "My Comment",
+    visible: pop,
+    onOk: create_comment,
+    onCancel: () => setPopHelper(false)
+  }, new_comment_form), /*#__PURE__*/React.createElement(List, {
     className: "post-comment",
     header: `${comments.length} Replies`,
     itemLayout: "horizontal",
@@ -367,8 +444,8 @@ function PostDetail(props) {
           });
 
           if (idx !== -1) {
-            like_post(setCommentsHelper, props.user_id, comments[idx]);
-            setComments([].concat(comments));
+            like_post(setCommentsHelper, user_id, comments[idx]);
+            setComments([].concat(comments)); // refresh the comments
           }
         }
       }), /*#__PURE__*/React.createElement("span", {
@@ -383,7 +460,7 @@ function PostDetail(props) {
           });
 
           if (idx !== -1) {
-            dislike_post(setCommentsHelper, props.user_id, comments[idx]);
+            dislike_post(setCommentsHelper, user_id, comments[idx]);
             setComments([].concat(comments));
           }
         }
@@ -432,7 +509,7 @@ async function getPostcards(setPostcardsHelper, access = 2, courses = [0], autho
       author_id: postcard["author_id"],
       author_name: postcard["author_name"],
       date: postcard["date"],
-      snippet: postcard["snippet"],
+      snippet: postcard["content"].slice(0, 100) + "...",
       details: {
         likes: postcard["details"]["likes"],
         dislikes: postcard["details"]["dislikes"],
@@ -604,7 +681,8 @@ async function like_post(setHelper, user_id, post) {
       Object.assign(new_post, post); // shallow copy of the modified post
 
       setHelper(new_post);
-    }
+    } // comments are modified outside the function
+
   }
 } // dislike_post: front-end processing for disliking bahaviors
 
@@ -651,7 +729,8 @@ async function dislike_post(setHelper, user_id, post) {
       Object.assign(new_post, post); // shallow copy of the modified post
 
       setHelper(new_post);
-    }
+    } // comments are modified outside the function
+
   }
 }
 

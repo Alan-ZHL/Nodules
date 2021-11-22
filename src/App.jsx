@@ -90,7 +90,7 @@ export default function App() {
                         <NewPost logined={logined} access={access} user={userInfo}/>
                     </Route>
                     <Route path="/posts/:postid">
-                        <PostDetail user_id={userInfo.user_id}/>
+                        <PostDetail user={userInfo}/>
                     </Route>
                     <Route path="/courses/:courseid">
                         <CoursePage user={userInfo} setAccessHelper={setAccessHelper}/>

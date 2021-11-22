@@ -24,7 +24,10 @@ def get_post():
 
     try:
         post = collection_posts.find_one({"post_id": data["post_id"]}, projection={"_id": False})
-        return jsonify(post) if post else jsonify({"post_id": -1})
+        if post:
+            post["date"] = transfer_date(post["date"])
+            return jsonify(post)
+        return jsonify({"post_id": -1})
     except Exception as e:
         print(e)
         return jsonify({"post_id": -1})
@@ -72,10 +75,29 @@ def update_likes():
 
         collection_posts.update_one({"post_id": data["post_id"]}, {"$set": {"details": user_details}})
         # print(data["user_id"] in user_details["likes"], data["user_id"] in user_details["dislikes"])
-        return {"status": 1}
+        return jsonify({"status": 1})
     except Exception as e:
         print(e)
-        return {"status": 0}
+        return jsonify({"status": 0})
+
+
+@posts.route("/api/posts/update_comments", methods=["POST"])
+def update_comments():
+    data = request.get_json()
+    try:
+        user_details = collection_posts.find_one({"post_id": data["post_id"]}, projection={"_id": False, "details": True})["details"]
+        if data["comment_id"] not in user_details["comments"]:
+            user_details["comments"].append(data["comment_id"])
+        collection_posts.update_one({"post_id": data["post_id"]}, {"$set": {"details": user_details}})
+        new_comment = collection_posts.find_one({"post_id": data["comment_id"]}, projection={"_id": False})
+        if new_comment:
+            new_comment["date"] = transfer_date(new_comment["date"])
+            return jsonify(new_comment)
+        return jsonify({"post_id": -1})
+    except Exception as e:
+        print(e)
+        return jsonify({"post_id": -1})
+
 
 
 @posts.route("/api/posts/add_post", methods=["POST"])
@@ -90,10 +112,10 @@ def add_post():
         data["date"] = datetime.now()
         data["details"] = {"likes": [], "dislikes": [], "comments": []}
         collection_posts.insert_one(data)
-        return jsonify({"status": 1})
+        return jsonify({"post_id": max_id})
     except Exception as e:
         print(e)
-        return jsonify({"status": 0})
+        return jsonify({"post_id": -1})
 
 
 # helper functions

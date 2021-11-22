@@ -74,6 +74,9 @@
 
 .post-detail-title {
   font-size: x-large;
+  width: 100%;
+  text-align: center;
+  background: #eafce7;
 }
 
 .post-detail-content {
@@ -88,4 +91,21 @@
 .post-comment {
   margin-left: 10%;
   background: #fafafa;
+}
+
+.newpost-form {
+  margin-left: 10%;
+  margin-right: 10%;
+  height: 80vh;
+}
+
+.newpost-title {
+  font-size: x-large;
+  text-align: center;
+  background-color: #eafce7;
+}
+
+.newpost-submit{
+  margin-left: 10%;
+  width: 80%;
 }

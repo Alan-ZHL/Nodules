@@ -103,7 +103,7 @@ export default function App() {
   })), /*#__PURE__*/React.createElement(Route, {
     path: "/posts/:postid"
   }, /*#__PURE__*/React.createElement(PostDetail, {
-    user_id: userInfo.user_id
+    user: userInfo
   })), /*#__PURE__*/React.createElement(Route, {
     path: "/courses/:courseid"
   }, /*#__PURE__*/React.createElement(CoursePage, {

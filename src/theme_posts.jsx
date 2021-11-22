@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useParams, useHistory } from "react-router-dom";
 import { Layout, Menu, List, Drawer, Button, 
         Space, Card, Comment, Tooltip, Divider,
-        Input, Form } from 'antd';
+        Input, Form, Modal } from 'antd';
 import { LikeFilled, DislikeFilled, 
         MessageOutlined, FileAddOutlined,
         BookOutlined, FilterOutlined } from '@ant-design/icons';
@@ -225,8 +225,8 @@ function CardListItem(props) {
 }
 
 
-const IconText = ({ icon, text, trigger }) => (
-    <Button type="text" onClick={trigger}>
+const IconText = ({ icon, text, trigger, disabled }) => (
+    <Button type="text" onClick={trigger} disabled={disabled}>
         <Space>
             {React.createElement(icon)}
             {text}
@@ -240,7 +240,6 @@ function NewPost(props) {
     const {post_type} = useParams();
     const [form] = Form.useForm();
     const history = useHistory();
-    // const access_name = (props.access === 2) ? "pubic" : "course";
 
     async function create_post() {
         let new_post = form.getFieldsValue(true);
@@ -251,7 +250,7 @@ function NewPost(props) {
             alert(`Cannot find course ${new_post.course_id}!`);
         } else {
             new_post.access = props.access;
-            new_post.post_type = (post_type === "post") ? 2 : 3;
+            new_post.post_type = (post_type === "post") ? 2 : 1;
             new_post.course_name = resp_json.course_name;
             new_post.author_id = props.user.user_id;
             new_post.author_name = props.user.user_name;
@@ -267,10 +266,11 @@ function NewPost(props) {
         <Layout>
             <Content className="content-detail">
                 <Button className="button-back" onClick={() => history.goBack()}>Cancel and Return</Button>
-                <h1> new {(props.access === 2) ? "public" : "course"} post </h1>
+                <h1 className="newpost-title"> new {(props.access === 2) ? "public" : "course"} {post_type} </h1>
                 <Form
                     form={form}
-                    className="newpost_form">
+                    layout="vertical"
+                    className="newpost-form">
                         <Form.Item
                             name="course_id"
                             label="Course ID:"
@@ -296,10 +296,10 @@ function NewPost(props) {
                                 required: true,
                                 message: "Please say something about your post!"
                             }]}>
-                            <TextArea showCount maxLength={2000}/>
+                            <TextArea showCount autoSize={{minRows: 5, maxRows: 10}} maxLength={2000}/>
                         </Form.Item>
                         <Form.Item>
-                            <Button type="primary" htmlType="submit" onClick={create_post}>
+                            <Button type="primary" htmlType="submit" className="newpost-submit" onClick={create_post}>
                                 Create Post
                             </Button>
                         </Form.Item>
@@ -316,7 +316,10 @@ function PostDetail(props) {
     const { postid } = useParams();
     const [post, setPost] = useState(null);
     const [comments, setComments] = useState([]);
+    const [form] = Form.useForm();
+    const [pop, setPop] = useState(false);    // control whether to pop up the form to create new comment
     const history = useHistory();
+    const user_id = props.user.user_id;
 
     function setPostHelper(fetched_post) {
         setPost(fetched_post);
@@ -324,11 +327,53 @@ function PostDetail(props) {
     function setCommentsHelper(indices) {
         setComments(indices);
     }
+    function setPopHelper(state) {
+        setPop(state);
+    }
 
     useEffect(() => {
         findPost(setPostHelper, setCommentsHelper, parseInt(postid));
     }, [postid]);
 
+    async function create_comment() {
+        let new_comment = form.getFieldsValue(true);
+        if (new_comment.content) {
+            new_comment.access = post.access;
+            new_comment.title = "";
+            new_comment.post_type = 3;
+            new_comment.author_id = user_id;
+            new_comment.author_name = props.user.user_name;
+            new_comment.course_id = post.course_id;
+            new_comment.course_name = post.course_name;
+            let resp = await fetch("/api/posts/add_post", create_postREQ(new_comment));
+            let resp_json = await resp.json();
+            console.log(resp_json);
+            resp = await fetch("/api/posts/update_comments", create_postREQ({post_id: post.post_id, comment_id: resp_json["post_id"]}));
+            resp_json = await resp.json();
+            console.log(resp_json);
+            post.details.comments.push(resp_json["post_id"]);
+            const new_post = {};
+            Object.assign(new_post, post);
+            setPost(new_post);
+            getComments(setCommentsHelper, post.access, 0, post.details.comments);
+        }
+        setPop(false);
+    }
+
+    const new_comment_form = (
+        <Form
+            form={form}
+            className="newcomment_form">
+                <Form.Item
+                    name="content"
+                    placeholder="comment on the post..."
+                    rules={[{
+                        required: true,
+                        message: "An empty comment does nothing!"
+                    }]}>
+                    <TextArea autoSize={{minRows: 3, maxRows: 6}} maxLength={1000}/>
+                </Form.Item>
+        </Form>);
 
     const post_content = post === null ? (
         <h2> Sorry, post {postid} does not exist.. </h2>
@@ -339,23 +384,26 @@ function PostDetail(props) {
             actions={[
                 <IconText 
                     icon={LikeFilled} text={post.details.likes.length} 
-                    trigger={() => like_post(setPostHelper, props.user_id, post)} key="post-like"/>,
+                    trigger={() => like_post(setPostHelper, user_id, post)} key="post-like"/>,
                 <IconText 
                     icon={DislikeFilled} text={post.details.dislikes.length} 
-                    trigger={() => dislike_post(setPostHelper, props.user_id, post)} key="post-dislike"/>,
+                    trigger={() => dislike_post(setPostHelper, user_id, post)} key="post-dislike"/>,
+                <IconText 
+                    icon={MessageOutlined} text="make a comment"
+                    trigger={() => setPopHelper(true)} disabled={user_id === -1} key="post-new-comment"/>,
             ]}
         >
             <Card.Meta
-                title={<span className="post-detail-title">{post.title}</span>}
+                title={<h1 className="post-detail-title">{post.title}</h1>}
                 description={
-                    <>
+                    <div>
                     Course: 
                     <Link to={`/courses/${post.course_id}`}>
                         <Button type="text">{post.course_id}: {post.course_name}</Button>
                     </Link>
                     <br/>
                     <span>Posted by {post.author_name}, {post.date}</span>
-                    </>
+                    </div>
                 }
             />
             <Divider />
@@ -365,6 +413,14 @@ function PostDetail(props) {
                 {post.content}
             </div>
         </Card>
+        <Modal
+            title="My Comment"
+            visible={pop}
+            onOk={create_comment}
+            onCancel={() => setPopHelper(false)}
+        >
+            {new_comment_form}
+        </Modal>
         <List
             className="post-comment"
             header={`${comments.length} Replies`}
@@ -380,8 +436,8 @@ function PostDetail(props) {
                                         return comment.post_id === item.post_id;
                                     });
                                     if (idx !== -1) {
-                                        like_post(setCommentsHelper, props.user_id, comments[idx]);
-                                        setComments([].concat(comments));
+                                        like_post(setCommentsHelper, user_id, comments[idx]);
+                                        setComments([].concat(comments));    // refresh the comments
                                     }
                                 }}/>
                                 <span className="comment-action">{item.details.likes.length}</span>
@@ -392,7 +448,7 @@ function PostDetail(props) {
                                         return comment.post_id === item.post_id;
                                     });
                                     if (idx !== -1) {
-                                        dislike_post(setCommentsHelper, props.user_id, comments[idx]);
+                                        dislike_post(setCommentsHelper, user_id, comments[idx]);
                                         setComments([].concat(comments));
                                     }
                                 }}/>
@@ -443,7 +499,7 @@ async function getPostcards(setPostcardsHelper, access=2, courses=[0], author_id
             post_id: postcard["post_id"], title: postcard["title"], 
             course_id: postcard["course_id"], 
             author_id: postcard["author_id"], author_name: postcard["author_name"], date: postcard["date"],
-            snippet: postcard["snippet"],
+            snippet: postcard["content"].slice(0, 100) + "...",
             details: {likes: postcard["details"]["likes"], dislikes: postcard["details"]["dislikes"], comments: postcard["details"]["comments"]}
         });
     }
@@ -576,6 +632,7 @@ async function like_post(setHelper, user_id, post) {
             Object.assign(new_post, post);    // shallow copy of the modified post
             setHelper(new_post);
         }
+        // comments are modified outside the function
     }
 }
 
@@ -619,6 +676,7 @@ async function dislike_post(setHelper, user_id, post) {
             Object.assign(new_post, post);    // shallow copy of the modified post
             setHelper(new_post);
         }
+        // comments are modified outside the function
     }
 }
 
