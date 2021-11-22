@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request, session
 from pymongo import DESCENDING
+from datetime import datetime, timedelta
 
 from api.views import posts
 from api import collection_posts
@@ -86,7 +87,7 @@ def add_post():
             max_id = post["post_id"] + 1
         data["course_id"] = data["course_id"].upper()
         data["post_id"] = max_id
-        data["date"] = "today"    # TODO: change date to real Date object
+        data["date"] = datetime.now()
         data["details"] = {"likes": [], "dislikes": [], "comments": []}
         collection_posts.insert_one(data)
         return jsonify({"status": 1})
@@ -104,7 +105,7 @@ def add_post():
     indices, courses: [0]: any
     author_id: 0: any
 '''
-def filter_posts(access=2, type=0, indices=[0], courses=[0], author_id=0):
+def filter_posts(access=2, type=0, indices=[0], courses=[0], author_id=0, sort=[("date", DESCENDING)]):
     post_filters = {"access": access}
     projection = {"_id": False}
 
@@ -120,9 +121,27 @@ def filter_posts(access=2, type=0, indices=[0], courses=[0], author_id=0):
 
     try:
         filtered_posts = []
-        for post in collection_posts.find(post_filters, projection=projection):
+        for post in collection_posts.find(post_filters, sort=sort, projection=projection):
+            post["date"] = transfer_date(post["date"])
             filtered_posts.append(post)
         return filtered_posts
     except Exception as e:
         print(e)
         return []
+
+
+# transfer_date: transfer a python datime object to a string
+def transfer_date(date):
+    now = datetime.now()
+    delta = now - date
+    if delta.days > 14:
+        return f"{date.year}-{date.month}-{date.day}"
+    elif delta.days > 1:
+        return f"{delta.days} days ago"
+    elif delta.days > 0:
+        return "yesterday"
+    elif delta.seconds > 3599:
+        hours = delta.seconds // 3600
+        return "1 hour ago" if hours == 1 else f"{hours} hours ago"
+    else:
+        return "whithin 1 hour"

@@ -1,4 +1,6 @@
 # data samples for the project (change the content on any modifications on data formats)
+from datetime import datetime, timedelta
+
 
 # users
 # user_id (testing purpose): 1-1000: virtual users (with no detailed info); 1001-3000: teachers; 3001 onwards: students
@@ -51,15 +53,15 @@ course_sample = [
 notifs_sample = [
     {"post_id": 1, "title": "Remember to submit tutorial 4", "access": 1, "post_type": 1, 
     "course_id": "IT5007", "course_name": "Software Engineering on Application Architecture",
-    "author_id": 1001, "author_name": "Prasanna Karthik Vairam", "date":"2021-09-30",
+    "author_id": 1001, "author_name": "Prasanna Karthik Vairam", "date": datetime(2021, 9, 30),
     "content": "remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd! remember to submit tutorial 4 by Oct 3rd!"},
     {"post_id": 2, "title": "Exam date determined", "access": 1, "post_type": 1,
     "course_id": "IT5002", "course_name": "Computer Systems and Applications",
-    "author_id": 1002, "author_name": "Colin Tan", "date": "2021-09-03", 
+    "author_id": 1002, "author_name": "Colin Tan", "date": datetime(2021, 9, 3), 
     "content": "Midterm exam is set on Oct 5th. Please be prepared."}, 
     {"post_id": 3, "title": "Welcome to CS4226!", "access": 1, "post_type": 1, 
     "course_id": "CS4226", "course_name": "Internet Architecture", 
-    "author_id": 1003, "author_name": "Richard Ma", "date": "2021-08-26", 
+    "author_id": 1003, "author_name": "Richard Ma", "date": datetime(2021, 8, 26), 
     "content": "Welcome to CS4226. I will be the lecturer of this course. Looking forward to meeting all of you!"}
 ]
 posts_sample = [];
@@ -72,7 +74,7 @@ for i in range(20):
     posts_sample.append({
         "post_id": 1001 + i, "title": title, "access": access, "post_type": 2,
         "course_id": "IT5007", "course_name": "Software Engineering on Application Architecture",
-        "author_id": 30011, "author_name": "tester", "date": "2 days ago",
+        "author_id": 30011, "author_name": "tester", "date": datetime.now() - timedelta(days=2),
         "content": content,
         "snippet": snippet,
         "details": {"likes": [i for i in range(900, 982)], "dislikes": [i for i in range(982, 1000)], "comments": [i*3+2001, i*3+2002, i*3+2003]}
@@ -83,7 +85,7 @@ for i in range(60):
     comments_sample.append({
         "post_id": 2001 + i, "title": "", "access": access, "post_type": 3,
         "course_id": "IT5007", "course_name": "Software Engineering on Application Architecture",
-        "author_id": 1, "author_name": "Biden III", "date": "2 days ago",
+        "author_id": 1, "author_name": "Biden III", "date": datetime.now() - timedelta(days=1),
         "content": content,
         "details": {"likes": [i for i in range(990, 999)], "dislikes": [i for i in range(999, 1000)]}
     })
