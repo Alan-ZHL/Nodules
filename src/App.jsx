@@ -4,7 +4,7 @@ import {
     Switch, Route, Link,
     Redirect
 } from "react-router-dom";
-import { Layout, Menu } from 'antd';
+import { Layout, Menu, message } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 
 import { PostForum, NewPost, PostDetail } from "./theme_posts";
@@ -152,9 +152,9 @@ function Toolbar(props) {
         const resp_json = await resp.json();
         if (resp_json["status"] === 1) {
             props.logoutHelper();
-            alert(`${resp_json["user_name"]} log out successfully.`);
+            message.info(`${resp_json["user_name"]} log out successfully.`);
         } else {
-            alert("Log out failed.");
+            message.warning("Log out failed.");
         }
     }
 

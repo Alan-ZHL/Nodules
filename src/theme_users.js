@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Redirect, Link } from "react-router-dom";
 import { Form, Input, Button, Checkbox } from 'antd';
-import { Layout, PageHeader, Descriptions, List, Menu } from "antd";
+import { Layout, PageHeader, Descriptions, List, Menu, message } from "antd";
 import { UserOutlined, LockOutlined, CoffeeOutlined, CommentOutlined } from '@ant-design/icons';
 import "./theme_users.css";
 import { CardListItem, getPostcards } from "./theme_posts";
@@ -244,7 +244,7 @@ function getSelectedCoursePosts(posts, course) {
 }
 
 function Login(props) {
-  const [message, setMessage] = useState("");
+  const [retMsg, setRetMsg] = useState("");
   const [form] = Form.useForm();
 
   const onFinish = values => {
@@ -264,11 +264,13 @@ function Login(props) {
       },
       body: JSON.stringify(getFormData())
     }).then(resp => resp.json().then(data => {
-      setMessage(data['message']);
+      setRetMsg(data['message']);
       props.loginHelper(data['status']);
 
       if (data["status"] === 1) {
-        alert(data["message"]);
+        message.success(data["message"]);
+      } else {
+        message.error(data["message"]);
       }
     }));
   }
@@ -316,14 +318,14 @@ function Login(props) {
     htmlType: "submit",
     className: "login-form-button",
     onClick: postData
-  }, "Log in")), /*#__PURE__*/React.createElement("div", null, message)) : /*#__PURE__*/React.createElement(Redirect, {
+  }, "Log in")), /*#__PURE__*/React.createElement("div", null, retMsg)) : /*#__PURE__*/React.createElement(Redirect, {
     to: "/posts/public"
   });
   return /*#__PURE__*/React.createElement(React.Fragment, null, loginForm);
 }
 
 function Register() {
-  const [message, setMessage] = useState("");
+  const [retMsg, setRetMsg] = useState("");
   const [form] = Form.useForm();
   const formItemLayout = {
     labelCol: {
@@ -367,8 +369,8 @@ function Register() {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(getFormData())
-    }).then(resp => resp.json().then(message => {
-      setMessage(message);
+    }).then(resp => resp.json().then(retMsg => {
+      setRetMsg(retMsg);
     }));
   }
 
@@ -446,7 +448,7 @@ function Register() {
     type: "primary",
     htmlType: "submit",
     onClick: postData
-  }, "Register")), /*#__PURE__*/React.createElement("div", null, message));
+  }, "Register")), /*#__PURE__*/React.createElement("div", null, retMsg));
 }
 
 ;

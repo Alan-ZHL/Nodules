@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Redirect, Link } from "react-router-dom";
 import { Form, Input, Button, Checkbox } from 'antd';
-import { Layout, PageHeader, Descriptions, List, Menu } from "antd";
+import { Layout, PageHeader, Descriptions, List, Menu, message } from "antd";
 import { UserOutlined, LockOutlined, CoffeeOutlined, CommentOutlined } from '@ant-design/icons';
 
 import "./theme_users.css"
@@ -238,7 +238,7 @@ function getSelectedCoursePosts(posts, course) {
 
 
 function Login(props) {
-    const [message, setMessage] = useState("");
+    const [retMsg, setRetMsg] = useState("");
     const [form] = Form.useForm();
 
     const onFinish = (values) => {
@@ -260,10 +260,12 @@ function Login(props) {
         })
         .then(resp => resp.json().then(
             data => {
-                setMessage(data['message']);
+                setRetMsg(data['message']);
                 props.loginHelper(data['status']);
                 if (data["status"] === 1) {
-                    alert(data["message"]);
+                    message.success(data["message"]);
+                } else {
+                    message.error(data["message"]);
                 }
             }
         ))
@@ -316,7 +318,7 @@ function Login(props) {
                     Log in
                 </Button>
             </Form.Item>
-            <div>{message}</div>
+            <div>{retMsg}</div>
         </Form>
     ) : (
         <Redirect to="/posts/public"/>
@@ -331,7 +333,7 @@ function Login(props) {
 
 
 function Register () {
-    const [message, setMessage] = useState("");
+    const [retMsg, setRetMsg] = useState("");
     const [form] = Form.useForm();
 
     const formItemLayout = {
@@ -364,8 +366,8 @@ function Register () {
             body: JSON.stringify(getFormData())
         })
         .then(resp => resp.json().then(
-            message => {
-                setMessage(message);
+            retMsg => {
+                setRetMsg(retMsg);
             }
         ));
     }
@@ -459,7 +461,7 @@ function Register () {
                     Register
                 </Button>
             </Form.Item>
-            <div>{message}</div>
+            <div>{retMsg}</div>
         </Form>
     );
 };

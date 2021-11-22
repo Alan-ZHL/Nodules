@@ -1,7 +1,7 @@
 // stated components: PostForum, PostDetail, DraweredListItem
 import React, { useState, useEffect } from "react";
 import { Link, useParams, useHistory } from "react-router-dom";
-import { Layout, Menu, List, Drawer, Button, Space, Card, Comment, Tooltip, Divider, Input, Form, Modal } from 'antd';
+import { Layout, Menu, List, Drawer, Button, Space, Card, Comment, Tooltip, Divider, Input, Form, Modal, message } from 'antd';
 import { LikeFilled, DislikeFilled, MessageOutlined, FileAddOutlined, BookOutlined, FilterOutlined } from '@ant-design/icons';
 import "./theme_posts.css";
 import { create_postREQ } from "./App";
@@ -250,9 +250,12 @@ function NewPost(props) {
       course_id: new_post.course_id
     }));
     let resp_json = await resp.json();
+    console.log(props.access, props.user.enrolled_courses);
 
     if (resp_json.course_name === "") {
-      alert(`Cannot find course ${new_post.course_id}!`);
+      message.error(`Cannot find course ${new_post.course_id}!`);
+    } else if (props.access === 1 && !props.user.enrolled_courses.includes(new_post.course_id.toUpperCase())) {
+      message.warning(`Sorry, please make sure you have enrolled in course ${new_post.course_id}!`);
     } else {
       new_post.access = props.access;
       new_post.post_type = post_type === "post" ? 2 : 1;
@@ -262,7 +265,7 @@ function NewPost(props) {
       resp = await fetch("/api/posts/add_post", create_postREQ(new_post));
       resp_json = await resp.json();
       console.log(resp_json);
-      alert(`Added a new ${post_type} successfully!`);
+      message.success(`Added a new ${post_type} successfully!`);
       form.resetFields();
     }
   }
