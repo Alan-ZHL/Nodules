@@ -180,6 +180,7 @@ function PostContent(props) {
                         console.log(page);
                     },
                     pageSize: 5,
+                    showSizeChanger: false,
                     total: props.postcards.length,
                     style: {textAlign: "center"}
                 }}
@@ -550,7 +551,7 @@ async function getNotifs(setNotifsHelper, courses=[0], author_id=0) {
 // indices:   list of comments (as post_ids)
 async function getComments(setCommentsHelper, access=2, author_id=0, indices=[]) {
     const resp = await fetch("/api/posts/comments", create_postREQ({
-        "comments": indices, "access": access, "author_id": author_id
+        "indices": indices, "access": access, "author_id": author_id
     }));
     const resp_json = await resp.json();
     var comments = [];

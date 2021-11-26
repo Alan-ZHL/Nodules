@@ -176,6 +176,7 @@ function PostContent(props) {
         console.log(page);
       },
       pageSize: 5,
+      showSizeChanger: false,
       total: props.postcards.length,
       style: {
         textAlign: "center"
@@ -584,7 +585,7 @@ async function getNotifs(setNotifsHelper, courses = [0], author_id = 0) {
 
 async function getComments(setCommentsHelper, access = 2, author_id = 0, indices = []) {
   const resp = await fetch("/api/posts/comments", create_postREQ({
-    "comments": indices,
+    "indices": indices,
     "access": access,
     "author_id": author_id
   }));

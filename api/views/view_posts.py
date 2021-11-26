@@ -10,10 +10,8 @@ from api import collection_posts
 @posts.route("/api/posts/cards", methods=["POST"])
 def get_multiple_postcards():
     data = request.get_json()
-    access = data["access"]
-    courses = data["courses"]
-    author_id = data["author_id"]
-    posts = filter_posts(access=access, type=2, courses=courses, author_id=author_id)
+    data["type"] = 2
+    posts = filter_posts(data)
     
     return jsonify(posts)
 
@@ -36,9 +34,9 @@ def get_post():
 @posts.route("/api/posts/notifs", methods=["POST"])
 def get_notifs():
     data = request.get_json()
-    courses = data["courses"]
-    author_id = data["author_id"]
-    notifs = filter_posts(access=1, type=1, courses=courses, author_id=author_id)
+    data["access"] = 1
+    data["type"] = 1
+    notifs = filter_posts(data)
     
     return jsonify(notifs)
 
@@ -46,10 +44,9 @@ def get_notifs():
 @posts.route("/api/posts/comments", methods=["POST"])
 def get_comments():
     data = request.get_json()
-    access = data["access"]
-    author_id = data["author_id"]
-    indices = data["comments"]
-    comments = filter_posts(access=access, type=3, indices=indices, author_id=author_id)
+    data["type"] = 3
+    print(data)
+    comments = filter_posts(data)
 
     return jsonify(comments)
 
@@ -126,18 +123,18 @@ def add_post():
     indices, courses: [0]: any
     author_id: 0: any
 '''
-def filter_posts(access=2, type=0, indices=[0], courses=[0], author_id=0, sort=[("date", DESCENDING)]):
-    post_filters = {"access": access}
+def filter_posts(post_kwargs, sort=[("date", DESCENDING)], skip=0, limit=0):
+    post_filters = {"access": post_kwargs["access"]}    # must provide "access" as one of post_kwargs
     projection = {"_id": False}
 
-    if type != 0:
-        post_filters["post_type"] = type
-    if 0 not in indices:
-        post_filters["post_id"] = {"$in": indices}
-    if 0 not in courses:
-        post_filters["course_id"] = {"$in": courses}
-    if author_id != 0:
-        post_filters["author_id"] = author_id
+    if "type" in post_kwargs and post_kwargs["type"] != 0:
+        post_filters["post_type"] = post_kwargs["type"]
+    if "indices" in post_kwargs and 0 not in post_kwargs["indices"]:
+        post_filters["post_id"] = {"$in": post_kwargs["indices"]}
+    if "courses" in post_kwargs and 0 not in post_kwargs["courses"]:
+        post_filters["course_id"] = {"$in": post_kwargs["courses"]}
+    if "author_id" in post_kwargs and post_kwargs["author_id"] != 0:
+        post_filters["author_id"] = post_kwargs["author_id"]
     # print(post_filters)
 
     try:
@@ -145,6 +142,7 @@ def filter_posts(access=2, type=0, indices=[0], courses=[0], author_id=0, sort=[
         for post in collection_posts.find(post_filters, sort=sort, projection=projection):
             post["date"] = transfer_date(post["date"])
             filtered_posts.append(post)
+        # print(filtered_posts)
         return filtered_posts
     except Exception as e:
         print(e)
