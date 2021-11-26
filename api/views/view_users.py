@@ -80,9 +80,8 @@ def get_userinfo():
 
     try:
         user = collection_users.find_one({"user_id": user_id}, projection={"_id": False, "password": False})
-        print(f"Succeed: user {user_id} found.")
-        # print(user)
-        return jsonify(user)
+        print(f"Succeed: user {user_id} found." if user != None else f"Failed: cannot find user {user_id}!")
+        return jsonify(user) if user != None else jsonify({"user_id": -1})
     except Exception as e:
         print(e)
         print(f"getUserInfor Error: user with id {user_id} is not found.")

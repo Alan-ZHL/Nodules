@@ -106,10 +106,6 @@ export default function App() {
                     </Route>
                     <Route exact path="/">
                         <Redirect to="/posts/public"/>
-                        <PostForum 
-                            logined={logined} 
-                            access={access} 
-                            user={userInfo}/>
                     </Route>
                 </Switch>
             </Layout>

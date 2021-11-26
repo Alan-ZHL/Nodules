@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { Layout, PageHeader, Descriptions, List, Button, Menu, Tooltip } from "antd";
 import { StarOutlined, CommentOutlined, NotificationOutlined } from "@ant-design/icons";
 import "./theme_courses.css";
+import { create_postREQ } from "./App";
 import { getNotifs, getPostcards } from "./theme_posts";
 import { CardListItem } from "./theme_posts";
 const {
@@ -33,6 +34,7 @@ function CoursePage(props) {
       setNotifs(notifs);
     }, [courseid]);
   }, [courseid]);
+  console.log(course);
 
   if (course === null) {
     return null;
@@ -49,37 +51,6 @@ function CoursePage(props) {
       posts: postcards,
       notifs: notifs
     })));
-  }
-}
-
-async function findCourse(setCourseHelper, courseid) {
-  const resp = await fetch("/api/courses/info", {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      "course_id": courseid
-    })
-  });
-  const course = await resp.json();
-
-  if (course["course_id"] !== "") {
-    setCourseHelper({
-      course_id: course["course_id"],
-      course_name: course["course_name"],
-      credit: course["credit"],
-      workload: course["workload"],
-      prerequisites: course["prerequisites"],
-      lecturer_id: course["lecturer_id"],
-      lecturer_name: course["lecturer_name"],
-      open_semesters: course["open_semesters"],
-      description: course["description"],
-      rating: course["rating"]
-    });
-  } else {
-    setCourseHelper(null);
   }
 }
 
@@ -209,6 +180,30 @@ function NotifListItem(props) {
     title: item.title,
     description: `Posted by ${item.author_name}, ${item.date}`
   }), /*#__PURE__*/React.createElement("span", null, item.content)));
+}
+
+async function findCourse(setCourseHelper, courseid) {
+  const resp = await fetch("/api/courses/info", create_postREQ({
+    "course_id": courseid
+  }));
+  const course = await resp.json();
+
+  if (course["course_id"] !== "") {
+    setCourseHelper({
+      course_id: course["course_id"],
+      course_name: course["course_name"],
+      credit: course["credit"],
+      workload: course["workload"],
+      prerequisites: course["prerequisites"],
+      lecturer_id: course["lecturer_id"],
+      lecturer_name: course["lecturer_name"],
+      open_semesters: course["open_semesters"],
+      description: course["description"],
+      rating: course["rating"]
+    });
+  } else {
+    setCourseHelper(null);
+  }
 }
 
 export { CoursePage };

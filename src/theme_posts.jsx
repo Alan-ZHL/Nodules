@@ -485,16 +485,9 @@ function PostDetail(props) {
 // course_id: [0]: any course
 // author_id: 0: any author
 async function getPostcards(setPostcardsHelper, access=2, courses=[0], author_id=0) {
-    const resp = await fetch("/api/posts/cards", {
-        method: "post",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            "access": access, "courses": courses, "author_id": author_id
-        }),
-    });
+    const resp = await fetch("/api/posts/cards", create_postREQ({
+        "access": access, "courses": courses, "author_id": author_id
+    }));
     const resp_json = await resp.json();
     var postcards = [];
     for (let postcard of resp_json) {
@@ -513,14 +506,7 @@ async function getPostcards(setPostcardsHelper, access=2, courses=[0], author_id
 // findPost (different from getPostcards): find a specific and complete post, updating the post as well as its comments
 // (export notice: please export the nested "getComments" as well)
 async function findPost(setPostHelper, setCommentsHelper, post_id) {
-    const resp = await fetch("/api/posts/get_post", {
-        method: "post",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({"post_id": post_id}),
-    });
+    const resp = await fetch("/api/posts/get_post", create_postREQ({"post_id": post_id}));
     const post = await resp.json();
     if (post["post_id"] !== -1) {
         setPostHelper({
@@ -541,16 +527,9 @@ async function findPost(setPostHelper, setCommentsHelper, post_id) {
 // course_id: [0]: any course
 // author_id: 0: any author
 async function getNotifs(setNotifsHelper, courses=[0], author_id=0) {
-    const resp = await fetch("/api/posts/notifs", {
-        method: "post",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            "courses": courses, "author_id": author_id
-        })
-    });
+    const resp = await fetch("/api/posts/notifs", create_postREQ({
+        "courses": courses, "author_id": author_id
+    }));
     const resp_json = await resp.json();
     var notifs = [];
     for (let notif of resp_json) {
@@ -570,16 +549,9 @@ async function getNotifs(setNotifsHelper, courses=[0], author_id=0) {
 // author_id: 0: any author
 // indices:   list of comments (as post_ids)
 async function getComments(setCommentsHelper, access=2, author_id=0, indices=[]) {
-    const resp = await fetch("/api/posts/comments", {
-        method: "post",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            "comments": indices, "access": access, "author_id": author_id
-        })
-    });
+    const resp = await fetch("/api/posts/comments", create_postREQ({
+        "comments": indices, "access": access, "author_id": author_id
+    }));
     const resp_json = await resp.json();
     var comments = [];
     for (let comment of resp_json) {
@@ -619,16 +591,9 @@ async function like_post(setHelper, user_id, post) {
             }
         }
 
-        await fetch("/api/posts/update_like", {
-            method: "post",
-            confidential: "include",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                "post_id": post.post_id, "user_id": user_id, "like_state": like_state
-            })
-        });
+        await fetch("/api/posts/update_like", create_postREQ({
+            "post_id": post.post_id, "user_id": user_id, "like_state": like_state
+        }));
         
         if (post.post_type === 2) {
             let new_post = {};
@@ -663,16 +628,9 @@ async function dislike_post(setHelper, user_id, post) {
             }
         }
         
-        await fetch("/api/posts/update_like", {
-            method: "post",
-            confidential: "include",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                "post_id": post.post_id, "user_id": user_id, "like_state": like_state
-            })
-        });
+        await fetch("/api/posts/update_like", create_postREQ({
+            "post_id": post.post_id, "user_id": user_id, "like_state": like_state
+        }));
 
         if (post.post_type === 2) {
             let new_post = {};
@@ -682,7 +640,6 @@ async function dislike_post(setHelper, user_id, post) {
         // comments are modified outside the function
     }
 }
-
 
 
 export {PostForum, NewPost, PostDetail, CardListItem, getPostcards, getNotifs, getComments};

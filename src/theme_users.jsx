@@ -7,6 +7,7 @@ import { Layout, PageHeader, Descriptions, List, Menu, message } from "antd";
 import { UserOutlined, LockOutlined, CoffeeOutlined, CommentOutlined } from '@ant-design/icons';
 
 import "./theme_users.css"
+import { create_postREQ} from "./App";
 import { CardListItem, getPostcards } from "./theme_posts";
 
 const { Content } = Layout;
@@ -250,14 +251,7 @@ function Login(props) {
     }
         
     function postData(){
-        fetch("/api/login", {
-            method: "post",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(getFormData())
-        })
+        fetch("/api/login", create_postREQ(getFormData()))
         .then(resp => resp.json().then(
             data => {
                 setRetMsg(data['message']);
@@ -358,13 +352,7 @@ function Register () {
     }
         
     function postData(){
-        fetch("/api/register", {
-            method: "post",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(getFormData())
-        })
+        fetch("/api/register", create_postREQ(getFormData()))
         .then(resp => resp.json().then(
             retMsg => {
                 setRetMsg(retMsg);

@@ -126,10 +126,6 @@ export default function App() {
     path: "/"
   }, /*#__PURE__*/React.createElement(Redirect, {
     to: "/posts/public"
-  }), /*#__PURE__*/React.createElement(PostForum, {
-    logined: logined,
-    access: access,
-    user: userInfo
   })))));
 }
 

@@ -11,8 +11,7 @@ def display_courses():
 
     try:
         course = collection_courses.find_one({"course_id": courseid}, projection={"_id": False})
-        # print(course, type(course))
-        return jsonify(course)
+        return jsonify(course) if course != None else {"course_id": ""}
     except Exception as e:
         print(e)
         return jsonify({"course_id": ""})

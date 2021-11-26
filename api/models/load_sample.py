@@ -66,10 +66,10 @@ notifs_sample = [
 ]
 posts_sample = [];
 comments_sample = [];
-for i in range(20):
-    title = f"Sample public post {i}" if i < 16 else f"Sample course post {i}"
-    access = 2 if i < 16 else 1
-    content = "This is a sample course post. Ask me anything!" if i >= 15 else "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product protopost_types beautifully and efficiently."
+for i in range(200):
+    title = f"Sample public post {i}" if i < 160 else f"Sample course post {i}"
+    access = 2 if i < 160 else 1
+    content = "This is a sample course post. Ask me anything!" if i >= 160 else "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product protopost_types beautifully and efficiently."
     posts_sample.append({
         "post_id": 1001 + i, "title": title, "access": access, "post_type": 2,
         "course_id": "IT5007", "course_name": "Software Engineering on Application Architecture",
@@ -77,9 +77,9 @@ for i in range(20):
         "content": content,
         "details": {"likes": [i for i in range(900, 982)], "dislikes": [i for i in range(982, 1000)], "comments": [i*3+2001, i*3+2002, i*3+2003]}
     })
-for i in range(60):
-    access = 2 if i < 48 else 1
-    content = "Sounds great!" if i < 48 else "Good job!"
+for i in range(600):
+    access = 2 if i < 480 else 1
+    content = "Sounds great!" if i < 480 else "Good job!"
     comments_sample.append({
         "post_id": 2001 + i, "title": "", "access": access, "post_type": 3,
         "course_id": "IT5007", "course_name": "Software Engineering on Application Architecture",

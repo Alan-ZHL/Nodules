@@ -49,7 +49,6 @@ def get_comments():
     access = data["access"]
     author_id = data["author_id"]
     indices = data["comments"]
-
     comments = filter_posts(access=access, type=3, indices=indices, author_id=author_id)
 
     return jsonify(comments)
