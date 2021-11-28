@@ -10,6 +10,7 @@ import { CardListItem, getPostcards } from "./theme_posts";
 const {
   Content
 } = Layout;
+const PAGESIZE = 3;
 
 function Users(props) {
   const user = props.userInfo;
@@ -137,30 +138,48 @@ function UserDesciptions_module(props) {
 
 function MyPosts(props) {
   const [display, setDisplay] = useState("public");
-  const [publicPosts, setPublicPosts] = useState([]);
-  const [coursePosts, setCoursePosts] = useState([]);
+  const [publicPosts, setPublicPosts] = useState({
+    count: 0,
+    posts: []
+  });
+  const [coursePosts, setCoursePosts] = useState({
+    count: 0,
+    posts: []
+  });
   const user_id = props.user.user_id;
 
-  function setPublicPostsHelper(posts) {
-    setPublicPosts(posts);
+  function setPublicPostsHelper(fetched_posts) {
+    setPublicPosts({
+      count: fetched_posts.count,
+      posts: publicPosts.posts.concat(fetched_posts.posts)
+    });
   }
 
-  function setCoursePostsHelper(posts) {
-    setCoursePosts(posts);
+  function setCoursePostsHelper(fetched_posts) {
+    setCoursePosts({
+      count: fetched_posts.count,
+      posts: coursePosts.posts.concat(fetched_posts.posts)
+    });
   }
 
   useEffect(() => {
     if (display === "public") {
-      getPostcards(setPublicPostsHelper, 2, [0], user_id);
+      getPostcards(fetched_posts => {
+        setPublicPosts(fetched_posts);
+      }, 2, [0], user_id, 0, PAGESIZE);
     } else {
-      getPostcards(setCoursePostsHelper, 1, [0], user_id);
+      getPostcards(fetched_posts => {
+        setCoursePosts(fetched_posts);
+      }, 1, [0], user_id, 0, PAGESIZE);
     }
   }, [display, user_id]);
   const drop_down_list = display === "public" ? /*#__PURE__*/React.createElement(PublicPostsByUser, {
-    posts: publicPosts
+    posts: publicPosts,
+    setPublicPostsHelper: setPublicPostsHelper
   }) : /*#__PURE__*/React.createElement(CoursePostsByUser, {
     user: props.user,
-    posts: coursePosts
+    posts: coursePosts,
+    setCoursePostsHelper: setCoursePostsHelper
   });
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Menu, {
     theme: "light",
@@ -178,18 +197,23 @@ function MyPosts(props) {
 }
 
 function PublicPostsByUser(props) {
+  const posts = props.posts.posts;
   return /*#__PURE__*/React.createElement(List, {
     itemLayout: "vertical",
-    dataSource: props.posts,
+    dataSource: props.posts.posts,
     renderItem: item => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement(CardListItem, {
       item: item
     })),
     pagination: {
-      onchange: page => {
-        console.log(page);
+      onChange: page => {
+        if (page * PAGESIZE > posts.length) {
+          getPostcards(props.setPublicPostsHelper, props.access, [0], 0, posts.length, page * PAGESIZE - posts.length);
+        }
       },
-      pageSize: 3,
-      total: props.posts.length,
+      pageSize: PAGESIZE,
+      defaultPageSize: PAGESIZE,
+      showSizeChanger: false,
+      total: props.posts.count,
       style: {
         textAlign: "center"
       }
@@ -201,12 +225,13 @@ function PublicPostsByUser(props) {
 function CoursePostsByUser(props) {
   const enrolledCourseList = props.user.enrolled_courses;
   const [displayed_course, setCourse] = useState(enrolledCourseList[0]);
-  const course_posts_by_user = getSelectedCoursePosts(props.posts, displayed_course);
+  const course_posts_by_user = getSelectedCoursePosts(props.posts.posts, displayed_course);
   const menuItems = enrolledCourseList.map(course => {
     return /*#__PURE__*/React.createElement(Menu.Item, {
       onClick: () => setCourse(course)
     }, course);
   });
+  const posts = props.posts.posts;
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Menu, {
     theme: "light",
     mode: "horizontal",
@@ -218,10 +243,14 @@ function CoursePostsByUser(props) {
       item: item
     })),
     pagination: {
-      onchange: page => {
-        console.log(page);
+      onChange: page => {
+        if (page * PAGESIZE > posts.length) {
+          getPostcards(props.setCoursePostsHelper, props.access, [0], 0, posts.length, page * PAGESIZE - posts.length);
+        }
       },
-      pageSize: 3,
+      pageSize: PAGESIZE,
+      defaultPageSize: PAGESIZE,
+      showSizeChanger: false,
       total: course_posts_by_user.length,
       style: {
         textAlign: "center"

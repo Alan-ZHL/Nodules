@@ -16,33 +16,47 @@ const { SubMenu } = Menu;
 const { Sider, Header, Content } = Layout;
 const { TextArea } = Input;
 
+const PAGESIZE = 5;
+
 
 // Top-level component: display the public posts, filters and notifications
 // states: postcards (simple form of a post), notifs
 function PostForum(props) {
-    const [postcards, setPostcards] = useState([]);
-    const [notifs, setNotifs] = useState([]);
+    const [postcards, setPostcards] = useState({count: 0, posts: []});
+    // const [pageRange, setPageRange] = useState([0, 2]);    //TODO: leave for optimization on page loading
+    const [notifs, setNotifs] = useState({count: 0, posts: []});
+
+    function setPostcardsHelper(fetched_posts) {
+        setPostcards({count: fetched_posts.count, posts: postcards.posts.concat(fetched_posts.posts)});
+    }
     
     useEffect(() => {
-        getPostcards((postcards) => {
-            setPostcards(postcards);
-        }, props.access);
+        getPostcards(fetched_posts => {
+            setPostcards(fetched_posts);
+        }, props.access, [0], 0, 0, PAGESIZE);
     }, [props.access]);    // bind course posts with specific users
 
     useEffect(() => {
         if (props.logined === 1 && props.user.user_id !== -1) {
-            getNotifs((notifs) => {
+            getNotifs(notifs => {
                 setNotifs(notifs);
             }, props.user.enrolled_courses);
         } else {
-            setNotifs([]);
+            setNotifs({count: 0, posts: []});
         }
     }, [props.logined, props.user]);
+
+    function setPages(page) {
+        if (page * PAGESIZE > postcards.posts.length) {
+            getPostcards(setPostcardsHelper, props.access, [0], 0, postcards.posts.length, page * PAGESIZE - postcards.posts.length);
+        }
+        // console.log(postcards.posts.length);
+    }
 
     return (
         <Layout>
             <PostSider access={props.access} logined={props.logined} user={props.user}/>
-            <PostContent postcards={postcards}/>
+            <PostContent postcards={postcards} setPages={setPages}/>
             <NotifSider logined={props.logined} notifs={notifs}/>
         </Layout>
     );
@@ -104,7 +118,7 @@ function NotifSider(props) {
     const notif_list = props.logined ? (
         <List
             itemLayout="horizontal"
-            dataSource={props.notifs}
+            dataSource={props.notifs.posts}
             renderItem={item => (
                 <DraweredListItem item={item} />
             )}
@@ -168,7 +182,7 @@ function PostContent(props) {
             <List
                 itemLayout="vertical"
                 size="large"
-                dataSource={props.postcards}
+                dataSource={props.postcards.posts}
                 renderItem={item => (
                     <>
                         <br/>
@@ -176,12 +190,12 @@ function PostContent(props) {
                     </>
                 )}
                 pagination={{
-                    onchange: page => {
-                        console.log(page);
+                    onChange: page => {
+                        props.setPages(page);
                     },
-                    pageSize: 5,
+                    pageSize: PAGESIZE,
                     showSizeChanger: false,
-                    total: props.postcards.length,
+                    total: props.postcards.count,
                     style: {textAlign: "center"}
                 }}
             />
@@ -319,7 +333,7 @@ function NewPost(props) {
 function PostDetail(props) {
     const { postid } = useParams();
     const [post, setPost] = useState(null);
-    const [comments, setComments] = useState([]);
+    const [comments, setComments] = useState({count: 0, posts:[]});
     const [form] = Form.useForm();
     const [pop, setPop] = useState(false);    // control whether to pop up the form to create new comment
     const history = useHistory();
@@ -328,8 +342,8 @@ function PostDetail(props) {
     function setPostHelper(fetched_post) {
         setPost(fetched_post);
     }
-    function setCommentsHelper(indices) {
-        setComments(indices);
+    function setCommentsHelper(fetched_comments) {
+        setComments(fetched_comments);
     }
     function setPopHelper(state) {
         setPop(state);
@@ -427,33 +441,33 @@ function PostDetail(props) {
         </Modal>
         <List
             className="post-comment"
-            header={`${comments.length} Replies`}
+            header={`${comments.count} Replies`}
             itemLayout="horizontal"
-            dataSource={comments}
+            dataSource={comments.posts}
             renderItem={item => (
                 <li>
                     <Comment
                         actions={[
                             <Tooltip key={`comment-${item.post_id}-like`} title="Like">
                                 <LikeFilled onClick={() => {
-                                    let idx = comments.findIndex((comment) => {
+                                    let idx = comments.posts.findIndex((comment) => {
                                         return comment.post_id === item.post_id;
                                     });
                                     if (idx !== -1) {
-                                        like_post(setCommentsHelper, user_id, comments[idx]);
-                                        setComments([].concat(comments));    // refresh the comments
+                                        like_post(setCommentsHelper, user_id, comments.posts[idx]);
+                                        setComments({count: comments.count, posts: [].concat(comments.posts)});    // refresh the comments
                                     }
                                 }}/>
                                 <span className="comment-action">{item.details.likes.length}</span>
                             </Tooltip>,
                             <Tooltip key={`comment-${item.post_id}-dislike`} title="Dislike">
                                 <DislikeFilled onClick={() => {
-                                    let idx = comments.findIndex((comment) => {
+                                    let idx = comments.posts.findIndex((comment) => {
                                         return comment.post_id === item.post_id;
                                     });
                                     if (idx !== -1) {
-                                        dislike_post(setCommentsHelper, user_id, comments[idx]);
-                                        setComments([].concat(comments));
+                                        dislike_post(setCommentsHelper, user_id, comments.posts[idx]);
+                                        setComments({count: comments.count, posts: [].concat(comments.posts)});
                                     }
                                 }}/>
                                 <span className="comment-action">{item.details.dislikes.length}</span>
@@ -485,13 +499,15 @@ function PostDetail(props) {
 // access:    1: course; 2: public
 // course_id: [0]: any course
 // author_id: 0: any author
-async function getPostcards(setPostcardsHelper, access=2, courses=[0], author_id=0) {
+async function getPostcards(setPostcardsHelper, access=2, courses=[0], author_id=0, skip=0, limit=0) {
     const resp = await fetch("/api/posts/cards", create_postREQ({
-        "access": access, "courses": courses, "author_id": author_id
+        "access": access, "courses": courses, "author_id": author_id, "skip": skip, "limit": limit
     }));
     const resp_json = await resp.json();
+    const count = resp_json["count"];
+    const posts = resp_json["posts"];
     var postcards = [];
-    for (let postcard of resp_json) {
+    for (let postcard of posts) {
         postcards.push({
             post_id: postcard["post_id"], title: postcard["title"], 
             course_id: postcard["course_id"], 
@@ -500,7 +516,7 @@ async function getPostcards(setPostcardsHelper, access=2, courses=[0], author_id
             details: {likes: postcard["details"]["likes"], dislikes: postcard["details"]["dislikes"], comments: postcard["details"]["comments"]}
         });
     }
-    setPostcardsHelper(postcards);
+    setPostcardsHelper({count: count, posts: postcards});
 }
 
 
@@ -532,8 +548,10 @@ async function getNotifs(setNotifsHelper, courses=[0], author_id=0) {
         "courses": courses, "author_id": author_id
     }));
     const resp_json = await resp.json();
+    const count = resp_json["count"];
+    const posts = resp_json["posts"];
     var notifs = [];
-    for (let notif of resp_json) {
+    for (let notif of posts) {
         notifs.push({
             post_id: notif["post_id"], title: notif["title"], access: notif["access"], post_type: notif["post_type"],
             course_id: notif["course_id"], course_name: notif["course_name"],
@@ -541,7 +559,7 @@ async function getNotifs(setNotifsHelper, courses=[0], author_id=0) {
             content: notif["content"]
         });
     }
-    setNotifsHelper(notifs);
+    setNotifsHelper({count: count, posts: notifs});
 }
 
 
@@ -554,8 +572,10 @@ async function getComments(setCommentsHelper, access=2, author_id=0, indices=[])
         "indices": indices, "access": access, "author_id": author_id
     }));
     const resp_json = await resp.json();
+    const count = resp_json["count"];
+    const posts = resp_json["posts"];
     var comments = [];
-    for (let comment of resp_json) {
+    for (let comment of posts) {
         comments.push({
             post_id: comment["post_id"], title: comment["title"], access: comment["access"], type: comment["type"],
             course_id: comment["course_id"], course_name: comment["course_name"],
@@ -564,7 +584,7 @@ async function getComments(setCommentsHelper, access=2, author_id=0, indices=[])
             details: {likes: comment["details"]["likes"], dislikes: comment["details"]["dislikes"]}
         });
     }
-    setCommentsHelper(comments);
+    setCommentsHelper({count: count, posts: comments});
 }
 
 

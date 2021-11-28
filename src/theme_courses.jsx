@@ -12,14 +12,16 @@ import { CardListItem } from "./theme_posts";
 
 const { Content } = Layout;
 
+const PAGESIZE = 5;
+
 
 // Top-level component: a coursepage
 // states: course, posts, notifs
 function CoursePage(props) {
     const { courseid } = useParams();
     const [ course, setCourse ] = useState(null);
-    const [ postcards, setPostcards] = useState([]);
-    const [ notifs, setNotifs] = useState([]);
+    const [ postcards, setPostcards] = useState({count: 0, posts: []});
+    const [ notifs, setNotifs] = useState({count: 0, posts: []});
     const enrolled = (props.user.user_id === -1 || !props.user.enrolled_courses.includes(courseid)) ? false : true;
 
     function setCourseHelper(course) {
@@ -28,11 +30,11 @@ function CoursePage(props) {
 
     useEffect(() => {    
         findCourse(setCourseHelper, courseid);
-        getPostcards((postcards) => {
-            setPostcards(postcards);
+        getPostcards((fetched_posts) => {
+            setPostcards(fetched_posts);
         }, 1, [courseid]);
-        getNotifs((notifs) => {
-            setNotifs(notifs);
+        getNotifs((fetched_notifs) => {
+            setNotifs(fetched_notifs);
         }, [courseid]);
     }, [courseid]);
 
@@ -114,16 +116,13 @@ function CoursePostsAndNotifs(props) {
             <List
                 itemLayout="vertical"
                 size="large"
-                dataSource={props.notifs}
+                dataSource={props.notifs.posts}
                 renderItem={item => (
                     <NotifListItem item={item}/>
                 )}
                 pagination={{
-                    onchange: page => {
-                        console.log(page);
-                    },
-                    pageSize: 5,
-                    total: props.notifs.length,
+                    pageSize: PAGESIZE,
+                    total: props.notifs.count,
                     style: {textAlign: "center"}
                 }}
                 className="coursepage-notifs"
@@ -131,7 +130,7 @@ function CoursePostsAndNotifs(props) {
         ) : (
             <List
                 itemLayout="vertical"
-                dataSource={props.posts}
+                dataSource={props.posts.posts}
                 renderItem={item => (
                     <>
                         <br/>
@@ -139,11 +138,8 @@ function CoursePostsAndNotifs(props) {
                     </>
                 )}
                 pagination={{
-                    onchange: page => {
-                        console.log(page);
-                    },
-                    pageSize: 3,
-                    total: props.posts.length,
+                    pageSize: PAGESIZE,
+                    total: props.posts.count,
                     style: {textAlign: "center"}
                 }}
                 className="coursepage-posts"

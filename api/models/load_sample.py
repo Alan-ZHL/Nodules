@@ -73,7 +73,7 @@ for i in range(200):
     posts_sample.append({
         "post_id": 1001 + i, "title": title, "access": access, "post_type": 2,
         "course_id": "IT5007", "course_name": "Software Engineering on Application Architecture",
-        "author_id": 30011, "author_name": "tester", "date": datetime.now() - timedelta(days=2),
+        "author_id": 3001, "author_name": "tester", "date": datetime.now() - timedelta(days=2),
         "content": content,
         "details": {"likes": [i for i in range(900, 982)], "dislikes": [i for i in range(982, 1000)], "comments": [i*3+2001, i*3+2002, i*3+2003]}
     })

@@ -10,8 +10,10 @@ from api import collection_posts
 @posts.route("/api/posts/cards", methods=["POST"])
 def get_multiple_postcards():
     data = request.get_json()
-    data["type"] = 2
-    posts = filter_posts(data)
+    access = data["access"]
+    courses = data["courses"]
+    author_id = data["author_id"]
+    posts = filter_posts({"access": access, "type": 2, "courses": courses, "author_id": author_id}, skip=data["skip"], limit=data["limit"])
     
     return jsonify(posts)
 
@@ -34,9 +36,9 @@ def get_post():
 @posts.route("/api/posts/notifs", methods=["POST"])
 def get_notifs():
     data = request.get_json()
-    data["access"] = 1
-    data["type"] = 1
-    notifs = filter_posts(data)
+    courses = data["courses"]
+    author_id = data["author_id"]
+    notifs = filter_posts({"access": 1, "type": 1, "courses": courses, "author_id": author_id})
     
     return jsonify(notifs)
 
@@ -44,9 +46,11 @@ def get_notifs():
 @posts.route("/api/posts/comments", methods=["POST"])
 def get_comments():
     data = request.get_json()
-    data["type"] = 3
-    print(data)
-    comments = filter_posts(data)
+    indices = data["indices"]
+    access = data["access"]
+    author_id = data["author_id"]
+    # print(data)
+    comments = filter_posts({"access": access, "type": 3, "indices": indices, "author_id": author_id})
 
     return jsonify(comments)
 
@@ -139,14 +143,15 @@ def filter_posts(post_kwargs, sort=[("date", DESCENDING)], skip=0, limit=0):
 
     try:
         filtered_posts = []
-        for post in collection_posts.find(post_filters, sort=sort, projection=projection):
+        count = collection_posts.count_documents(post_filters)
+        for post in collection_posts.find(post_filters, sort=sort, skip=skip, limit=limit, projection=projection):
             post["date"] = transfer_date(post["date"])
             filtered_posts.append(post)
         # print(filtered_posts)
-        return filtered_posts
+        return {"count": count, "posts": filtered_posts}
     except Exception as e:
         print(e)
-        return []
+        return {"count": 0, "posts": []}
 
 
 # transfer_date: transfer a python datime object to a string

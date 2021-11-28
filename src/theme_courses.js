@@ -9,7 +9,8 @@ import { getNotifs, getPostcards } from "./theme_posts";
 import { CardListItem } from "./theme_posts";
 const {
   Content
-} = Layout; // Top-level component: a coursepage
+} = Layout;
+const PAGESIZE = 5; // Top-level component: a coursepage
 // states: course, posts, notifs
 
 function CoursePage(props) {
@@ -17,8 +18,14 @@ function CoursePage(props) {
     courseid
   } = useParams();
   const [course, setCourse] = useState(null);
-  const [postcards, setPostcards] = useState([]);
-  const [notifs, setNotifs] = useState([]);
+  const [postcards, setPostcards] = useState({
+    count: 0,
+    posts: []
+  });
+  const [notifs, setNotifs] = useState({
+    count: 0,
+    posts: []
+  });
   const enrolled = props.user.user_id === -1 || !props.user.enrolled_courses.includes(courseid) ? false : true;
 
   function setCourseHelper(course) {
@@ -27,11 +34,11 @@ function CoursePage(props) {
 
   useEffect(() => {
     findCourse(setCourseHelper, courseid);
-    getPostcards(postcards => {
-      setPostcards(postcards);
+    getPostcards(fetched_posts => {
+      setPostcards(fetched_posts);
     }, 1, [courseid]);
-    getNotifs(notifs => {
-      setNotifs(notifs);
+    getNotifs(fetched_notifs => {
+      setNotifs(fetched_notifs);
     }, [courseid]);
   }, [courseid]);
   console.log(course);
@@ -112,16 +119,13 @@ function CoursePostsAndNotifs(props) {
   const DropdownList = enrolled ? display === "notifs" ? /*#__PURE__*/React.createElement(List, {
     itemLayout: "vertical",
     size: "large",
-    dataSource: props.notifs,
+    dataSource: props.notifs.posts,
     renderItem: item => /*#__PURE__*/React.createElement(NotifListItem, {
       item: item
     }),
     pagination: {
-      onchange: page => {
-        console.log(page);
-      },
-      pageSize: 5,
-      total: props.notifs.length,
+      pageSize: PAGESIZE,
+      total: props.notifs.count,
       style: {
         textAlign: "center"
       }
@@ -129,16 +133,13 @@ function CoursePostsAndNotifs(props) {
     className: "coursepage-notifs"
   }) : /*#__PURE__*/React.createElement(List, {
     itemLayout: "vertical",
-    dataSource: props.posts,
+    dataSource: props.posts.posts,
     renderItem: item => /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement(CardListItem, {
       item: item
     })),
     pagination: {
-      onchange: page => {
-        console.log(page);
-      },
-      pageSize: 3,
-      total: props.posts.length,
+      pageSize: PAGESIZE,
+      total: props.posts.count,
       style: {
         textAlign: "center"
       }
