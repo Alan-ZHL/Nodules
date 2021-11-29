@@ -13,6 +13,7 @@ import { CardListItem, getPostcards } from "./theme_posts";
 const { Content } = Layout;
 
 const PAGESIZE = 3;
+const PRELOADPAGE = 0;
 
 
 function Users(props) {
@@ -140,11 +141,11 @@ function MyPosts(props) {
         if (display === "public") { 
             getPostcards(fetched_posts => {
                 setPublicPosts(fetched_posts);
-            }, 2, [0], user_id, 0, PAGESIZE);
+            }, 2, [0], user_id, 0, PAGESIZE * (PRELOADPAGE + 1));
         } else {
             getPostcards(fetched_posts => {
                 setCoursePosts(fetched_posts);
-            }, 1, [0], user_id, 0, PAGESIZE);
+            }, 1, [0], user_id, 0, PAGESIZE * (PRELOADPAGE + 1));
         }
     }, [display, user_id]);
 
@@ -186,7 +187,7 @@ function PublicPostsByUser(props){
                 onChange: page => {
                     if (page * PAGESIZE > posts.length) {
                         getPostcards(props.setPublicPostsHelper, props.access, 
-                            [0], 0, posts.length, page * PAGESIZE - posts.length);
+                            [0], 0, posts.length, (page + PRELOADPAGE) * PAGESIZE - posts.length);
                     }
                 },
                 pageSize: PAGESIZE,
@@ -228,7 +229,7 @@ function CoursePostsByUser(props) {
                     onChange: page => {
                         if (page * PAGESIZE > posts.length) {
                             getPostcards(props.setCoursePostsHelper, props.access, 
-                                [0], 0, posts.length, page * PAGESIZE - posts.length);
+                                [0], 0, posts.length, (page + PRELOADPAGE) * PAGESIZE - posts.length);
                         }
                     },
                     pageSize: PAGESIZE,

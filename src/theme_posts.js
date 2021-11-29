@@ -16,7 +16,8 @@ const {
 const {
   TextArea
 } = Input;
-const PAGESIZE = 5; // Top-level component: display the public posts, filters and notifications
+const PAGESIZE = 5;
+const PRELOADPAGE = 2; // Top-level component: display the public posts, filters and notifications
 // states: postcards (simple form of a post), notifs
 
 function PostForum(props) {
@@ -28,9 +29,14 @@ function PostForum(props) {
   const [notifs, setNotifs] = useState({
     count: 0,
     posts: []
-  });
+  }); // set postcards (initiating the first page)
 
   function setPostcardsHelper(fetched_posts) {
+    setPostcards(fetched_posts);
+  } // fetch post cards for new pages
+
+
+  function appendPostcards(fetched_posts) {
     setPostcards({
       count: fetched_posts.count,
       posts: postcards.posts.concat(fetched_posts.posts)
@@ -38,11 +44,8 @@ function PostForum(props) {
   }
 
   useEffect(() => {
-    getPostcards(fetched_posts => {
-      setPostcards(fetched_posts);
-    }, props.access, [0], 0, 0, PAGESIZE);
-  }, [props.access]); // bind course posts with specific users
-
+    getPostcards(setPostcardsHelper, props.access, [0], 0, 0, PAGESIZE * (PRELOADPAGE + 1));
+  }, [props.access]);
   useEffect(() => {
     if (props.logined === 1 && props.user.user_id !== -1) {
       getNotifs(notifs => {
@@ -58,15 +61,15 @@ function PostForum(props) {
 
   function setPages(page) {
     if (page * PAGESIZE > postcards.posts.length) {
-      getPostcards(setPostcardsHelper, props.access, [0], 0, postcards.posts.length, page * PAGESIZE - postcards.posts.length);
-    } // console.log(postcards.posts.length);
-
+      getPostcards(appendPostcards, props.access, [0], 0, postcards.posts.length, (page + PRELOADPAGE) * PAGESIZE - postcards.posts.length);
+    }
   }
 
   return /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(PostSider, {
     access: props.access,
     logined: props.logined,
-    user: props.user
+    user: props.user,
+    setPostcardsHelper: setPostcardsHelper
   }), /*#__PURE__*/React.createElement(PostContent, {
     postcards: postcards,
     setPages: setPages
@@ -112,6 +115,12 @@ function PostSider(props) {
     }, course_list);
   }
 
+  function filter_favoredCourses() {}
+
+  function filter_hotestPosts() {}
+
+  function filter_latestPosts() {}
+
   return /*#__PURE__*/React.createElement(Sider, {
     width: 220,
     className: "sider-post"
@@ -130,11 +139,14 @@ function PostSider(props) {
     title: "Filter by",
     icon: /*#__PURE__*/React.createElement(FilterOutlined, null)
   }, /*#__PURE__*/React.createElement(Menu.Item, {
-    key: "filter_1"
+    key: "filter_1",
+    onClick: filter_favoredCourses
   }, "Favored courses"), /*#__PURE__*/React.createElement(Menu.Item, {
-    key: "fileter_2"
+    key: "fileter_2",
+    onClick: filter_hotestPosts
   }, "Hotest posts"), /*#__PURE__*/React.createElement(Menu.Item, {
-    key: "filter_3"
+    key: "filter_3",
+    onClick: filter_latestPosts
   }, "Latest posts"))));
 } // Right sider: displays the notifications of the user
 

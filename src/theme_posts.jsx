@@ -17,6 +17,7 @@ const { Sider, Header, Content } = Layout;
 const { TextArea } = Input;
 
 const PAGESIZE = 5;
+const PRELOADPAGE = 2;    // preload next 2 pages
 
 
 // Top-level component: display the public posts, filters and notifications
@@ -26,15 +27,18 @@ function PostForum(props) {
     // const [pageRange, setPageRange] = useState([0, 2]);    //TODO: leave for optimization on page loading
     const [notifs, setNotifs] = useState({count: 0, posts: []});
 
+    // set postcards (initiating the first page)
     function setPostcardsHelper(fetched_posts) {
+        setPostcards(fetched_posts);
+    }
+    // fetch post cards for new pages
+    function appendPostcards(fetched_posts) {
         setPostcards({count: fetched_posts.count, posts: postcards.posts.concat(fetched_posts.posts)});
     }
     
     useEffect(() => {
-        getPostcards(fetched_posts => {
-            setPostcards(fetched_posts);
-        }, props.access, [0], 0, 0, PAGESIZE);
-    }, [props.access]);    // bind course posts with specific users
+        getPostcards(setPostcardsHelper, props.access, [0], 0, 0, PAGESIZE * (PRELOADPAGE + 1));
+    }, [props.access]);
 
     useEffect(() => {
         if (props.logined === 1 && props.user.user_id !== -1) {
@@ -48,14 +52,13 @@ function PostForum(props) {
 
     function setPages(page) {
         if (page * PAGESIZE > postcards.posts.length) {
-            getPostcards(setPostcardsHelper, props.access, [0], 0, postcards.posts.length, page * PAGESIZE - postcards.posts.length);
+            getPostcards(appendPostcards, props.access, [0], 0, postcards.posts.length, (page + PRELOADPAGE) * PAGESIZE - postcards.posts.length);
         }
-        // console.log(postcards.posts.length);
     }
 
     return (
         <Layout>
-            <PostSider access={props.access} logined={props.logined} user={props.user}/>
+            <PostSider access={props.access} logined={props.logined} user={props.user} setPostcardsHelper={setPostcardsHelper}/>
             <PostContent postcards={postcards} setPages={setPages}/>
             <NotifSider logined={props.logined} notifs={notifs}/>
         </Layout>
@@ -66,6 +69,7 @@ function PostForum(props) {
 // Left sider of the posts page: offer some simple filters
 function PostSider(props) {
     const access_name = (props.access === 1) ? "course" : "public";
+
     var course_selector = (null);
     if (props.logined === 1 && props.user.user_id !== -1) {
         const enrolled_courses = props.user.enrolled_courses;
@@ -91,6 +95,10 @@ function PostSider(props) {
         );
     }
 
+    function filter_favoredCourses() {}
+    function filter_hotestPosts() {}
+    function filter_latestPosts() {}
+
     return (
         <Sider width={220} className="sider-post">
             <Menu
@@ -103,9 +111,9 @@ function PostSider(props) {
                 </Menu.Item>
                 {course_selector}
                 <SubMenu key="sub2" title="Filter by" icon={<FilterOutlined/>}>
-                    <Menu.Item key="filter_1">Favored courses</Menu.Item>
-                    <Menu.Item key="fileter_2">Hotest posts</Menu.Item>
-                    <Menu.Item key="filter_3">Latest posts</Menu.Item>
+                    <Menu.Item key="filter_1" onClick={filter_favoredCourses}>Favored courses</Menu.Item>
+                    <Menu.Item key="fileter_2" onClick={filter_hotestPosts}>Hotest posts</Menu.Item>
+                    <Menu.Item key="filter_3" onClick={filter_latestPosts}>Latest posts</Menu.Item>
                 </SubMenu>
             </Menu>
         </Sider>

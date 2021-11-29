@@ -11,6 +11,7 @@ const {
   Content
 } = Layout;
 const PAGESIZE = 3;
+const PRELOADPAGE = 0;
 
 function Users(props) {
   const user = props.userInfo;
@@ -166,11 +167,11 @@ function MyPosts(props) {
     if (display === "public") {
       getPostcards(fetched_posts => {
         setPublicPosts(fetched_posts);
-      }, 2, [0], user_id, 0, PAGESIZE);
+      }, 2, [0], user_id, 0, PAGESIZE * (PRELOADPAGE + 1));
     } else {
       getPostcards(fetched_posts => {
         setCoursePosts(fetched_posts);
-      }, 1, [0], user_id, 0, PAGESIZE);
+      }, 1, [0], user_id, 0, PAGESIZE * (PRELOADPAGE + 1));
     }
   }, [display, user_id]);
   const drop_down_list = display === "public" ? /*#__PURE__*/React.createElement(PublicPostsByUser, {
@@ -207,7 +208,7 @@ function PublicPostsByUser(props) {
     pagination: {
       onChange: page => {
         if (page * PAGESIZE > posts.length) {
-          getPostcards(props.setPublicPostsHelper, props.access, [0], 0, posts.length, page * PAGESIZE - posts.length);
+          getPostcards(props.setPublicPostsHelper, props.access, [0], 0, posts.length, (page + PRELOADPAGE) * PAGESIZE - posts.length);
         }
       },
       pageSize: PAGESIZE,
@@ -245,7 +246,7 @@ function CoursePostsByUser(props) {
     pagination: {
       onChange: page => {
         if (page * PAGESIZE > posts.length) {
-          getPostcards(props.setCoursePostsHelper, props.access, [0], 0, posts.length, page * PAGESIZE - posts.length);
+          getPostcards(props.setCoursePostsHelper, props.access, [0], 0, posts.length, (page + PRELOADPAGE) * PAGESIZE - posts.length);
         }
       },
       pageSize: PAGESIZE,
