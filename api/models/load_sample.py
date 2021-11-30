@@ -22,8 +22,10 @@ course_sample = [
         "credit": 4, "workload": "2-1-0-5-2", 
         "prerequisites": ["IT5001", "IT5003"],
         "lecturer_id": 1001, "lecturer_name": "Prasanna Karthik Vairam",
-        "open_semesters": "Semester 1", 
-        "time_schedule": {"lecture": ["Thurs", "16:00", "18:00"], "tutorial": ["Thurs", "18:00", "19:00"]},
+        "open_semesters": ["Semester 1"], 
+        "enroll_code": None,
+        "lecture_time": [4, "16:00", "18:00"], 
+        "tutorial_time": [[4, "18:00", "19:00"]],
         "description": "To meet changing business needs, this course focuses on flexible and agile software development on modern application architecture. Students learn to design and develop modern applications that support multiple clients across different platforms such as desktop, mobile devices and cloud. The course covers designing (1) website-based front-end software and (2) mobile app front-end that interacts with a common cloud-based backend. The final part involves engineering software for higher-level objectives such as security and performance. Tools and techniques for writing modern software, such as, HTML5, CSS3, React.js, Node.js, MySQL/MongoDB, and Git will be taught. ",
         "rating": 5.0
     },
@@ -32,8 +34,10 @@ course_sample = [
         "credit": 4, "workload": "2-1-2-3-2", 
         "prerequisites": ["IT5001"],
         "lecturer_id": 1002, "lecturer_name": "Tan Keng Yan, Colin",
-        "open_semesters": "Semester 1",
-        "time_schedule": {"lecture": ["Fri", "18:30", "21:30"], "tutorial": ["Sat", "15:00", "16:00"]},
+        "open_semesters": ["Semester 1"],
+        "enroll_code": None,
+        "lecture_time": [5, "18:30", "21:30"], 
+        "tutorial_time": [[6, "14:00", "15:00"], [6, "15:00", "16:00"]],
         "description": "This module aims to introduce non-computing students to (a) the common principles and concepts in computer systems: abstraction, layering, indirection, caching, hierarchical naming, prefetching, pipelining, locking, concurrency; (b) the inner workings of a computing device, including hardware (CPU, memory, disks), operating systems (kernels, processes and threads, virtual memory, files), and applications (Web, databases).",
         "rating": 5.0
     },
@@ -42,8 +46,10 @@ course_sample = [
         "credit": 4, "workload": "2-1-4-3", 
         "prerequisites": ["CS2105", "MA2216"],
         "lecturer_id": 1003, "lecturer_name": "Ma Tianbai, Richard",
-        "open_semesters": "Semester 1",
-        "time_schedule": {"lecture": ["Fri", "12:00", "14:00"], "tutorial": ["Mon", "14:00", "15:00"]},
+        "open_semesters": ["Semester 1"],
+        "enroll_code": None,
+        "lecture_time": [5, "12:00", "14:00"], 
+        "tutorial_time": [[1, "14:00", "15:00"]],
         "description": "This module aims to focus on advanced networking concepts pertaining to the modern Internet architecture and applications. It covers a range of topics including network performance (throughput, delay, Little’s Law and M/M/1 queuing formula), and resource allocation and buffer management (max-min fair, round-robin and RED), intra- and inter-domain routing (RIP, OSPF and BGP), congestion control and modern variations of TCP (AIMD and Cubic TCP), peer-to-peer applications and content delivery networks (BitTorrent, Skype, Akamai), and data center networking and management (SDN and OpenFlow).",
         "rating": 5.0
     },
@@ -75,7 +81,11 @@ for i in range(200):
         "course_id": "IT5007", "course_name": "Software Engineering on Application Architecture",
         "author_id": 3001, "author_name": "tester", "date": datetime.now() - timedelta(days=2),
         "content": content,
-        "details": {"likes": [i for i in range(900, 982)], "dislikes": [i for i in range(982, 1000)], "comments": [i*3+2001, i*3+2002, i*3+2003]}
+        "details": {
+            "hotness": 70,    # hotness = likes - dislikes + comments * 2
+            "likes": [i for i in range(900, 982)], 
+            "dislikes": [i for i in range(982, 1000)], 
+            "comments": [i*3+2001, i*3+2002, i*3+2003]}
     })
 for i in range(600):
     access = 2 if i < 480 else 1
@@ -85,7 +95,10 @@ for i in range(600):
         "course_id": "IT5007", "course_name": "Software Engineering on Application Architecture",
         "author_id": 1, "author_name": "Biden III", "date": datetime.now() - timedelta(days=1),
         "content": content,
-        "details": {"likes": [i for i in range(990, 999)], "dislikes": [i for i in range(999, 1000)]}
+        "details": {
+            "hotness": 8,
+            "likes": [i for i in range(990, 999)], 
+            "dislikes": [i for i in range(999, 1000)]}
     })
 
 

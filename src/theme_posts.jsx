@@ -24,8 +24,9 @@ const PRELOADPAGE = 2;    // preload next 2 pages
 // states: postcards (simple form of a post), notifs
 function PostForum(props) {
     const [postcards, setPostcards] = useState({count: 0, posts: []});
-    // const [pageRange, setPageRange] = useState([0, 2]);    //TODO: leave for optimization on page loading
     const [notifs, setNotifs] = useState({count: 0, posts: []});
+    const [favored, setFavored] = useState([0]);    // whether to restrict on favored courses
+    const [sortParam, setSortParam] = useState("date");
 
     // set postcards (initiating the first page)
     function setPostcardsHelper(fetched_posts) {
@@ -35,10 +36,17 @@ function PostForum(props) {
     function appendPostcards(fetched_posts) {
         setPostcards({count: fetched_posts.count, posts: postcards.posts.concat(fetched_posts.posts)});
     }
+
+    function setSortParamHelper(param) {
+        setSortParam(param);
+    }
+    function setFavoredHelper(status) {
+        setFavored(status);
+    }
     
     useEffect(() => {
-        getPostcards(setPostcardsHelper, props.access, [0], 0, 0, PAGESIZE * (PRELOADPAGE + 1));
-    }, [props.access]);
+        getPostcards(setPostcardsHelper, props.access, favored, 0, sortParam, 0, PAGESIZE * (PRELOADPAGE + 1));
+    }, [props.access, favored, sortParam]);
 
     useEffect(() => {
         if (props.logined === 1 && props.user.user_id !== -1) {
@@ -52,13 +60,17 @@ function PostForum(props) {
 
     function setPages(page) {
         if (page * PAGESIZE > postcards.posts.length) {
-            getPostcards(appendPostcards, props.access, [0], 0, postcards.posts.length, (page + PRELOADPAGE) * PAGESIZE - postcards.posts.length);
+            getPostcards(appendPostcards, props.access, favored, 0, sortParam, postcards.posts.length, (page + PRELOADPAGE) * PAGESIZE - postcards.posts.length);
         }
     }
 
     return (
         <Layout>
-            <PostSider access={props.access} logined={props.logined} user={props.user} setPostcardsHelper={setPostcardsHelper}/>
+            <PostSider 
+                access={props.access} logined={props.logined} user={props.user} 
+                setPostcardsHelper={setPostcardsHelper} 
+                sortParam={sortParam} setSortParamHelper={setSortParamHelper}
+                favored={favored} setFavoredHelper={setFavoredHelper}/>
             <PostContent postcards={postcards} setPages={setPages}/>
             <NotifSider logined={props.logined} notifs={notifs}/>
         </Layout>
@@ -95,15 +107,27 @@ function PostSider(props) {
         );
     }
 
-    function filter_favoredCourses() {}
-    function filter_hotestPosts() {}
-    function filter_latestPosts() {}
+    function handleClick(item) {
+        let key = item.key;
+        if (key === "filter_1") {
+            if (props.favored.includes(0)) {
+                props.setFavoredHelper(props.user.favored_courses);
+            } else {
+                props.setFavoredHelper([0]);
+            }
+        } else if (key === "filter_2") {
+            props.setSortParamHelper("hotness");
+        } else if (key === "filter_3") {
+            props.setSortParamHelper("date");
+        }
+    }
 
     return (
         <Sider width={220} className="sider-post">
             <Menu
                 mode="inline"
                 defaultOpenKeys={["sub1", "sub2"]}
+                onClick={handleClick}
                 className="sider-post-menu"
             >
                 <Menu.Item key="item1" icon={<FileAddOutlined/>} disabled={props.logined === 0}>
@@ -111,9 +135,9 @@ function PostSider(props) {
                 </Menu.Item>
                 {course_selector}
                 <SubMenu key="sub2" title="Filter by" icon={<FilterOutlined/>}>
-                    <Menu.Item key="filter_1" onClick={filter_favoredCourses}>Favored courses</Menu.Item>
-                    <Menu.Item key="fileter_2" onClick={filter_hotestPosts}>Hotest posts</Menu.Item>
-                    <Menu.Item key="filter_3" onClick={filter_latestPosts}>Latest posts</Menu.Item>
+                    <Menu.Item key="filter_1" disabled={props.access === 1 || !props.logined}>Favored courses</Menu.Item>
+                    <Menu.Item key="filter_2" >Hotest posts</Menu.Item>
+                    <Menu.Item key="filter_3" >Latest posts</Menu.Item>
                 </SubMenu>
             </Menu>
         </Sider>
@@ -507,9 +531,9 @@ function PostDetail(props) {
 // access:    1: course; 2: public
 // course_id: [0]: any course
 // author_id: 0: any author
-async function getPostcards(setPostcardsHelper, access=2, courses=[0], author_id=0, skip=0, limit=0) {
+async function getPostcards(setPostcardsHelper, access=2, courses=[0], author_id=0, sort="date", skip=0, limit=0) {
     const resp = await fetch("/api/posts/cards", create_postREQ({
-        "access": access, "courses": courses, "author_id": author_id, "skip": skip, "limit": limit
+        "access": access, "courses": courses, "author_id": author_id, "sort": sort, "skip": skip, "limit": limit
     }));
     const resp_json = await resp.json();
     const count = resp_json["count"];

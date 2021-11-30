@@ -13,7 +13,8 @@ def get_multiple_postcards():
     access = data["access"]
     courses = data["courses"]
     author_id = data["author_id"]
-    posts = filter_posts({"access": access, "type": 2, "courses": courses, "author_id": author_id}, skip=data["skip"], limit=data["limit"])
+    sort = [("date", DESCENDING)] if data["sort"] == "date" else [("details.hotness", DESCENDING)]
+    posts = filter_posts({"access": access, "type": 2, "courses": courses, "author_id": author_id}, sort=sort, skip=data["skip"], limit=data["limit"])
     
     return jsonify(posts)
 
@@ -66,12 +67,16 @@ def update_likes():
         #     4: disliked; 5: dislike cancelled; 6: disliked and like cancelled
         if like_state == 1 or like_state == 3:
             user_details["likes"].append(data["user_id"])
+            user_details["hotness"] += 1
         if like_state == 2 or like_state == 6:
             user_details["likes"].remove(data["user_id"])
+            user_details["hotness"] -= 1
         if like_state == 4 or like_state == 6:
             user_details["dislikes"].append(data["user_id"])
+            user_details["hotness"] -= 1
         if like_state == 3 or like_state == 5:
             user_details["dislikes"].remove(data["user_id"])
+            user_details["hotness"] += 1
 
         collection_posts.update_one({"post_id": data["post_id"]}, {"$set": {"details": user_details}})
         # print(data["user_id"] in user_details["likes"], data["user_id"] in user_details["dislikes"])
@@ -88,6 +93,7 @@ def update_comments():
         user_details = collection_posts.find_one({"post_id": data["post_id"]}, projection={"_id": False, "details": True})["details"]
         if data["comment_id"] not in user_details["comments"]:
             user_details["comments"].append(data["comment_id"])
+            user_details["hotness"] += 2
         collection_posts.update_one({"post_id": data["post_id"]}, {"$set": {"details": user_details}})
         new_comment = collection_posts.find_one({"post_id": data["comment_id"]}, projection={"_id": False})
         if new_comment:
@@ -110,7 +116,7 @@ def add_post():
         data["course_id"] = data["course_id"].upper()
         data["post_id"] = max_id
         data["date"] = datetime.now()
-        data["details"] = {"likes": [], "dislikes": [], "comments": []}
+        data["details"] = {"hotness": 0, "likes": [], "dislikes": [], "comments": []}
         collection_posts.insert_one(data)
         return jsonify({"post_id": max_id})
     except Exception as e:

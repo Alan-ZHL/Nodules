@@ -41,7 +41,6 @@ function CoursePage(props) {
       setNotifs(fetched_notifs);
     }, [courseid]);
   }, [courseid]);
-  console.log(course);
 
   if (course === null) {
     return null;
@@ -90,7 +89,7 @@ function CourseDesciptions(props) {
   }, /*#__PURE__*/React.createElement(Descriptions.Item, {
     label: "Open Semester",
     span: 2
-  }, course.open_semesters), /*#__PURE__*/React.createElement(Descriptions.Item, {
+  }, course.open_semesters.toString()), /*#__PURE__*/React.createElement(Descriptions.Item, {
     label: "Lecturer",
     span: 2
   }, course.lecturer_name), /*#__PURE__*/React.createElement(Descriptions.Item, {

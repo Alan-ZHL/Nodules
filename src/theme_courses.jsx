@@ -38,7 +38,6 @@ function CoursePage(props) {
         }, [courseid]);
     }, [courseid]);
 
-    console.log(course);
     if (course === null) {
         return (null);
     } else {
@@ -85,7 +84,7 @@ function CourseDesciptions(props) {
         <Descriptions column={2} bordered 
             labelStyle={{background: "#ffffff", fontSize: "16px"}} 
             contentStyle={{background: "#fafafa"}}>
-            <Descriptions.Item label="Open Semester" span={2}>{course.open_semesters}</Descriptions.Item>
+            <Descriptions.Item label="Open Semester" span={2}>{course.open_semesters.toString()}</Descriptions.Item>
             <Descriptions.Item label="Lecturer" span={2}>{course.lecturer_name}</Descriptions.Item>
             <Descriptions.Item label="Module Credit">{course.credit}</Descriptions.Item>
             <Descriptions.Item label="Workload">{course.workload}</Descriptions.Item>

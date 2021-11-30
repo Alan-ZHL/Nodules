@@ -17,19 +17,22 @@ const {
   TextArea
 } = Input;
 const PAGESIZE = 5;
-const PRELOADPAGE = 2; // Top-level component: display the public posts, filters and notifications
+const PRELOADPAGE = 2; // preload next 2 pages
+// Top-level component: display the public posts, filters and notifications
 // states: postcards (simple form of a post), notifs
 
 function PostForum(props) {
   const [postcards, setPostcards] = useState({
     count: 0,
     posts: []
-  }); // const [pageRange, setPageRange] = useState([0, 2]);    //TODO: leave for optimization on page loading
-
+  });
   const [notifs, setNotifs] = useState({
     count: 0,
     posts: []
-  }); // set postcards (initiating the first page)
+  });
+  const [favored, setFavored] = useState([0]); // whether to restrict on favored courses
+
+  const [sortParam, setSortParam] = useState("date"); // set postcards (initiating the first page)
 
   function setPostcardsHelper(fetched_posts) {
     setPostcards(fetched_posts);
@@ -43,9 +46,17 @@ function PostForum(props) {
     });
   }
 
+  function setSortParamHelper(param) {
+    setSortParam(param);
+  }
+
+  function setFavoredHelper(status) {
+    setFavored(status);
+  }
+
   useEffect(() => {
-    getPostcards(setPostcardsHelper, props.access, [0], 0, 0, PAGESIZE * (PRELOADPAGE + 1));
-  }, [props.access]);
+    getPostcards(setPostcardsHelper, props.access, favored, 0, sortParam, 0, PAGESIZE * (PRELOADPAGE + 1));
+  }, [props.access, favored, sortParam]);
   useEffect(() => {
     if (props.logined === 1 && props.user.user_id !== -1) {
       getNotifs(notifs => {
@@ -61,7 +72,7 @@ function PostForum(props) {
 
   function setPages(page) {
     if (page * PAGESIZE > postcards.posts.length) {
-      getPostcards(appendPostcards, props.access, [0], 0, postcards.posts.length, (page + PRELOADPAGE) * PAGESIZE - postcards.posts.length);
+      getPostcards(appendPostcards, props.access, favored, 0, sortParam, postcards.posts.length, (page + PRELOADPAGE) * PAGESIZE - postcards.posts.length);
     }
   }
 
@@ -69,7 +80,11 @@ function PostForum(props) {
     access: props.access,
     logined: props.logined,
     user: props.user,
-    setPostcardsHelper: setPostcardsHelper
+    setPostcardsHelper: setPostcardsHelper,
+    sortParam: sortParam,
+    setSortParamHelper: setSortParamHelper,
+    favored: favored,
+    setFavoredHelper: setFavoredHelper
   }), /*#__PURE__*/React.createElement(PostContent, {
     postcards: postcards,
     setPages: setPages
@@ -115,11 +130,21 @@ function PostSider(props) {
     }, course_list);
   }
 
-  function filter_favoredCourses() {}
+  function handleClick(item) {
+    let key = item.key;
 
-  function filter_hotestPosts() {}
-
-  function filter_latestPosts() {}
+    if (key === "filter_1") {
+      if (props.favored.includes(0)) {
+        props.setFavoredHelper(props.user.favored_courses);
+      } else {
+        props.setFavoredHelper([0]);
+      }
+    } else if (key === "filter_2") {
+      props.setSortParamHelper("hotness");
+    } else if (key === "filter_3") {
+      props.setSortParamHelper("date");
+    }
+  }
 
   return /*#__PURE__*/React.createElement(Sider, {
     width: 220,
@@ -127,6 +152,7 @@ function PostSider(props) {
   }, /*#__PURE__*/React.createElement(Menu, {
     mode: "inline",
     defaultOpenKeys: ["sub1", "sub2"],
+    onClick: handleClick,
     className: "sider-post-menu"
   }, /*#__PURE__*/React.createElement(Menu.Item, {
     key: "item1",
@@ -140,13 +166,11 @@ function PostSider(props) {
     icon: /*#__PURE__*/React.createElement(FilterOutlined, null)
   }, /*#__PURE__*/React.createElement(Menu.Item, {
     key: "filter_1",
-    onClick: filter_favoredCourses
+    disabled: props.access === 1 || !props.logined
   }, "Favored courses"), /*#__PURE__*/React.createElement(Menu.Item, {
-    key: "fileter_2",
-    onClick: filter_hotestPosts
+    key: "filter_2"
   }, "Hotest posts"), /*#__PURE__*/React.createElement(Menu.Item, {
-    key: "filter_3",
-    onClick: filter_latestPosts
+    key: "filter_3"
   }, "Latest posts"))));
 } // Right sider: displays the notifications of the user
 
@@ -538,11 +562,12 @@ function PostDetail(props) {
 // author_id: 0: any author
 
 
-async function getPostcards(setPostcardsHelper, access = 2, courses = [0], author_id = 0, skip = 0, limit = 0) {
+async function getPostcards(setPostcardsHelper, access = 2, courses = [0], author_id = 0, sort = "date", skip = 0, limit = 0) {
   const resp = await fetch("/api/posts/cards", create_postREQ({
     "access": access,
     "courses": courses,
     "author_id": author_id,
+    "sort": sort,
     "skip": skip,
     "limit": limit
   }));
