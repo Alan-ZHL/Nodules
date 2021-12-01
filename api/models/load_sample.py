@@ -53,6 +53,18 @@ course_sample = [
         "description": "This module aims to focus on advanced networking concepts pertaining to the modern Internet architecture and applications. It covers a range of topics including network performance (throughput, delay, Little’s Law and M/M/1 queuing formula), and resource allocation and buffer management (max-min fair, round-robin and RED), intra- and inter-domain routing (RIP, OSPF and BGP), congestion control and modern variations of TCP (AIMD and Cubic TCP), peer-to-peer applications and content delivery networks (BitTorrent, Skype, Akamai), and data center networking and management (SDN and OpenFlow).",
         "rating": 5.0
     },
+    {
+        "course_id": "CS5424", "course_name": "Distributed Databases", 
+        "credit": 4, "workload": "2-1-3-4", 
+        "prerequisites": ["CS3223"],
+        "lecturer_id": 1004, "lecturer_name": "Chan Chee Yong",
+        "open_semesters": ["Semester 1"],
+        "enroll_code": None,
+        "lecture_time": [1, "18:30", "20:30"], 
+        "tutorial_time": [[1, "20:30", "21:30"]],
+        "description": "This module studies the management of data in a distributed environment. It covers the fundamental principles of distributed data management and includes distribution design, data integration, distributed query processing and optimization, distributed transaction management, and replication. It will also look at how these techniques can be adapted to support database management in emerging technologies (e.g., parallel systems, peer-to-peer systems, cloud computing).",
+        "rating": 5.0
+    }
 ]
 
 # posts: notifs, posts and comments

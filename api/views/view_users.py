@@ -100,3 +100,27 @@ def logout():
         session.clear()
         print(f"Succeed: {user_name} log out successfully. Remaining session info: ", session)    # for tests only
         return jsonify({"status": 1, "user_name": user_name})
+
+
+@users.route("/api/users/set_favor", methods=["POST"])
+def set_favoredCourse():
+    data = request.get_json()
+    user_id = data["user_id"]
+    course_id = data["course_id"]
+    status = data["status"]
+    
+    try:
+        favored_courses = collection_users.find_one({"user_id": user_id}, projection={"favored_courses": True})["favored_courses"]
+        if status == 0 and course_id in favored_courses:
+            favored_courses.remove(course_id)
+            collection_users.update_one({"user_id": user_id}, {"$set": {"favored_courses": favored_courses}})
+        elif status == 1 and course_id not in favored_courses:
+            favored_courses.append(course_id)
+            collection_users.update_one({"user_id": user_id}, {"$set": {"favored_courses": favored_courses}})
+        else:
+            print("Backend record of favored courses mismatches with the frontend!")
+            return jsonify({"status": -1})
+        return jsonify({"status": 1})
+    except Exception as e:
+        print(e)
+        return jsonify({"status": -1})

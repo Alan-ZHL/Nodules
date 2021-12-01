@@ -40,6 +40,18 @@ export default function App() {
     function setAccessHelper(val) {
         setAccess(val);
     }
+    function syncFavorsHelper(courseid, status) {
+        if (userInfo.user_id !== -1) {
+            if (status === 0 && userInfo.favored_courses.includes(courseid)) {
+                userInfo.favored_courses.splice(userInfo.favored_courses.indexOf(courseid), 1);
+            } else if (status === 1 && !userInfo.favored_courses.includes(courseid)) {
+                userInfo.favored_courses.push(courseid);
+            }
+            let info_updated = {};
+            Object.assign(info_updated, userInfo);
+            setUserInfo(info_updated);
+        }
+    }
 
     async function getUserInfo() {
         const resp = await fetch("/api/users/info", {
@@ -93,7 +105,7 @@ export default function App() {
                         <PostDetail user={userInfo}/>
                     </Route>
                     <Route path="/courses/:courseid">
-                        <CoursePage user={userInfo} setAccessHelper={setAccessHelper}/>
+                        <CoursePage user={userInfo} setAccessHelper={setAccessHelper} syncFavorsHelper={syncFavorsHelper}/>
                     </Route>
                     <Route path="/users">
                         <Users logined={logined} userInfo={userInfo}/>

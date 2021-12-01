@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Layout, PageHeader, Descriptions, List, Button, Menu, Tooltip } from "antd";
-import { StarOutlined, CommentOutlined, NotificationOutlined } from "@ant-design/icons";
+import { Layout, PageHeader, Descriptions, List, Button, Menu, Tooltip, message } from "antd";
+import { StarOutlined, StarFilled, CommentOutlined, NotificationOutlined } from "@ant-design/icons";
 
 import "./theme_courses.css";
 import { create_postREQ } from "./App";
@@ -15,17 +15,44 @@ const { Content } = Layout;
 const PAGESIZE = 5;
 
 
+async function setFavoredCourse(HelperFunction, SyncFunction, userid, courseid, status) {
+    const resp = await fetch("/api/users/set_favor", create_postREQ({
+        "user_id": userid, "course_id": courseid, "status": status
+    }));
+    const resp_json = await resp.json();
+    if (resp_json["status"] !== -1) {
+        HelperFunction(status);
+        SyncFunction(courseid, status);
+        if (status === 0) {
+            message.warning("Favor cancelled!");
+        } else {
+            message.success("Succeessfully favored!");
+        }
+    } else {
+        message.error("operation failed due to server error.");
+    }
+}
+
+
 // Top-level component: a coursepage
 // states: course, posts, notifs
 function CoursePage(props) {
     const { courseid } = useParams();
     const [ course, setCourse ] = useState(null);
+    const [ favored, setFavored ] = useState(0);
     const [ postcards, setPostcards] = useState({count: 0, posts: []});
     const [ notifs, setNotifs] = useState({count: 0, posts: []});
     const enrolled = (props.user.user_id === -1 || !props.user.enrolled_courses.includes(courseid)) ? false : true;
 
     function setCourseHelper(course) {
         setCourse(course);
+    }
+    function setFavoredHelper(status) {
+        setFavored(status);
+    }
+
+    function switchFavor() {
+        setFavoredCourse(setFavoredHelper, props.syncFavorsHelper, props.user.user_id, courseid, favored === 1 ? 0 : 1);
     }
 
     useEffect(() => {    
@@ -38,13 +65,22 @@ function CoursePage(props) {
         }, [courseid]);
     }, [courseid]);
 
+    useEffect(() => {
+        if (props.user.user_id !== -1 && props.user.favored_courses.includes(courseid)) {
+            setFavored(1);
+        } else {
+            setFavored(0);
+        }
+    }, [props.user, courseid]);
+
     if (course === null) {
         return (null);
     } else {
         return (
             <Layout className="coursepage-layout">
                 <Content>
-                    <CourseHeader id={courseid} name={course.course_name}/>
+                    <CourseHeader id={courseid} name={course.course_name} user={props.user}
+                        favored={favored} switchFavor={switchFavor}/>
                     <CourseDesciptions course={course}/>
                     <CoursePostsAndNotifs enrolled={enrolled} posts={postcards} notifs={notifs}/>
                 </Content>
@@ -55,6 +91,21 @@ function CoursePage(props) {
 
 
 function CourseHeader(props) {
+    const disabled = props.user.user_id === -1 || props.user.enrolled_courses.includes(props.id);
+    const favored_icon = props.favored ? (
+        <Tooltip key={`${props.id}-favor`} title="Cancel Favoring">
+            <Button type="text" onClick={props.switchFavor} disabled={disabled}>
+                <StarFilled />
+            </Button>
+        </Tooltip>
+    ) : (
+        <Tooltip key={`${props.id}-unfavor`} title="Favor this Course">
+            <Button type="text" onClick={props.switchFavor} disabled={disabled}>
+                <StarOutlined />
+            </Button>
+        </Tooltip>
+    );
+
     return (
         <PageHeader
             ghost={false}
@@ -65,11 +116,7 @@ function CourseHeader(props) {
             subTitle={
                 <span>{props.name}</span>
             }
-            extra={[
-                <Tooltip key={`${props.id}-favor`} title="Favor this course">
-                    <StarOutlined />
-                </Tooltip>,
-            ]}
+            extra={[ favored_icon ]}
             className="coursepage-header"
             >
         </PageHeader>

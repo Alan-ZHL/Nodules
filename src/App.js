@@ -44,6 +44,20 @@ export default function App() {
     setAccess(val);
   }
 
+  function syncFavorsHelper(courseid, status) {
+    if (userInfo.user_id !== -1) {
+      if (status === 0 && userInfo.favored_courses.includes(courseid)) {
+        userInfo.favored_courses.splice(userInfo.favored_courses.indexOf(courseid), 1);
+      } else if (status === 1 && !userInfo.favored_courses.includes(courseid)) {
+        userInfo.favored_courses.push(courseid);
+      }
+
+      let info_updated = {};
+      Object.assign(info_updated, userInfo);
+      setUserInfo(info_updated);
+    }
+  }
+
   async function getUserInfo() {
     const resp = await fetch("/api/users/info", {
       method: "POST",
@@ -108,7 +122,8 @@ export default function App() {
     path: "/courses/:courseid"
   }, /*#__PURE__*/React.createElement(CoursePage, {
     user: userInfo,
-    setAccessHelper: setAccessHelper
+    setAccessHelper: setAccessHelper,
+    syncFavorsHelper: syncFavorsHelper
   })), /*#__PURE__*/React.createElement(Route, {
     path: "/users"
   }, /*#__PURE__*/React.createElement(Users, {

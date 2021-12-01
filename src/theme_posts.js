@@ -315,7 +315,6 @@ function NewPost(props) {
       course_id: new_post.course_id
     }));
     let resp_json = await resp.json();
-    console.log(props.access, props.user.enrolled_courses);
 
     if (resp_json.course_name === "") {
       message.error(`Cannot find course ${new_post.course_id}!`);
@@ -329,7 +328,6 @@ function NewPost(props) {
       new_post.author_name = props.user.user_name;
       resp = await fetch("/api/posts/add_post", create_postREQ(new_post));
       resp_json = await resp.json();
-      console.log(resp_json);
       message.success(`Added a new ${post_type} successfully!`);
       form.resetFields();
     }
@@ -428,13 +426,11 @@ function PostDetail(props) {
       new_comment.course_name = post.course_name;
       let resp = await fetch("/api/posts/add_post", create_postREQ(new_comment));
       let resp_json = await resp.json();
-      console.log(resp_json);
       resp = await fetch("/api/posts/update_comments", create_postREQ({
         post_id: post.post_id,
         comment_id: resp_json["post_id"]
       }));
       resp_json = await resp.json();
-      console.log(resp_json);
       post.details.comments.push(resp_json["post_id"]);
       const new_post = {};
       Object.assign(new_post, post);
