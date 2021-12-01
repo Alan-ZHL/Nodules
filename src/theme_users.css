@@ -31,6 +31,16 @@
     width: 80%;
 }
 
+.user-descriptions-layout {
+    margin-left: 5%;
+    margin-right: 2%;
+}
+
+.user-schedule-layout {
+    background-color: #fafafa;
+    height: 100%;
+}
+
 .user-header {
     background: #eafce7;
 }
@@ -44,7 +54,14 @@
     background: #fafafa;
     padding-left: 22%;
 }
+
 .user-course-disscusion-menu {
     position: relative;
     padding-left: 35%;
+}
+
+.user_timeline{
+    display:flex;
+    justify-content:center;
+    background-color: #ffffff;
 }

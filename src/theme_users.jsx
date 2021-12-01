@@ -2,15 +2,16 @@
 
 import React, { useEffect, useState } from "react";
 import { Redirect, Link } from "react-router-dom";
-import { Form, Input, Button, Checkbox } from 'antd';
+import { Form, Input, Button, Checkbox, Timeline } from 'antd';
 import { Layout, PageHeader, Descriptions, List, Menu, message } from "antd";
-import { UserOutlined, LockOutlined, CoffeeOutlined, CommentOutlined } from '@ant-design/icons';
+import { UserOutlined, LockOutlined, CoffeeOutlined, CommentOutlined,
+        ClockCircleOutlined, CarryOutOutlined, SmileOutlined } from '@ant-design/icons';
 
 import "./theme_users.css"
 import { create_postREQ} from "./App";
 import { CardListItem, getPostcards } from "./theme_posts";
 
-const { Content } = Layout;
+const { Content, Sider, Footer } = Layout;
 
 const PAGESIZE = 3;
 const PRELOADPAGE = 0;
@@ -24,16 +25,24 @@ function Users(props) {
     } else {
         return (
             <Layout className="user-layout">
-                <Content>
-                    <UserHeader title="Basic Information"/>
-                    <UserDesciptions_basic user={user}/>
-                    <br />
-                    <UserHeader title="Module Information"/>
-                    <UserDesciptions_module user={user}/>
-                    <br />
+                <Layout>
+                    <Content className="user-descriptions-layout">
+                        <UserHeader title="Basic Information"/>
+                        <UserDesciptions_basic user={user}/>
+                        <br />
+                        <UserHeader title="Module Information"/>
+                        <UserDesciptions_module user={user}/>
+                        <br />
+                    </Content>
+                    <Sider className="user-schedule-layout">
+                        <UserHeader title="My Schedule"/>
+                        <UserSchedule user={user}/>
+                    </Sider>
+                </Layout>
+                <Footer>
                     <UserHeader title="My Post"/>
                     <MyPosts user={user} />
-                </Content>
+                </Footer>
             </Layout>
         );
     }
@@ -64,7 +73,7 @@ function UserDesciptions_basic(props) {
             column={1}
             bordered 
             contentStyle={{background: "#fafafa"}}
-            labelStyle={{background: "#ffffff", fontSize: "16px", width: 200}} 
+            labelStyle={{background: "#ffffff", fontSize: "16px", width: 180}} 
         >
             <Descriptions.Item label="User Name" >{user.user_name}</Descriptions.Item>
             <Descriptions.Item label="Role" >{role}</Descriptions.Item>
@@ -75,6 +84,86 @@ function UserDesciptions_basic(props) {
 }
 
 
+function UserSchedule(props) {
+    const [mycourses, setMyCourses] = useState([]);
+    const enrolled_courses = props.user.enrolled_courses;
+
+    useEffect(() => {
+        findCourseTime(enrolled_courses, setMyCoursesHelper)
+    }, [enrolled_courses]);
+    
+    function setMyCoursesHelper(list) {
+        setMyCourses(list);
+    }
+
+    function courseState(day, start_string, end_string){
+        if (day < new Date().getDay()){
+            return "passed";
+        } else if (day > new Date().getDay()){
+            return "incoming";
+        } else{
+            const start_timestamp = new Date().toLocaleDateString() + " " + start_string
+            const end_timestamp = new Date().toLocaleDateString() + " " + end_string
+            const startToDate = new Date(start_timestamp)
+            const endToDate = new Date(end_timestamp)
+            if (new Date()<startToDate) {
+                return "incoming";
+            } else if (new Date()>endToDate) {
+                return "passed";
+            } else {
+                return "ongoing";
+            }
+        }
+    }
+
+    const timeline_items = mycourses !== [] ? mycourses.map(
+        course => 
+        {   
+            const day_match = ["Sunday", "Monday", "Tuesday", "Wednesday", "Tursday", "Friday", "Saturday"]
+            const day = course["lecture_time"][0]
+            const day_word = day_match[day]
+            const start_string = course["lecture_time"][1]
+            const end_string = course["lecture_time"][2]
+            const course_state = courseState(day, start_string, end_string)
+            if(course_state === "passed"){
+                return (
+                    <Timeline.Item style={{ fontSize: '16px' }} color="gray">
+                        <p>{course["course_id"]}</p>
+                        <p>{day_word} {start_string} -- {end_string}</p>
+                    </Timeline.Item>
+                )
+            }
+            else if (course_state === "ongoing"){
+                return (
+                    <Timeline.Item dot={<CarryOutOutlined style={{ fontSize: '20px' }} />} style={{ fontSize: '16px' }}>
+                        <p>{course["course_id"]}</p>
+                        <p>{day_word} {start_string} -- {end_string}</p>
+                    </Timeline.Item>
+                )
+            }
+            else {
+                return (
+                    <Timeline.Item dot={<ClockCircleOutlined style={{ fontSize: '20px'}} />} style={{ fontSize: '16px' }} color="green">
+                        <p>{course["course_id"]}</p>
+                        <p>{day_word} {start_string} -- {end_string}</p>
+                    </Timeline.Item>
+                )
+            }
+        })
+        :
+        <Timeline.Item dot={<SmileOutlined style={{ fontSize: '20px' }} />} style={{ fontSize: '16px' }}>No enrolled course records :)</Timeline.Item>
+
+    return(
+        <div className = "user_timeline">
+            <Timeline>
+                <br/>
+                {timeline_items}
+            </Timeline>
+        </div>
+    )
+}
+
+
 function UserDesciptions_module(props) {
     const user = props.user;
     return (
@@ -82,7 +171,7 @@ function UserDesciptions_module(props) {
             column={5}
             bordered 
             contentStyle={{background: "#fafafa"}}
-            labelStyle={{background: "#ffffff", fontSize: "16px", width: 200}} 
+            labelStyle={{background: "#ffffff", fontSize: "16px", width: 180}} 
         >
             <Descriptions.Item label="Taken Moduls" span={5}>
                 <List
@@ -472,6 +561,17 @@ function Register () {
         </Form>
     );
 };
+
+
+async function findCourseTime(course_ids, helper_function) {
+    const resp = await fetch("/api/courses/mycourse", create_postREQ({"course_ids": course_ids}));
+
+    const data = await resp.json(); // {sorted_list:[]}
+    if (data["sorted_list"] !== "") {
+        helper_function(data["sorted_list"])
+    }
+    else {helper_function(null)}
+}
 
 
 export {Users, Register, Login};

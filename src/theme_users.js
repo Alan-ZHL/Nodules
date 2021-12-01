@@ -1,14 +1,16 @@
 // stated components: MyPosts
 import React, { useEffect, useState } from "react";
 import { Redirect, Link } from "react-router-dom";
-import { Form, Input, Button, Checkbox } from 'antd';
+import { Form, Input, Button, Checkbox, Timeline } from 'antd';
 import { Layout, PageHeader, Descriptions, List, Menu, message } from "antd";
-import { UserOutlined, LockOutlined, CoffeeOutlined, CommentOutlined } from '@ant-design/icons';
+import { UserOutlined, LockOutlined, CoffeeOutlined, CommentOutlined, ClockCircleOutlined, CarryOutOutlined, SmileOutlined } from '@ant-design/icons';
 import "./theme_users.css";
 import { create_postREQ } from "./App";
 import { CardListItem, getPostcards } from "./theme_posts";
 const {
-  Content
+  Content,
+  Sider,
+  Footer
 } = Layout;
 const PAGESIZE = 3;
 const PRELOADPAGE = 0;
@@ -21,7 +23,9 @@ function Users(props) {
   } else {
     return /*#__PURE__*/React.createElement(Layout, {
       className: "user-layout"
-    }, /*#__PURE__*/React.createElement(Content, null, /*#__PURE__*/React.createElement(UserHeader, {
+    }, /*#__PURE__*/React.createElement(Layout, null, /*#__PURE__*/React.createElement(Content, {
+      className: "user-descriptions-layout"
+    }, /*#__PURE__*/React.createElement(UserHeader, {
       title: "Basic Information"
     }), /*#__PURE__*/React.createElement(UserDesciptions_basic, {
       user: user
@@ -29,7 +33,13 @@ function Users(props) {
       title: "Module Information"
     }), /*#__PURE__*/React.createElement(UserDesciptions_module, {
       user: user
-    }), /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement(UserHeader, {
+    }), /*#__PURE__*/React.createElement("br", null)), /*#__PURE__*/React.createElement(Sider, {
+      className: "user-schedule-layout"
+    }, /*#__PURE__*/React.createElement(UserHeader, {
+      title: "My Schedule"
+    }), /*#__PURE__*/React.createElement(UserSchedule, {
+      user: user
+    }))), /*#__PURE__*/React.createElement(Footer, null, /*#__PURE__*/React.createElement(UserHeader, {
       title: "My Post"
     }), /*#__PURE__*/React.createElement(MyPosts, {
       user: user
@@ -75,7 +85,7 @@ function UserDesciptions_basic(props) {
     labelStyle: {
       background: "#ffffff",
       fontSize: "16px",
-      width: 200
+      width: 180
     }
   }, /*#__PURE__*/React.createElement(Descriptions.Item, {
     label: "User Name"
@@ -86,6 +96,92 @@ function UserDesciptions_basic(props) {
   }, user.email), /*#__PURE__*/React.createElement(Descriptions.Item, {
     label: "About Me"
   }, user.about_me));
+}
+
+function UserSchedule(props) {
+  const [mycourses, setMyCourses] = useState([]);
+  const enrolled_courses = props.user.enrolled_courses;
+  useEffect(() => {
+    findCourseTime(enrolled_courses, setMyCoursesHelper);
+  }, [enrolled_courses]);
+
+  function setMyCoursesHelper(list) {
+    setMyCourses(list);
+  }
+
+  function courseState(day, start_string, end_string) {
+    if (day < new Date().getDay()) {
+      return "passed";
+    } else if (day > new Date().getDay()) {
+      return "incoming";
+    } else {
+      const start_timestamp = new Date().toLocaleDateString() + " " + start_string;
+      const end_timestamp = new Date().toLocaleDateString() + " " + end_string;
+      const startToDate = new Date(start_timestamp);
+      const endToDate = new Date(end_timestamp);
+
+      if (new Date() < startToDate) {
+        return "incoming";
+      } else if (new Date() > endToDate) {
+        return "passed";
+      } else {
+        return "ongoing";
+      }
+    }
+  }
+
+  const timeline_items = mycourses !== [] ? mycourses.map(course => {
+    const day_match = ["Sunday", "Monday", "Tuesday", "Wednesday", "Tursday", "Friday", "Saturday"];
+    const day = course["lecture_time"][0];
+    const day_word = day_match[day];
+    const start_string = course["lecture_time"][1];
+    const end_string = course["lecture_time"][2];
+    const course_state = courseState(day, start_string, end_string);
+
+    if (course_state === "passed") {
+      return /*#__PURE__*/React.createElement(Timeline.Item, {
+        style: {
+          fontSize: '16px'
+        },
+        color: "gray"
+      }, /*#__PURE__*/React.createElement("p", null, course["course_id"]), /*#__PURE__*/React.createElement("p", null, day_word, " ", start_string, " -- ", end_string));
+    } else if (course_state === "ongoing") {
+      return /*#__PURE__*/React.createElement(Timeline.Item, {
+        dot: /*#__PURE__*/React.createElement(CarryOutOutlined, {
+          style: {
+            fontSize: '20px'
+          }
+        }),
+        style: {
+          fontSize: '16px'
+        }
+      }, /*#__PURE__*/React.createElement("p", null, course["course_id"]), /*#__PURE__*/React.createElement("p", null, day_word, " ", start_string, " -- ", end_string));
+    } else {
+      return /*#__PURE__*/React.createElement(Timeline.Item, {
+        dot: /*#__PURE__*/React.createElement(ClockCircleOutlined, {
+          style: {
+            fontSize: '20px'
+          }
+        }),
+        style: {
+          fontSize: '16px'
+        },
+        color: "green"
+      }, /*#__PURE__*/React.createElement("p", null, course["course_id"]), /*#__PURE__*/React.createElement("p", null, day_word, " ", start_string, " -- ", end_string));
+    }
+  }) : /*#__PURE__*/React.createElement(Timeline.Item, {
+    dot: /*#__PURE__*/React.createElement(SmileOutlined, {
+      style: {
+        fontSize: '20px'
+      }
+    }),
+    style: {
+      fontSize: '16px'
+    }
+  }, "No enrolled course records :)");
+  return /*#__PURE__*/React.createElement("div", {
+    className: "user_timeline"
+  }, /*#__PURE__*/React.createElement(Timeline, null, /*#__PURE__*/React.createElement("br", null), timeline_items));
 }
 
 function UserDesciptions_module(props) {
@@ -99,7 +195,7 @@ function UserDesciptions_module(props) {
     labelStyle: {
       background: "#ffffff",
       fontSize: "16px",
-      width: 200
+      width: 180
     }
   }, /*#__PURE__*/React.createElement(Descriptions.Item, {
     label: "Taken Moduls",
@@ -470,4 +566,18 @@ function Register() {
 }
 
 ;
+
+async function findCourseTime(course_ids, helper_function) {
+  const resp = await fetch("/api/courses/mycourse", create_postREQ({
+    "course_ids": course_ids
+  }));
+  const data = await resp.json(); // {sorted_list:[]}
+
+  if (data["sorted_list"] !== "") {
+    helper_function(data["sorted_list"]);
+  } else {
+    helper_function(null);
+  }
+}
+
 export { Users, Register, Login };
