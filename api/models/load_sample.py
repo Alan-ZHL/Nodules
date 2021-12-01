@@ -99,6 +99,17 @@ for i in range(200):
             "dislikes": [i for i in range(982, 1000)], 
             "comments": [i*3+2001, i*3+2002, i*3+2003]}
     })
+posts_sample.append({
+    "post_id": 1999, "title": "CS5424 test post", "access": 2, "post_type": 2,
+    "course_id": "CS5424", "course_name": "Distributed Database",
+    "author_id": 3001, "author_name": "tester", "date": datetime.now() - timedelta(days=2),
+    "content": "This is a sample post for testing. CS5424 is not enrolled by any user by default, and can be used to test the functions of favoring and unfavoring.",
+    "details": {
+        "hotness": 92,    # hotness = likes - dislikes + comments * 2
+        "likes": [i for i in range(900, 996)], 
+        "dislikes": [i for i in range(996, 1000)], 
+        "comments": []}
+})
 for i in range(600):
     access = 2 if i < 480 else 1
     content = "Sounds great!" if i < 480 else "Good job!"
