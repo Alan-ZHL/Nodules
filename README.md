@@ -9,6 +9,10 @@ We choose to use the Ubuntu (20.04.3 LTS) image with MongoDB (version 5.0.3) pro
 ```
 docker pull mongo
 ```
+Next, create a container with the image that links port 3000 and 5000 to the localhost:
+'''
+docker run -dit --name <container_name> -p 127.0.0.1:3000:3000 -p 127.0.0.1:5000:5000 mongo
+'''
 For the system that runs the project, please ensure that the following packages have been installed:
 ```
 apt update
@@ -24,7 +28,13 @@ nvm install --lts    # should be v16.13.0 at that time
 npm --version    # 8.1.0
 ```
 
-### Step 1: Restoring the Dependencies
+### Step 1: Get resources from Github
+Please retrieve the codes and config files from Github:
+'''
+git clone https://github.com/AlanZhl/NodUleS.git
+'''
+
+### Step 2: Restoring the Dependencies
 Python Backend Supports:
 (under root directory)
 ```
@@ -39,10 +49,11 @@ React framework and dependencies:
 npm install
 ```
 
-### Step 2: Running the Project
+### Step 3: Running the Project
 backend API server:
-(under root directory) please conduct under Python virtual env:
+(under root directory)
 ```
+source venv/bin/activate	# enter Python virtual environment
 python3 server.py
 ```
 frontend server:
